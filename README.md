@@ -1,10 +1,14 @@
 # cocoon-sdk
 
-The Cocoon SDK is the easiest way to integrate your app with the Cocoon Cloud Compiler. It enables authentication with Cocoon.io and allows to create, update and compile HTML5 projects in the cloud programmatically.
+The Cocoon SDK is the easiest way to integrate your app with the Cocoon Cloud Compiler. It enables authentication with Cocoon.io and allows to create, update and compile HTML5 projects in the cloud programmatically. It also includes a XML Sugar utility to make Cordova based config.xml changes super easy.
 
 ##Setup your project
 
 You need to create a ClientID in order to use this SDK with your application.
+
+## API Reference
+
+See [`d.ts declaration file`](dist/cocoon.sdk.d.ts) for a complete overview of the capabilities of the SDK.
 
 ##Usage
 
@@ -99,4 +103,30 @@ project.refreshUntilCompleted(function(completed){
 });
 
 ```
+
+XMLSugar Utility
+
+```js
+var sugar = new CocoonSDK.XMLSugar(xml);
+
+//get or set bundleId
+sugar.getBundleId();
+sugar.setBundleId("com.ludei.devapp");
+
+//install or remove plugins
+sugar.addPlugin("cocoon-plugin-multiplayer-ios-gamecenter");
+sugar.removePlugin("cocoon-plugin-multiplayer-ios-gamecenter");
+
+//get or set preferences
+sugar.getPreference('PREFERENCE_NAME');
+sugar.setPreference('PREFERENCE_NAME', value);
+
+//And many more helper methods
+(...)
+
+//Export to xml string
+console.log(sugar.xml());
+
+```
+
 
