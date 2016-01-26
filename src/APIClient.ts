@@ -21,20 +21,20 @@ module CocoonSDK {
     }
 
 
-    interface Configuration {
+    export interface Configuration {
         clientId: string,
         apiURL:string,
         oauthURL:string
     }
 
-    interface RequestXHROptions {
+    export interface RequestXHROptions {
         responseType?:string,
         contentType?:string,
         transform?:(xhr:XMLHttpRequest) => any
         params?:any
     }
 
-    interface RepositoryData {
+    export interface RepositoryData {
         url: string,
         branch?: string
     }
@@ -491,7 +491,7 @@ module CocoonSDK {
     }
 
 
-    interface CredentialStorage {
+    export interface CredentialStorage {
         getAccessToken(): string
         getRefreshToken() : string
         setAccessToken(value:string, expires:number): void
