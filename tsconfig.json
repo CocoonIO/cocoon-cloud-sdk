@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "out": "./dist/cocoon.sdk.js",
+        "sourceMap": false
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ]
+}
