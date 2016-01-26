@@ -4,7 +4,7 @@ The Cocoon SDK is the easiest way to integrate your app with the Cocoon Cloud Co
 
 ##Setup your project
 
-You need to create a ClientID in order to use this SDK with your application.
+You need to create a ClientID in order to use this SDK with your application. Please, contact us at support@cocoon.io to ask for the required credentials to use CocoonSDK with your Website or application.
 
 ## API Reference
 
@@ -13,6 +13,8 @@ See [`d.ts declaration file`](dist/cocoon.sdk.d.ts) for a complete overview of t
 ##Usage
 
 Include the [`CocoonSDK library`](dist/cocoon.sdk.js) in your Web Application or NodeJS application
+
+See [`test`](test) for a complete express project which uses the CocoonSDK
 
 ```
 <script src="scripts/cocoon.sdk.js"></script>
