@@ -1,6 +1,6 @@
 # cocoon-sdk
 
-The Cocoon SDK is the easiest way to integrate your app with the Cocoon Cloud Compiler. It enables authentication with Cocoon credentials and allows to create, update and compile HTML5 projects in the cloud programmatically.
+The Cocoon SDK is the easiest way to integrate your app with the Cocoon Cloud Compiler. It enables authentication with Cocoon.io and allows to create, update and compile HTML5 projects in the cloud programmatically.
 
 ##Setup your project
 
