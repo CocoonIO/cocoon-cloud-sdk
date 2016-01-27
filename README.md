@@ -65,8 +65,8 @@ client.project.createFromPublicZip("PUBLIC_ZIP_URL", function(project, error) {
 ```
 
 Project objects returned by the APIClient methods have their own methods to ease commonly performed tasks.
-```
 
+```js
 //Fetch the project Config XML
 project.getConfigXml(function(xml, error) {
 	// Check on the XMLSugar helper functions below to see how to easily manipulate the config.xml content
