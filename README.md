@@ -1,8 +1,8 @@
-# cocoon-sdk
+# cocoon-cloud-sdk
 
-cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content. 
+Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content. 
 
-The Cocoon SDK is the easiest way to integrate the cocoon.io cloud compiler in any service or app. With this simple API anyone can authenticate with their cocoon.io account and create, update and compile HTML5 projects in the cloud programmatically. It also includes a XML Sugar utility to make Cordova based config.xml changes super easy.
+The Cocoon Cloud SDK is the easiest way to integrate the cocoon.io cloud compiler in any service or app. With this simple API anyone can authenticate with their cocoon.io account and create, update and compile HTML5 projects in the cloud programmatically. It also includes a XML Sugar utility to make Cordova based config.xml changes super easy.
 
 ## Setup your project
 
@@ -40,7 +40,7 @@ client.logIn({}, function(token, error) {
 });
 ```
 
-Some API Examples
+Some API Examples. The APIClient object mimics the cocoon.io REST API
 
 ```js
 //List all projects
@@ -62,35 +62,39 @@ client.project.createFromRepository({url:"MY_GITHUB_URL"}, function(project, err
 client.project.createFromPublicZip("PUBLIC_ZIP_URL", function(project, error) {
 
 });
+```
+
+Project objects returned by the APIClient methods have their own methods to ease commonly performed tasks.
+```
 
 //Fetch the project Config XML
-client.project.getConfigXml(function(xml, error) {
+project.getConfigXml(function(xml, error) {
 	// Check on the XMLSugar helper functions below to see how to easily manipulate the config.xml content
 }
 
 //Save the project Config XML
-client.project.putConfigXml(xml, function(error) {
+project.putConfigXml(xml, function(error) {
 });
 
 //Compile project
-client.project.compile(function(error){
+project.compile(function(error){
 
 });
 
 //Compile DeveloperApp
-client.project.compileDevApp(function(error){
+project.compileDevApp(function(error){
 
 });
 
 //Check if a project is compiling
-client.project.isCompiling();
+project.isCompiling();
 
 //Get download link for a platform 
-client.project.getDownloadLink('ios');
+project.getDownloadLink('ios');
 
 //Get project compilations data
-for (var i = 0; i < client.project.compilations.length; ++i) {
-    var compilation = project.compilations[o];
+for (var i = 0; i < project.compilations.length; ++i) {
+    var compilation = project.compilations[i];
     console.log(compilation.platform);
     console.log(compilation.getStatus());
     (...)
