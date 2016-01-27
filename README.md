@@ -101,12 +101,12 @@ for (var i = 0; i < project.compilations.length; ++i) {
 }
 
 //Upload a new zip for a project
-client.project.uploadZip(file, function(error){
+project.uploadZip(file, function(error){
 
 })
 
 //Refresh compilation status changes
-client.project.refreshUntilCompleted(function(completed){
+project.refreshUntilCompleted(function(completed){
 
 });
 
