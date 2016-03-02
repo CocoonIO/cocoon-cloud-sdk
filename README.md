@@ -149,7 +149,8 @@ Sample Gulp project which uses Cocoon.io to upload, compile and download apps fr
 * gulp deploy: upload, compile and download in a single step
 
 ### gulpfile.js
-```
+
+```js
 var gulp = require('gulp');
 var https = require('https');
 var zip = require('gulp-zip');
