@@ -3,7 +3,8 @@ var https = require('https');
 var zip = require('gulp-zip');
 var fs = require("fs");
 var runSequence = require('run-sequence');
-var cocoon = require('../../dist/cocoon.sdk.js'); //for production use: require('cocoon-cloud');
+var cocoon = require('cocoon-cloud'); //for development: require('../../dist/cocoon.sdk.js');
+
 
 var USERNAME = "MY_USERNAME"; //Your Cocoon.io username
 var PASSWORD = "MY_PASSWORD"; //Your Cocoon.io passworld
