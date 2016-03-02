@@ -55,6 +55,10 @@ module CocoonSDK {
             return this.data.devapp && this.data.devapp.length > 0 && this.data.devapp.indexOf(this.platform) >=0;
         }
 
+        isReady(): boolean {
+            return this.getStatus() === Status.Completed && !this.isErrored();
+        }
+
         isErrored(): boolean {
             return this.data.error && this.data.error.hasOwnProperty(this.platform);
         }
@@ -162,7 +166,7 @@ module CocoonSDK {
             this.refresh((error:Error) => {
                 if (this.isCompiling()) {
                     callback(false);
-                    setTimeout(this.refreshUntilCompleted.bind(this, callback), 10000);
+                    setTimeout(this.refreshUntilCompleted.bind(this, callback), 20000);
                 }
                 else {
                     callback(true);

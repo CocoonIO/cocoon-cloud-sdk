@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebGL Ludei Logo</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                font-family: Monospace;
+                background-color: #000;
+                color: #fff;
+                margin: 0px;
+                overflow: hidden;
+            }
+            #info {
+                color: #fff;
+                position: absolute;
+                top: 10px;
+                width: 100%;
+                text-align: center;
+                z-index: 100;
+                display:block;
+            }
+            #info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+        </style>
+
+
+        <script id="shader-vs-part" type="x-shader/x-vertex">
+            uniform vec3 camPos;
+            uniform float partHeight;
+
+            varying vec3 viewDir;
+            varying vec2 vuv;
+            varying float alpha;
+
+            void main()
+            {
+                // Particle size
+                const float partSize = 0.35;
+
+                // Move the particle around
+                float vertOffset = mod(position.y+ partHeight*0.2,100.0);
+                vec3 pos = vec3( position.x , vertOffset -50.0, position.z );
+
+                // Make particles fade off/in in the distance
+                alpha = (1.0-smoothstep(40.0,50.0, pos.y)) * 
+                             smoothstep( -50.0, -40.0, pos.y) ;
+
+                // Billboarding
+                vec3 origV = pos - camPos;
+                vec3 right = normalize(cross(origV,vec3(0,1,0)));
+                vec3 up    = normalize(cross( right , origV));
+                vec3 offset = (right * uv.x + up * uv.y) * partSize ;
+                pos += offset;
+
+                viewDir = normalize(pos+offset-camPos);
+                vuv=uv;
+
+                gl_Position = projectionMatrix * (modelViewMatrix * vec4(pos,1));
+            }
+        </script>
+        <script id="shader-fs-part" type="x-shader/x-fragment">
+            uniform samplerCube envMap;
+
+            varying vec3 viewDir;
+            varying vec2 vuv;
+            varying float alpha;
+
+            void main(void)
+            {
+                vec3 vV = normalize(viewDir);
+                
+                if( length(vuv)> 1.0 )
+                    discard;
+
+                // Screen-space normal
+                vec3 ssvN = normalize( vec3( vuv.x , vuv.y , cos(length(vuv)) ) );
+
+                // Calculate world-space normal
+                vec3 right = cross( vV , vec3(0,1,0) );
+                vec3 up    = cross( right , vV);
+
+                vec3 vN = normalize(vV * (-ssvN.z) + right * ssvN.x + up * ssvN.y);
+                vec3 vH = normalize(vV + vN);
+
+                vec3 env = textureCube(envMap,reflect(vV,vH)).rgb;
+                gl_FragColor =  vec4(env , alpha );
+            }
+        </script>
+        <script id="shader-vs-env" type="x-shader/x-vertex">
+            varying vec3 vNormal;
+            void main()
+            {
+                vNormal = normalize(position);
+                gl_Position = projectionMatrix * (modelViewMatrix * vec4(position * 105.0,1) );
+            }
+        </script>
+        <script id="shader-fs-env" type="x-shader/x-fragment">
+            varying vec3 vNormal;
+            uniform samplerCube envMap;
+
+            void main(void)
+            {
+                vec3 env = textureCube(envMap,vNormal).rgb;
+                gl_FragColor = vec4( env, 1);
+            }
+        </script>
+
+        <script id="shader-vs" type="x-shader/x-vertex">
+            varying vec3 vNormal;
+            varying vec3 viewDir;
+            uniform vec3 camPos;
+            void main()
+            {
+                vNormal = normal;
+                viewDir = (position-camPos);
+                gl_Position = projectionMatrix * (modelViewMatrix * vec4(position,1.0) );
+            }
+        </script>
+        <script id="shader-fs" type="x-shader/x-fragment">
+            uniform vec3 lightDir;
+            uniform vec3 baseColor;
+            uniform samplerCube envMap;
+
+            varying vec3 viewDir ;
+            varying vec3 vNormal;
+
+            #define M_PI 3.1415926535897932384626433832795
+            #define INV_PI 0.3183098861837906715377675267450
+            #define FLT_EPSILON     1.192092896e-07        // smallest such that 1.0+FLT_EPSILON != float(1.0)
+
+            #define saturate(x) clamp(x,0.0,1.0)
+
+            float SchlickFresnel( float VdotH, float F0 )
+            {
+                float exponential = pow(1.0-VdotH, 5.0); // replace this by 3 muls for C/C++
+                return saturate(exponential + F0 * (1.0 - exponential) );
+            }
+
+            float BeckMannDistribution(float HdotN , float m)
+            {
+                float fSqCSnh = HdotN*HdotN;
+                float fSqCSnh_m2 = fSqCSnh*m*m;
+                float numerator = exp(-((1.0-fSqCSnh)/max(fSqCSnh_m2, FLT_EPSILON)));
+                return numerator / (M_PI*max(fSqCSnh_m2*fSqCSnh, FLT_EPSILON));
+            }
+
+            vec3 LambertDiffuse( float LdotN , vec3 Cd )
+            {
+                return LdotN * INV_PI * Cd ;
+            }
+
+            float KelemenLaszloSzirmayVisib( float LdotV , float LdotN )
+            {
+                return 2.0 * LdotN / (1.0 + LdotV );
+            }
+
+            void main(void)
+            {
+                const float lightPower = 3.0;
+                const float F0 = 0.7; 
+
+                vec3 vL = normalize(lightDir);
+                vec3 vN = normalize(vNormal);
+                vec3 vV = normalize(-viewDir);
+                vec3 vH = normalize(vV+vL);
+
+                // the various dot products
+                float LdotN = saturate(dot(vL, vN));
+                float VdotH = saturate(dot(vV, vH));
+                float HdotN = saturate(dot(vH, vN));
+                float LdotV = saturate(dot(vL, vV));
+
+                float F = SchlickFresnel(VdotH, F0);
+                float V = KelemenLaszloSzirmayVisib( LdotV , LdotN ) ;
+                float D = BeckMannDistribution(HdotN, 0.6);
+                float fSpec = (F * V * D) * 0.2 ;
+
+                vec3 diff = LambertDiffuse(LdotN, baseColor * lightPower);
+
+                vec3 col = diff * (1.0-F0) + baseColor * (lightPower * fSpec) ;
+
+                vec3 env = textureCube(envMap,reflect(viewDir,vNormal)).rgb;
+
+                gl_FragColor = vec4( col + 0.4 * F * env , 1.0 );
+            }
+        </script>
+
+    </head>
+
+    <body>
+        <script src="three.js"></script>
+
+        <script src="js/loaders/OBJLoader.js"></script>
+
+        <script src="js/libs/stats.min.js"></script>
+
+        <script>
+
+            var inputWaitTime = 8000;
+            var container, stats;
+
+            var camera, scene, renderer;
+
+            var mouseX = 0, mouseY = 0;
+            var oldMouseX = 0, oldMouseY = 0;
+
+
+            var windowHalfX = window.innerWidth / 2;
+            var windowHalfY = window.innerHeight / 2;
+
+            var ludeiMtl = null;
+
+            var lightPos = new THREE.Vector3( 0.1, 0.2, 0.3 ) ;
+            var camX = 4 , camY = -1.4;
+            var timeOfLastInput = 0;
+            var logo , particles ;
+
+            init();
+
+
+            function createMtl(baseColor)
+            {
+                return new THREE.ShaderMaterial({
+                    uniforms: {
+                        lightDir : { type : 'v3' , value:new THREE.Vector3( 0.1, 0.2, 0.3 ) },
+                        camPos  : { type : 'v3' , value:new THREE.Vector3( 0, 0, 0 ) },
+                        envMap: { type : 't' , value:null},
+                        baseColor : { type : 'v3' , value:baseColor }
+                    },
+                    vertexShader: document.getElementById('shader-vs').textContent,
+                    fragmentShader: document.getElementById('shader-fs').textContent
+                });
+            }
+
+            function createEnvMtl(baseColor)
+            {
+                return new THREE.ShaderMaterial({
+                    uniforms: {
+                        envMap: { type : 't' , value:null}
+                    },
+                    vertexShader: document.getElementById('shader-vs-env').textContent,
+                    fragmentShader: document.getElementById('shader-fs-env').textContent
+                });
+            }	 
+
+
+            function createPartMtl()
+            {
+                return new THREE.ShaderMaterial({
+                    uniforms: { partHeight    : { type : 'f' , value:0 } ,
+                        envMap: { type : 't' , value:null},
+                        camPos  : { type : 'v3' , value:new THREE.Vector3( 0, 0, 0 ) }
+                    },
+                    vertexShader: document.getElementById('shader-vs-part').textContent,
+                    fragmentShader: document.getElementById('shader-fs-part').textContent
+                });
+            }	 
+
+
+
+            var reflectionCube ;
+
+            function init() {
+
+                container = document.createElement( 'div' );
+                document.body.appendChild( container );
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                container.appendChild( renderer.domElement );
+
+                document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+                document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+                window.addEventListener( 'resize', onWindowResize, false );
+
+                // Load cubemap
+
+                reflectionCube = THREE.ImageUtils.loadTextureCube( ['negx.png','posx.png','posy.png','negy.png','negz.png','posz.png']);
+                reflectionCube.format = THREE.RGBFormat;
+
+
+                stats = new Stats();
+                stats.domElement.style.position = 'absolute';
+                stats.domElement.style.top = '0px';
+                stats.domElement.style.zIndex = 100;
+                container.appendChild( stats.domElement );
+
+
+                camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 2000 );
+                camera.position.z = 100;
+
+                // scene
+                scene = new THREE.Scene();
+
+                ludeiMtl = createMtl(new THREE.Vector3(1,1,1));
+                heartMtl1 = createMtl(new THREE.Vector3(154/255.0,26/255.0,41/255.0));
+                heartMtl2 = createMtl(new THREE.Vector3(194/255.0,22/255.0,40/255.0));
+                heartMtl3 = createMtl(new THREE.Vector3(182/255.0,13/255.0,39/255.0));
+                envMtl = createEnvMtl();
+                partMtl = createPartMtl();
+                partMtl.transparent=true;
+                // model
+
+                var assignMtl = function( obj , mtl )
+                {
+                    for( var i =0 ; i < obj.getDescendants().length ; ++i )
+                    for( var j =0 ; j < obj.getDescendants()[i].children.length ; ++j )
+                    obj.getDescendants()[i].children[j].material = mtl;
+                }
+
+                var objloader = new THREE.OBJLoader();
+                objloader.addEventListener( 'load', function ( event ) {
+                    var object = event.content;
+
+                    object.position.x = 2;
+                    //object.getDescendants()[0].children[0].material = ludeiMtl;
+                    //assignMtl(object,ludeiMtl);
+                    var children = object.getDescendants();
+
+                    children[2].material = ludeiMtl;
+
+                    children[0].material = heartMtl2;
+                    children[1].material = heartMtl3;
+                    children[3].material = heartMtl1;
+                    children[4].material = ludeiMtl;
+
+                    scene.add( object );
+                    logo = object ;
+                    setInterval(animate,16);
+                });
+
+                objloader.load( 'ludei_logo.obj');
+
+                var objloader2 = new THREE.OBJLoader();
+
+                objloader2.addEventListener( 'load', function ( event ) {
+                    var object = event.content;
+                    sphere = object;
+                    var children = object.getDescendants();
+                    children[1].material = envMtl;
+                    scene.add( object );
+                });
+
+                objloader2.load( 'sphere.obj');
+
+
+                // create the particle variables
+                particleCount = 5000;
+                particles = new THREE.Geometry();
+
+
+                var randSphere = function(radius)
+                {
+                    var pX = Math.random() * 2 - 1,
+                    pY = Math.random() * 2 - 1,
+                    pZ = Math.random() * 2 - 1;
+
+                    if( pX * pX + pY * pY + pZ * pZ > 1 )
+                    return randSphere(radius) ;    
+
+                    return new THREE.Vector3(pX*radius, pY*radius, pZ*radius);
+                }
+
+                var createPartFace = function(radius)
+                {
+                    var result =[];
+                    var base = randSphere(radius);
+                    for(var i =0;i<4;++i)
+                    {
+                        result.push( base);
+                    }
+                    return result;
+                }
+
+                var uv =function( u, v ) {
+                    return new THREE.Vector2( u, v );
+                }
+
+
+
+                var pcount=0;
+                // now create the individual particles
+                for(var p = 0; p < particleCount; p++) {
+
+                    // add it to the geometry
+                    var face = createPartFace(100);
+                    particles.vertices.push(face[0]);
+                    particles.vertices.push(face[1]);
+                    particles.vertices.push(face[2]);  
+                    particles.vertices.push(face[3]);
+                    particles.faces.push( new THREE.Face4(
+                    pcount++, pcount++, pcount++, pcount++));
+
+                    particles.faceVertexUvs[ 0 ].push( [
+                    uv(-1,-1), uv(1,-1),uv(1,1),uv(-1,1)]);
+                }
+
+                var partsmesh = new THREE.Mesh( particles, partMtl );
+
+                var partsobject = new THREE.Object3D();
+                partsobject.add(partsmesh);
+                scene.add(partsobject);
+
+            }
+
+            function onWindowResize() {
+
+                windowHalfX = window.innerWidth / 2;
+                windowHalfY = window.innerHeight / 2;
+
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+
+            window.ontouchstart = function( event ) {
+                event.preventDefault();
+                mouseX = event.targetTouches[0].clientX ;
+                mouseY = event.targetTouches[0].clientY ;
+
+                oldMouseX = mouseX ;
+                oldMouseY = mouseY;
+
+                var now  = new Date().getTime();
+
+                if( now - timeOfLastInput > inputWaitTime)
+                {
+                    oldMouseY = mouseY;
+                    oldMouseX = mouseX;
+                }
+                timeOfLastInput = now;
+
+            };
+
+            document.addEventListener( 'mousedown', window.ontouchstart , false )
+            document.addEventListener( 'touchstart', window.ontouchstart, false );
+
+            function onDocumentMouseMove( event ) {
+                event.preventDefault();
+                oldMouseX = mouseX ;
+                oldMouseY = mouseY;
+                mouseX = event.clientX ;
+                mouseY = event.clientY;
+                var now  = new Date().getTime();
+
+                if( now - timeOfLastInput > inputWaitTime)
+                {
+                    oldMouseY = mouseY;
+                    oldMouseX = mouseX;
+                }
+                timeOfLastInput = now;
+            }
+
+            function onDocumentTouchMove( event ) {
+                event.preventDefault();
+                oldMouseX = mouseX ;
+                oldMouseY = mouseY;
+                mouseX = event.targetTouches[0].clientX ;
+                mouseY = event.targetTouches[0].clientY;
+                var now  = new Date().getTime();
+
+                if( now - timeOfLastInput > inputWaitTime)
+                {
+                    oldMouseY = mouseY;
+                    oldMouseX = mouseX;
+                }
+                timeOfLastInput = now;
+            }
+
+            function animate() {
+
+                render();
+                stats.update();
+            }
+
+
+            function smoothstep(argument0,argument1,argument2)
+            {
+                var p;
+                if (argument2 < argument0) return 0;
+                if (argument2 >= argument1) return 1;
+                if (argument0 == argument1) return -1;
+                p = (argument2 - argument0) / (argument1 - argument0);
+                return (p * p * (3 - 2 * p));
+            }
+            partHeight=0;
+
+            function render() 
+            {
+                var dampSpeed = 0.95;
+
+                oldMouseX = dampSpeed * oldMouseX + (1-dampSpeed) * mouseX ;
+                oldMouseY = dampSpeed * oldMouseY + (1-dampSpeed) * mouseY ;
+
+                camX += (mouseX - oldMouseX) * 0.01;
+                camY -= (mouseY - oldMouseY) * 0.01 ;
+
+                if(camY < 0.1 ) camY = 0.1;
+                if(camY > 3.0 ) camY = 3.0;
+
+                var time = new Date().getTime();
+
+                if( time - timeOfLastInput > inputWaitTime)
+                {
+                    camX = Math.PI*1.5 + Math.sin(time * 0.0005 *0.5) ;
+                    camY = -1.6 + 0.2*Math.sin(time * 0.000648248*0.5);
+                }
+
+                var camDist = 25;
+                camera.position.x = camDist * Math.sin( camY ) * Math.cos( camX );
+                camera.position.z = camDist * Math.sin( camY ) * Math.sin( camX );
+                camera.position.y = camDist * Math.cos( -camY );
+
+                camera.lookAt( scene.position );
+
+
+                var v1 = smoothstep(0.94,1.0,Math.sin(Math.PI * time*0.0008));
+                var v2 = smoothstep(0.94,1.0,Math.sin(Math.PI * (time*0.0008 + 0.2)));
+
+                lightPos.x = -10;
+                lightPos.y = 10;
+                lightPos.z = 20;
+
+                var mtls = [ heartMtl1 , heartMtl2, heartMtl3, ludeiMtl] ;
+                for( var i = 0 ; i < mtls.length ; ++i )
+                {
+                    mtls[i].uniforms.lightDir.value = lightPos ;
+                    mtls[i].uniforms.envMap.value = reflectionCube;
+                    mtls[i].uniforms.camPos.value = camera.position;
+                }
+
+                envMtl.uniforms.envMap.value = reflectionCube;
+                partMtl.uniforms.envMap.value = reflectionCube;
+                partMtl.uniforms.camPos.value = camera.position;
+
+                if( typeof lastFrameTime !== 'undefined')
+                    if( time - timeOfLastInput > 800)
+                        partHeight -= (time - lastFrameTime) * 0.05;
+
+                lastFrameTime = time ;
+                partMtl.uniforms.partHeight.value = partHeight;
+                renderer.render( scene, camera );
+                }
+
+            </script>
+
+        </body>
+    </html>

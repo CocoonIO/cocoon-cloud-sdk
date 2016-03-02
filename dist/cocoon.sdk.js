@@ -25,6 +25,9 @@ var CocoonSDK;
         Compilation.prototype.isDevApp = function () {
             return this.data.devapp && this.data.devapp.length > 0 && this.data.devapp.indexOf(this.platform) >= 0;
         };
+        Compilation.prototype.isReady = function () {
+            return this.getStatus() === Status.Completed && !this.isErrored();
+        };
         Compilation.prototype.isErrored = function () {
             return this.data.error && this.data.error.hasOwnProperty(this.platform);
         };
@@ -115,7 +118,7 @@ var CocoonSDK;
             this.refresh(function (error) {
                 if (_this.isCompiling()) {
                     callback(false);
-                    setTimeout(_this.refreshUntilCompleted.bind(_this, callback), 10000);
+                    setTimeout(_this.refreshUntilCompleted.bind(_this, callback), 20000);
                 }
                 else {
                     callback(true);
@@ -214,6 +217,7 @@ var CocoonSDK;
             }
             this.config = {
                 clientId: options.clientId,
+                clientSecret: options.clientSecret,
                 apiURL: options.apiURL || "https://api.cocoon.io/v1/",
                 oauthURL: options.oauthURL || "https://cloud.cocoon.io/oauth/"
             };
@@ -222,7 +226,7 @@ var CocoonSDK;
         }
         APIClient.prototype.setOauthMode = function (options) {
             this.oauthMode = options || { grantType: GrantType.Implicit };
-            if (this.oauthMode.storageType === StorageType.Memory) {
+            if (this.oauthMode.storageType === StorageType.Memory || typeof document === 'undefined') {
                 this.credentials = new MemoryCredentialStorage();
             }
             else {
@@ -237,6 +241,30 @@ var CocoonSDK;
         };
         APIClient.prototype.isLoggedIn = function () {
             return !!this.getAccessToken();
+        };
+        APIClient.prototype.logInWithPassword = function (user, password, callback) {
+            var _this = this;
+            var url = this.config.oauthURL + "access_token";
+            var params = {
+                client_id: this.config.clientId,
+                client_secret: this.config.clientSecret,
+                grant_type: 'password',
+                username: user,
+                password: password
+            };
+            callback = callback || function () { };
+            this.request("POST", url, { params: params, contentType: "application/x-www-form-urlencoded" }, function (response, error) {
+                if (error) {
+                    callback(false, error);
+                }
+                else if (response.access_token) {
+                    _this.setAccessToken(response.access_token, response.expires_in);
+                    callback(true, null);
+                }
+                else {
+                    callback(false, { code: 0, message: "No error but access_token not found in the response" });
+                }
+            });
         };
         APIClient.prototype.logIn = function (options, callback) {
             var _this = this;
@@ -345,7 +373,13 @@ var CocoonSDK;
             }
         };
         APIClient.prototype.request = function (method, path, options, callback) {
-            var xhr = new XMLHttpRequest();
+            var xhr;
+            if (typeof XMLHttpRequest !== 'undefined') {
+                xhr = new XMLHttpRequest();
+            }
+            else {
+                xhr = new (require("xmlhttprequest").XMLHttpRequest);
+            }
             var url = path;
             if (path.indexOf('://') < 0) {
                 url = this.config.apiURL + path;
@@ -397,6 +431,19 @@ var CocoonSDK;
                 if (options.contentType === "multipart/form-data") {
                     xhr.send(options.params);
                 }
+                else if (options.contentType === "application/x-www-form-urlencoded" && typeof options.params === "object") {
+                    xhr.setRequestHeader("Content-Type", options.contentType);
+                    var sendData = "";
+                    for (var key in options.params) {
+                        if (options.params.hasOwnProperty(key)) {
+                            if (sendData.length > 0) {
+                                sendData += "&";
+                            }
+                            sendData += key + '=' + encodeURIComponent(options.params[key]);
+                        }
+                    }
+                    xhr.send(sendData);
+                }
                 else if (options.contentType) {
                     xhr.setRequestHeader("Content-Type", options.contentType);
                     xhr.send(options.params);
@@ -429,27 +476,30 @@ var CocoonSDK;
             this.client = client;
         }
         ProjectAPI.prototype.createFromRepository = function (data, callback) {
+            var _this = this;
             this.client.request("POST", APIURL.GITHUB_CREATE, { params: data }, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
                 else {
-                    callback(new CocoonSDK.Project(response, this.client), null);
+                    callback(new CocoonSDK.Project(response, _this.client), null);
                 }
             });
         };
         ProjectAPI.prototype.createFromPublicZip = function (url, callback) {
+            var _this = this;
             this.client.request("POST", APIURL.URL_CREATE, { params: { url: url } }, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
                 else {
-                    callback(new CocoonSDK.Project(response, this.client), null);
+                    callback(new CocoonSDK.Project(response, _this.client), null);
                 }
             });
         };
         ProjectAPI.prototype.createFromZipUpload = function (file, callback) {
-            var formData = new FormData();
+            var _this = this;
+            var formData = typeof FormData !== 'undefined' ? new FormData() : new (require('form-data'));
             formData.append('file', file);
             var xhrOptions = {
                 contentType: "multipart/form-data",
@@ -460,17 +510,18 @@ var CocoonSDK;
                     callback(null, error);
                 }
                 else {
-                    callback(new CocoonSDK.Project(response, this.client), null);
+                    callback(new CocoonSDK.Project(response, _this.client), null);
                 }
             });
         };
         ProjectAPI.prototype.get = function (projectId, callback) {
+            var _this = this;
             this.client.request("GET", APIURL.PROJECT + projectId, null, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
                 else {
-                    callback(new CocoonSDK.Project(response, this.client), null);
+                    callback(new CocoonSDK.Project(response, _this.client), null);
                 }
             });
         };
@@ -549,17 +600,58 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.uploadZip = function (projectId, file, callback) {
-            var formData = new FormData();
-            formData.append('file', file);
-            var xhrOptions = {
-                contentType: "multipart/form-data",
-                params: formData
-            };
-            this.client.request("PUT", APIURL.PROJECT + projectId, xhrOptions, function (response, error) {
-                if (callback) {
-                    callback(response, error);
-                }
-            });
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                formData.append('file', file);
+                var xhrOptions = {
+                    contentType: "multipart/form-data",
+                    params: formData
+                };
+                this.client.request("PUT", APIURL.PROJECT + projectId, xhrOptions, function (response, error) {
+                    if (callback) {
+                        callback(response, error);
+                    }
+                });
+            }
+            else {
+                var url = require("url").parse(this.client.config.apiURL + APIURL.PROJECT + projectId);
+                var form = new (require('form-data'));
+                form.append('file', file);
+                form.submit({
+                    protocol: url.protocol,
+                    method: "put",
+                    host: url.hostname,
+                    path: url.path,
+                    headers: { 'Authorization': 'Bearer ' + this.client.credentials.getAccessToken() }
+                }, function (err, res) {
+                    var data = '';
+                    if (err) {
+                        callback(null, { message: err.message, code: err.http_code });
+                        return;
+                    }
+                    res.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    res.on('end', function () {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                var errorMessage = { code: res.statusCode, message: res.statusMessage };
+                                if (result.description) {
+                                    errorMessage = { code: result.code, message: result.description };
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, { code: 0, message: ex.message });
+                        }
+                    });
+                });
+            }
         };
         ProjectAPI.prototype.updatePublicZip = function (projectId, url, callback) {
             this.client.request("PUT", APIURL.URL_SYNC + projectId, { params: { url: url } }, function (response, error) {
@@ -636,6 +728,9 @@ var CocoonSDK;
         return CookieHelper;
     })();
 })(CocoonSDK || (CocoonSDK = {}));
+if (typeof module !== 'undefined') {
+    module.exports = CocoonSDK;
+}
 var CocoonSDK;
 (function (CocoonSDK) {
     var cocoonNS = 'http://cocoon.io/ns/1.0';
@@ -655,15 +750,25 @@ var CocoonSDK;
     var Environment = CocoonSDK.Environment;
     var XMLSugar = (function () {
         function XMLSugar(text) {
-            var parser = new DOMParser();
+            var parser;
+            if (typeof document !== 'undefined') {
+                parser = new DOMParser();
+                this.serializer = new XMLSerializer();
+                this.document = document;
+            }
+            else {
+                var xmldom = require('xmldom');
+                parser = new xmldom.DOMParser();
+                this.serializer = new xmldom.XMLSerializer();
+                var dom = new xmldom.DOMImplementation();
+                this.document = dom.createDocument();
+            }
             this.doc = parser.parseFromString(text, 'text/xml');
-            this.serializer = new XMLSerializer();
             var root = this.doc.getElementsByTagName('widget')[0];
             if (root && !root.getAttributeNS(xmlnsNS, 'cocoon')) {
                 root.setAttributeNS(xmlnsNS, 'xmlns:cocoon', cocoonNS);
             }
             this.root = root;
-            this.doc.root = root;
         }
         XMLSugar.prototype.isErrored = function () {
             return this.doc.getElementsByTagName('parsererror').length > 0 || !this.root;
@@ -768,7 +873,7 @@ var CocoonSDK;
             return this.root.setAttribute('version', value);
         };
         XMLSugar.prototype.getNode = function (tagName, platform, fallback) {
-            return findNode(this.doc, {
+            return findNode(this, {
                 tag: tagName,
                 platform: platform,
                 fallback: fallback
@@ -783,7 +888,7 @@ var CocoonSDK;
             return node;
         };
         XMLSugar.prototype.setValue = function (tagName, value, platform) {
-            updateOrAddNode(this.doc, {
+            updateOrAddNode(this, {
                 platform: platform,
                 tag: tagName
             }, {
@@ -791,7 +896,7 @@ var CocoonSDK;
             });
         };
         XMLSugar.prototype.removeValue = function (tagName, platform) {
-            removeNode(this.doc, {
+            removeNode(this, {
                 tag: tagName,
                 platform: platform
             });
@@ -805,7 +910,7 @@ var CocoonSDK;
                 ],
                 fallback: fallback
             };
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             return node ? node.getAttribute('value') : null;
         };
         XMLSugar.prototype.setPreference = function (name, value, platform) {
@@ -823,10 +928,10 @@ var CocoonSDK;
                         { name: 'value', value: value }
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         };
         XMLSugar.prototype.getCocoonVersion = function () {
@@ -877,7 +982,7 @@ var CocoonSDK;
                     { name: 'name', value: platform }
                 ]
             };
-            return findNode(this.doc, filter);
+            return findNode(this, filter);
         };
         XMLSugar.prototype.getCocoonPlatformVersion = function (platform) {
             var node = this.getCocoonPlatform(platform);
@@ -897,10 +1002,10 @@ var CocoonSDK;
                         { name: 'version', value: value }
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         };
         XMLSugar.prototype.isCocoonPlatformEnabled = function (platform) {
@@ -910,7 +1015,7 @@ var CocoonSDK;
                     { name: 'name', value: platform }
                 ]
             };
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             if (!node) {
                 return true;
             }
@@ -929,7 +1034,7 @@ var CocoonSDK;
                     { name: 'name', value: platform }
                 ]
             };
-            updateOrAddNode(this.doc, filter, update);
+            updateOrAddNode(this, filter, update);
         };
         XMLSugar.prototype.getContentURL = function (platform, fallback) {
             var filter = {
@@ -937,7 +1042,7 @@ var CocoonSDK;
                 platform: platform,
                 fallback: fallback
             };
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             return node ? node.getAttribute('src') : '';
         };
         XMLSugar.prototype.setContentURL = function (value, platform) {
@@ -951,10 +1056,10 @@ var CocoonSDK;
                         { name: 'src', value: value }
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         };
         XMLSugar.prototype.addPlugin = function (name) {
@@ -969,7 +1074,7 @@ var CocoonSDK;
                     { name: 'name', value: name }
                 ]
             };
-            updateOrAddNode(this.doc, filter, update);
+            updateOrAddNode(this, filter, update);
         };
         XMLSugar.prototype.removePlugin = function (name) {
             var filter = {
@@ -978,7 +1083,7 @@ var CocoonSDK;
                     { name: 'name', value: name }
                 ]
             };
-            removeNode(this.doc, filter);
+            removeNode(this, filter);
         };
         XMLSugar.prototype.findPlugin = function (name) {
             var filter = {
@@ -987,13 +1092,13 @@ var CocoonSDK;
                     { name: 'name', value: name }
                 ]
             };
-            return findNode(this.doc, filter);
+            return findNode(this, filter);
         };
         XMLSugar.prototype.findAllPlugins = function () {
             var filter = {
                 tag: 'cocoon:plugin'
             };
-            return findNodes(this.doc, filter);
+            return findNodes(this, filter);
         };
         XMLSugar.prototype.findPluginParameter = function (pluginName, paramName) {
             var plugin = this.findPlugin(pluginName);
@@ -1022,9 +1127,9 @@ var CocoonSDK;
                     }
                 }
                 if (!node) {
-                    node = document.createElementNS(null, 'param');
+                    node = this.document.createElementNS(null, 'param');
                     node.setAttribute('name', paramName || '');
-                    addNodeIndented(node, plugin);
+                    addNodeIndented(this, node, plugin);
                 }
                 node.setAttribute('value', this.encode(paramValue) || '');
             }
@@ -1132,15 +1237,15 @@ var CocoonSDK;
         ios: 'ios-CFBundleVersion',
         android: 'android-versionCode'
     };
-    function matchesFilter(doc, node, filter) {
+    function matchesFilter(sugar, node, filter) {
         filter = filter || {};
         var parent = node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'platform' || parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
-        else if (parent !== doc.root) {
+        else if (parent !== sugar.root) {
             return false;
         }
         if (filter.tag && filter.tag !== node.tagName && filter.tag.indexOf('*') < 0) {
@@ -1169,26 +1274,26 @@ var CocoonSDK;
         }
         return tag;
     }
-    function getElements(doc, filter) {
+    function getElements(sugar, filter) {
         if (hasNS(filter.tag)) {
             var ns = filter.tag[0] === '*' ? '*' : cocoonNS;
-            return doc.getElementsByTagNameNS(ns, cleanNS(filter.tag));
+            return sugar.doc.getElementsByTagNameNS(ns, cleanNS(filter.tag));
         }
         else {
-            return doc.getElementsByTagName(filter.tag || '*');
+            return sugar.doc.getElementsByTagName(filter.tag || '*');
         }
     }
-    function findNode(doc, filter) {
+    function findNode(sugar, filter) {
         filter = filter || {};
-        var nodes = getElements(doc, filter);
+        var nodes = getElements(sugar, filter);
         for (var i = 0; i < nodes.length; ++i) {
-            if (matchesFilter(doc, nodes[i], filter)) {
+            if (matchesFilter(sugar, nodes[i], filter)) {
                 return nodes[i];
             }
         }
         if (filter.platform && filter.fallback) {
             delete filter.platform;
-            return findNode(doc, filter);
+            return findNode(sugar, filter);
         }
         return null;
     }
@@ -1203,46 +1308,46 @@ var CocoonSDK;
         }
         return result;
     }
-    function addNodeIndented(node, parent) {
-        parent.appendChild(document.createTextNode('\n'));
+    function addNodeIndented(sugar, node, parent) {
+        parent.appendChild(sugar.document.createTextNode('\n'));
         var p = parent.parentNode;
         do {
-            parent.appendChild(document.createTextNode('    '));
+            parent.appendChild(sugar.document.createTextNode('    '));
             p = p.parentNode;
         } while (!!p);
         parent.appendChild(node);
         node.setAttribute('xmlns', '');
-        parent.appendChild(document.createTextNode('\n'));
+        parent.appendChild(sugar.document.createTextNode('\n'));
     }
-    function parentNodeForPlatform(doc, platform) {
+    function parentNodeForPlatform(sugar, platform) {
         if (!platform) {
-            return doc.root;
+            return sugar.root;
         }
-        var platformNode = findNode(doc, {
+        var platformNode = findNode(sugar, {
             tag: 'platform',
             attributes: [
                 { name: 'name', value: platform }
             ]
         });
         if (!platformNode) {
-            platformNode = document.createElementNS(null, 'platform');
+            platformNode = sugar.document.createElementNS(null, 'platform');
             platformNode.setAttribute('name', platform);
-            addNodeIndented(platformNode, doc.root);
+            addNodeIndented(sugar, platformNode, sugar.root);
         }
         return platformNode;
     }
-    function updateOrAddNode(doc, filter, data) {
+    function updateOrAddNode(sugar, filter, data) {
         filter = filter || {};
-        var found = findNode(doc, filter);
+        var found = findNode(sugar, filter);
         if (!found) {
-            var parent = parentNodeForPlatform(doc, filter.platform);
+            var parent = parentNodeForPlatform(sugar, filter.platform);
             if (hasNS(filter.tag)) {
-                found = document.createElementNS(cocoonNS, filter.tag);
+                found = sugar.document.createElementNS(cocoonNS, filter.tag);
             }
             else {
-                found = document.createElementNS(null, filter.tag);
+                found = sugar.document.createElementNS(null, filter.tag);
             }
-            addNodeIndented(found, parent);
+            addNodeIndented(sugar, found, parent);
         }
         if (typeof data.value !== 'undefined') {
             found.textContent = data.value || '';
@@ -1259,8 +1364,8 @@ var CocoonSDK;
             }
         }
     }
-    function removeNode(doc, filter) {
-        var node = findNode(doc, filter);
+    function removeNode(sugar, filter) {
+        var node = findNode(sugar, filter);
         if (node && node.parentNode) {
             var parent = node.parentNode;
             parent.removeChild(node);

@@ -1,7 +1,6 @@
 /// <reference path="User.ts"/>
 
 module CocoonSDK {
-
     export enum GrantType {Implicit = 0, AuthorizationCode = 1}
     export enum StorageType {Cookies = 0, Memory = 1}
     export interface OauthMode {
@@ -23,6 +22,7 @@ module CocoonSDK {
 
     export interface Configuration {
         clientId: string,
+        clientSecret:string,
         apiURL:string,
         oauthURL:string
     }
@@ -39,7 +39,7 @@ module CocoonSDK {
         branch?: string
     }
 
-
+    declare var require: any;
 
     class APIURL {
         static PROJECT = 'project/';
@@ -57,7 +57,6 @@ module CocoonSDK {
         static SPLASH = 'splash/';
     }
 
-
     export class APIClient {
 
         config: Configuration;
@@ -65,13 +64,14 @@ module CocoonSDK {
         credentials: CredentialStorage;
         project: ProjectAPI;
 
-        constructor(options : {clientId:string, apiURL?:string, oauthURL?:string}) {
+        constructor(options : {clientId:string, clientSecret?:string, apiURL?:string, oauthURL?:string}) {
             if (!options || !options.clientId) {
                 throw new Error("Missing parameter clientId");
             }
 
             this.config = {
                 clientId: options.clientId,
+                clientSecret: options.clientSecret,
                 apiURL: options.apiURL || "https://api.cocoon.io/v1/",
                 oauthURL: options.oauthURL || "https://cloud.cocoon.io/oauth/"
             };
@@ -81,7 +81,7 @@ module CocoonSDK {
 
         setOauthMode(options: OauthMode) {
             this.oauthMode = options || {grantType: GrantType.Implicit};
-            if (this.oauthMode.storageType === StorageType.Memory) {
+            if (this.oauthMode.storageType === StorageType.Memory || typeof document === 'undefined') {
                 this.credentials = new MemoryCredentialStorage();
             }
             else {
@@ -99,6 +99,32 @@ module CocoonSDK {
 
         isLoggedIn(): boolean {
             return !!this.getAccessToken();
+        }
+
+
+        logInWithPassword(user:string, password:string, callback?:(loggedIn:boolean, error:Error)=> void) {
+            var url =  this.config.oauthURL + "access_token";
+            var params = {
+                client_id: this.config.clientId,
+                client_secret: this.config.clientSecret,
+                grant_type: 'password',
+                username: user,
+                password: password
+            };
+            callback = callback || function(){};
+            this.request("POST", url, {params:params, contentType:"application/x-www-form-urlencoded"}, (response:any, error:Error) => {
+
+                if (error) {
+                    callback(false, error);
+                }
+                else if (response.access_token) {
+                    this.setAccessToken(response.access_token, response.expires_in);
+                    callback(true, null);
+                }
+                else {
+                    callback(false, {code:0, message:"No error but access_token not found in the response"});
+                }
+            });
         }
 
         logIn(options: {width?:number, height?:number, redirectUri?:string},
@@ -223,7 +249,14 @@ module CocoonSDK {
         }
 
         request(method:string, path:string, options:RequestXHROptions,  callback?:(response:any, error:Error)=> void) {
-            var xhr = new XMLHttpRequest();
+            var xhr:XMLHttpRequest;
+            if (typeof XMLHttpRequest !== 'undefined'){
+                xhr = new XMLHttpRequest();
+            }
+            else { //Node.js support
+                xhr = new (require("xmlhttprequest").XMLHttpRequest);
+            }
+
             var url = path;
             if (path.indexOf('://') < 0) {
                 url = this.config.apiURL + path;
@@ -280,6 +313,19 @@ module CocoonSDK {
                 if (options.contentType === "multipart/form-data") {
                     xhr.send(options.params); //the browser adds a boundary + the contentType
                 }
+                else if (options.contentType === "application/x-www-form-urlencoded" && typeof options.params === "object") {
+                    xhr.setRequestHeader("Content-Type", options.contentType);
+                    var sendData = "";
+                    for (var key in options.params) {
+                        if (options.params.hasOwnProperty(key)) {
+                            if (sendData.length > 0) {
+                                sendData += "&";
+                            }
+                            sendData += key + '=' + encodeURIComponent(options.params[key]);
+                        }
+                    }
+                    xhr.send(sendData);
+                }
                 else if (options.contentType) {
                     xhr.setRequestHeader("Content-Type", options.contentType);
                     xhr.send(options.params);
@@ -317,7 +363,7 @@ module CocoonSDK {
 
 
         createFromRepository(data: RepositoryData, callback:(project:Project, error:Error) => void) {
-            this.client.request("POST", APIURL.GITHUB_CREATE, {params:data} , function(response:any, error:Error) {
+            this.client.request("POST", APIURL.GITHUB_CREATE, {params:data} , (response:any, error:Error) => {
                 if (error) {
                     callback(null, error)
                 }
@@ -328,7 +374,7 @@ module CocoonSDK {
         }
 
         createFromPublicZip(url: string, callback:(project:Project, error:Error) => void) {
-            this.client.request("POST", APIURL.URL_CREATE, {params:{url:url}} , function(response:any, error:Error) {
+            this.client.request("POST", APIURL.URL_CREATE, {params:{url:url}} , (response:any, error:Error) => {
                 if (error) {
                     callback(null, error)
                 }
@@ -339,7 +385,7 @@ module CocoonSDK {
         }
 
         createFromZipUpload(file:File, callback:(project:Project, error:Error) => void) {
-            var formData = new FormData();
+            var formData = typeof FormData !== 'undefined' ? new FormData() : new (require('form-data'));
             formData.append('file', file);
 
             var xhrOptions = {
@@ -347,7 +393,7 @@ module CocoonSDK {
                 params: formData
             };
 
-            this.client.request("POST", APIURL.PROJECT, xhrOptions, function(response:any, error:Error) {
+            this.client.request("POST", APIURL.PROJECT, xhrOptions, (response:any, error:Error) => {
                 if (error) {
                     callback(null, error)
                 }
@@ -358,7 +404,7 @@ module CocoonSDK {
         }
 
         get(projectId:string, callback:(project: Project, error: Error) => void) {
-            this.client.request("GET", APIURL.PROJECT + projectId, null, function(response:any, error:Error) {
+            this.client.request("GET", APIURL.PROJECT + projectId, null, (response:any, error:Error) =>{
                 if (error) {
                     callback(null, error)
                 }
@@ -369,7 +415,7 @@ module CocoonSDK {
         }
 
         delete(projectId: string, callback:(error:Error) => void)  {
-            this.client.request("DELETE", "project/" + projectId, null, function(response:any, error:Error) {
+            this.client.request("DELETE", "project/" + projectId, null, (response:any, error:Error) => {
                 if (callback) {
                     callback(error);
                 }
@@ -394,7 +440,7 @@ module CocoonSDK {
         }
 
         compile(projectId: string, callback:(error:Error) => void) {
-            this.client.request("POST", APIURL.COMPILE(projectId), null, function(response:any, error:Error) {
+            this.client.request("POST", APIURL.COMPILE(projectId), null, (response:any, error:Error) => {
                 if (callback) {
                     callback(error);
                 }
@@ -402,7 +448,7 @@ module CocoonSDK {
         }
 
         compileDevApp(projectId: string, callback:(error:Error) => void) {
-            this.client.request("POST", APIURL.DEVAPP(projectId), null, function(response:any, error:Error) {
+            this.client.request("POST", APIURL.DEVAPP(projectId), null, (response:any, error:Error) => {
                 if (callback) {
                     callback(error);
                 }
@@ -416,7 +462,7 @@ module CocoonSDK {
                     return xhr.responseText;
                 }
             };
-            this.client.request("GET", configURL, xhrOptions, function(response:string, error:Error) {
+            this.client.request("GET", configURL, xhrOptions, (response:string, error:Error) => {
                 callback(response, error);
             });
         }
@@ -428,7 +474,7 @@ module CocoonSDK {
                     return xhr.response;
                 }
             };
-            this.client.request("GET", APIURL.ICON(projectId, platform), xhrOptions, function(response:Blob, error:Error) {
+            this.client.request("GET", APIURL.ICON(projectId, platform), xhrOptions, (response:Blob, error:Error) => {
                 callback(response, error);
             });
         }
@@ -448,7 +494,7 @@ module CocoonSDK {
                 params: formData
             };
 
-            this.client.request("PUT", configURL, xhrOptions, function(response:string, error:Error) {
+            this.client.request("PUT", configURL, xhrOptions, (response:string, error:Error) => {
                 if (callback) {
                     callback(error);
                 }
@@ -457,23 +503,65 @@ module CocoonSDK {
 
 
         uploadZip(projectId: string, file:File, callback:(data: ProjectData, error:Error) => void) {
-            var formData = new FormData();
-            formData.append('file', file);
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                formData.append('file', file);
 
-            var xhrOptions = {
-                contentType: "multipart/form-data",
-                params: formData
-            };
+                var xhrOptions = {
+                    contentType: "multipart/form-data",
+                    params: formData
+                };
 
-            this.client.request("PUT", APIURL.PROJECT + projectId, xhrOptions, function(response:ProjectData, error:Error) {
-                if (callback) {
-                    callback(response, error);
-                }
-            });
+                this.client.request("PUT", APIURL.PROJECT + projectId, xhrOptions, (response:ProjectData, error:Error) =>{
+                    if (callback) {
+                        callback(response, error);
+                    }
+                });
+            }
+            else { //node.js compatibility. //TODO: move to generic request code
+                var url = require("url").parse(this.client.config.apiURL + APIURL.PROJECT + projectId);
+                var form = new (require('form-data'));
+                form.append('file', file); //created with fs.createReadStream
+
+                form.submit({
+                    protocol: url.protocol,
+                    method: "put",
+                    host: url.hostname,
+                    path: url.path,
+                    headers: {'Authorization': 'Bearer ' + this.client.credentials.getAccessToken()}
+                }, function(err:any, res:any) {
+                    var data = '';
+                    if (err) {
+                        callback(null, {message:err.message, code: err.http_code});
+                        return;
+                    }
+                    res.on('data', function(chunk: any) {
+                        data += chunk;
+                    });
+                    res.on('end', function() {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >=300) {
+                                var errorMessage = {code: res.statusCode, message: res.statusMessage};
+                                if (result.description) {
+                                    errorMessage = {code: result.code, message: result.description};
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, {code:0, message:ex.message});
+                        }
+                    });
+                });
+            }
         }
 
         updatePublicZip(projectId: string, url:string, callback:(data:ProjectData, error:Error) => void) {
-            this.client.request("PUT", APIURL.URL_SYNC + projectId, {params:{url:url}}, function(response:ProjectData, error:Error) {
+            this.client.request("PUT", APIURL.URL_SYNC + projectId, {params:{url:url}}, (response:ProjectData, error:Error) => {
                 if (callback) {
                     callback(response, error);
                 }
@@ -481,7 +569,7 @@ module CocoonSDK {
         }
 
         syncRepository(projectId:string, repo: {url: string, branch?:string}, callback: (error: Error) => void) {
-            this.client.request("PUT", APIURL.GITHUB_SYNC + projectId, {params:repo}, function(response:any, error:Error){
+            this.client.request("PUT", APIURL.GITHUB_SYNC + projectId, {params:repo}, (response:any, error:Error) =>{
                 if (callback) {
                     callback(error);
                 }
@@ -556,4 +644,10 @@ module CocoonSDK {
             return (new RegExp('(?:^|;\\s*)' + encodeURIComponent(key).replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=')).test(document.cookie);
         }
     }
+}
+
+declare var module:any;
+
+if(typeof module !== 'undefined'){
+    module.exports = CocoonSDK;
 }

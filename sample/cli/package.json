@@ -1,0 +1,26 @@
+{
+  "name": "CocoonGulpSample",
+  "version": "1.0.0",
+  "description": "Sample using the Cocoon Cloud SDK with Gulp",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gulp",
+    "cocoon.io",
+    "cloud",
+    "html5",
+    "games",
+    "apps",
+    "sdk"
+  ],
+  "author": "Ludei",
+  "license": "MPL 2.0",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-zip": "^3.2.0",
+    "run-sequence": "^1.1.5",
+    "xmlhttprequest": "^1.8.0"
+  }
+}

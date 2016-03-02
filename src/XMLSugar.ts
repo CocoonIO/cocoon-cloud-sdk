@@ -2,11 +2,11 @@
  * Created by mortimer on 26/1/16.
  */
 
+
 module CocoonSDK {
 
     var cocoonNS = 'http://cocoon.io/ns/1.0';
     var xmlnsNS = 'http://www.w3.org/2000/xmlns/';
-
 
     export enum Orientation {
         PORTRAIT = 0,
@@ -21,25 +21,37 @@ module CocoonSDK {
         CANVAS_PLUS = 2
     }
 
-    export class XMLSugar {
+    declare var require: any;
 
-        parser:DOMParser;
+    export class XMLSugar {
         doc:XMLDocument;
         serializer:XMLSerializer;
         root:Element;
-
+        document: HTMLDocument;
 
         constructor(text:string) {
-            var parser = new DOMParser();
-            this.doc = parser.parseFromString(text, 'text/xml');
-            this.serializer = new XMLSerializer();
 
+            var parser:DOMParser;
+
+            if (typeof document !== 'undefined') { //We are on a full browser
+                parser = new DOMParser();
+                this.serializer = new XMLSerializer();
+                this.document = document;
+            }
+            else { //We are on NodeJS
+                var xmldom = require('xmldom');
+                parser = new xmldom.DOMParser();
+                this.serializer = new xmldom.XMLSerializer();
+                var dom = new xmldom.DOMImplementation();
+                this.document = dom.createDocument();
+            }
+
+            this.doc = parser.parseFromString(text, 'text/xml');
             var root = this.doc.getElementsByTagName('widget')[0];
             if (root && !root.getAttributeNS(xmlnsNS, 'cocoon')) {
                 root.setAttributeNS(xmlnsNS, 'xmlns:cocoon', cocoonNS);
             }
             this.root = root;
-            (<any>this.doc).root = root
         }
 
         isErrored(): boolean {
@@ -61,7 +73,7 @@ module CocoonSDK {
 
         getBundleId(platform?:string, fallback?:boolean):string {
             if (platform) {
-                var name = bundleIdAliases[platform];
+                var name:string = bundleIdAliases[platform];
                 var value = this.root.getAttribute(name);
                 if (value) {
                     return value;
@@ -159,7 +171,7 @@ module CocoonSDK {
         }
 
         getNode(tagName:string, platform?:string, fallback?:boolean): Element {
-            return findNode(this.doc, {
+            return findNode(this, {
                 tag: tagName,
                 platform: platform,
                 fallback: fallback
@@ -177,7 +189,7 @@ module CocoonSDK {
         }
 
         setValue(tagName:string, value:string, platform?:string) {
-            updateOrAddNode(this.doc, {
+            updateOrAddNode(this, {
                 platform: platform,
                 tag: tagName
             }, {
@@ -186,7 +198,7 @@ module CocoonSDK {
         }
 
         removeValue(tagName:string,  platform?:string) {
-            removeNode(this.doc, {
+            removeNode(this, {
                 tag: tagName,
                 platform: platform
             });
@@ -201,7 +213,7 @@ module CocoonSDK {
                 ],
                 fallback: fallback
             };
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             return node ? node.getAttribute('value') : null;
         }
 
@@ -221,10 +233,10 @@ module CocoonSDK {
                         {name:'value', value:value}
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         }
 
@@ -254,7 +266,7 @@ module CocoonSDK {
 
         setOrientation(value:Orientation, platform?:string) {
 
-            var cordovaValue = null;
+            var cordovaValue:string = null;
             if (value === Orientation.PORTRAIT) {
                 cordovaValue = 'portrait';
             }
@@ -266,9 +278,9 @@ module CocoonSDK {
             }
 
             this.setPreference('Orientation', cordovaValue, platform);
-         }
+        }
 
-        isFullScreen(platform?:string, fallback?:boolean) {
+        isFullScreen(platform?:string, fallback?:boolean): boolean {
             var value = this.getPreference('Fullscreen', platform, fallback);
             return value ? value !== 'false' : false;
         }
@@ -285,7 +297,7 @@ module CocoonSDK {
                 ]
             };
 
-            return findNode(this.doc, filter);
+            return findNode(this, filter);
         }
 
         getCocoonPlatformVersion(platform:string): string {
@@ -307,10 +319,10 @@ module CocoonSDK {
                         {name:'version', value:value}
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         }
 
@@ -322,7 +334,7 @@ module CocoonSDK {
                 ]
             };
 
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             if (!node) {
                 return true;
             }
@@ -342,7 +354,7 @@ module CocoonSDK {
                     {name:'name', value:platform}
                 ]
             };
-            updateOrAddNode(this.doc, filter, update);
+            updateOrAddNode(this, filter, update);
         }
 
         getContentURL(platform?:string, fallback?:boolean) {
@@ -351,7 +363,7 @@ module CocoonSDK {
                 platform: platform,
                 fallback: fallback
             };
-            var node = findNode(this.doc, filter);
+            var node = findNode(this, filter);
             return node ? node.getAttribute('src') : '';
         }
 
@@ -366,10 +378,10 @@ module CocoonSDK {
                         {name:'src', value:value}
                     ]
                 };
-                updateOrAddNode(this.doc, filter, update);
+                updateOrAddNode(this, filter, update);
             }
             else {
-                removeNode(this.doc, filter);
+                removeNode(this, filter);
             }
         }
 
@@ -386,7 +398,7 @@ module CocoonSDK {
                     {name:'name', value:name}
                 ]
             };
-            updateOrAddNode(this.doc, filter, update);
+            updateOrAddNode(this, filter, update);
         }
 
         removePlugin(name:string) {
@@ -397,17 +409,17 @@ module CocoonSDK {
                 ]
             };
 
-            removeNode(this.doc, filter);
+            removeNode(this, filter);
         }
 
-        findPlugin(name):Element {
+        findPlugin(name:string):Element {
             var filter = {
                 tag: 'cocoon:plugin',
                 attributes: [
                     {name:'name', value:name}
                 ]
             };
-            return findNode(this.doc, filter);
+            return findNode(this, filter);
 
         }
 
@@ -416,12 +428,12 @@ module CocoonSDK {
                 tag: 'cocoon:plugin'
             };
 
-            return findNodes(this.doc, filter);
+            return findNodes(this, filter);
         }
 
-        findPluginParameter(pluginName:string, paramName:string) {
+        findPluginParameter(pluginName:string, paramName:string): String {
             var plugin = this.findPlugin(pluginName);
-            var result = null;
+            var result:string = null;
             if (plugin) {
                 var nodes = plugin.childNodes;
                 for (var i = 0; i < nodes.length; ++i) {
@@ -440,18 +452,18 @@ module CocoonSDK {
             var plugin = this.findPlugin(pluginName);
             if (plugin) {
                 var nodes = plugin.childNodes;
-                var node = null;
+                var node: Element = null;
                 for (var i = 0; i < nodes.length; ++i) {
                     if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === paramName) {
-                        node = nodes[i];
+                        node = <Element>nodes[i];
                         break;
                     }
                 }
 
                 if (!node) {
-                    node = document.createElementNS(null, 'param');
+                    node = this.document.createElementNS(null, 'param');
                     node.setAttribute('name', paramName || '');
-                    addNodeIndented(node, plugin);
+                    addNodeIndented(this, node, plugin);
                 }
 
                 node.setAttribute('value', this.encode(paramValue) || '');
@@ -471,7 +483,7 @@ module CocoonSDK {
                 return envs[0];
             }
 
-            var infos = [canvasPlusPlugins, webviewPlusPlugins];
+            var infos: any[] = [canvasPlusPlugins, webviewPlusPlugins];
 
             var env = Environment.WEBVIEW;
             for (var i = 0; i < infos.length; ++i) {
@@ -491,7 +503,7 @@ module CocoonSDK {
 
             for (var i = 0; i < names.length; ++i) {
                 var name = names[i];
-                var info;
+                var info: any;
                 if (value === Environment.CANVAS_PLUS) {
                     info = canvasPlusPlugins[name];
                     if (info) {
@@ -542,8 +554,7 @@ module CocoonSDK {
         }
 
     }
-
-    var canvasPlusPlugins = {
+    var canvasPlusPlugins: any = {
 
         value: Environment.CANVAS_PLUS,
         ios: {
@@ -554,7 +565,7 @@ module CocoonSDK {
         }
     };
 
-    var webviewPlusPlugins = {
+    var webviewPlusPlugins: any = {
         value: Environment.WEBVIEW_PLUS,
         ios: {
             plugin: 'com.ludei.webviewplus.ios'
@@ -564,25 +575,25 @@ module CocoonSDK {
         }
     };
 
-    var bundleIdAliases = {
+    var bundleIdAliases: {[key:string]: string} = {
         ios: 'ios-CFBundleIdentifier',
-        android: 'android-packageName'
+        android: 'android-packageName',
     };
 
-    var versionCodeAliases = {
+    var versionCodeAliases: {[key:string]: string} = {
         ios: 'ios-CFBundleVersion',
         android: 'android-versionCode'
     };
 
-    function matchesFilter(doc, node, filter) {
+    function matchesFilter(sugar: XMLSugar, node:Element, filter:any) {
         filter = filter || {};
-        var parent = node.parentNode;
+        var parent = <Element>node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'platform' || parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
-        else if (parent !== doc.root) {
+        else if (parent !== sugar.root) {
             return false;
         }
 
@@ -603,12 +614,12 @@ module CocoonSDK {
         return true;
     }
 
-    function hasNS(tag)
+    function hasNS(tag: string)
     {
         return tag.indexOf(':') !== -1;
     }
 
-    function cleanNS(tag)
+    function cleanNS(tag?:string)
     {
         if (!tag) {
             return null;
@@ -622,44 +633,44 @@ module CocoonSDK {
     }
 
 
-    function getElements(doc, filter) {
+    function getElements(sugar:XMLSugar, filter: any) {
 
         if (hasNS(filter.tag)) {
             var ns = filter.tag[0] === '*' ? '*' : cocoonNS;
-            return doc.getElementsByTagNameNS(ns, cleanNS(filter.tag));
+            return sugar.doc.getElementsByTagNameNS(ns, cleanNS(filter.tag));
         }
         else {
-            return doc.getElementsByTagName(filter.tag || '*');
+            return sugar.doc.getElementsByTagName(filter.tag || '*');
         }
     }
 
-    function findNode(doc, filter) {
+    function findNode(sugar:XMLSugar, filter: any): Element {
         filter = filter || {};
 
 
-        var nodes = getElements(doc, filter);
+        var nodes = getElements(sugar, filter);
 
         for (var i = 0; i < nodes.length; ++i) {
-            if (matchesFilter(doc, nodes[i], filter)) {
+            if (matchesFilter(sugar, nodes[i], filter)) {
                 return nodes[i];
             }
         }
 
         if (filter.platform && filter.fallback) {
             delete filter.platform;
-            return findNode(doc, filter);
+            return findNode(sugar, filter);
         }
 
         return null;
 
     }
 
-    function findNodes(doc, filter) {
+    function findNodes(doc:XMLSugar, filter:any): Element[] {
         filter = filter || {};
 
         var nodes = getElements(doc, filter);
 
-        var result = [];
+        var result: Element[] = [];
         for (var i = 0; i < nodes.length; ++i) {
             if (matchesFilter(doc, nodes[i], filter)) {
                 result.push(nodes[i]);
@@ -668,26 +679,26 @@ module CocoonSDK {
         return result;
     }
 
-    function addNodeIndented(node, parent) {
-        parent.appendChild(document.createTextNode('\n'));
+    function addNodeIndented(sugar:XMLSugar, node: Element, parent: Element) {
+        parent.appendChild(sugar.document.createTextNode('\n'));
         var p = parent.parentNode;
         do {
-            parent.appendChild(document.createTextNode('    '));
+            parent.appendChild(sugar.document.createTextNode('    '));
             p = p.parentNode;
         }
         while (!!p);
 
         parent.appendChild(node);
         node.setAttribute('xmlns','');
-        parent.appendChild(document.createTextNode('\n'));
+        parent.appendChild(sugar.document.createTextNode('\n'));
     }
 
-    function parentNodeForPlatform(doc, platform) {
+    function parentNodeForPlatform(sugar: XMLSugar, platform?: string): Element {
         if (!platform) {
-            return doc.root;
+            return sugar.root;
         }
 
-        var platformNode = findNode(doc, {
+        var platformNode = findNode(sugar, {
             tag: 'platform',
             attributes: [
                 {name: 'name', value: platform}
@@ -695,27 +706,27 @@ module CocoonSDK {
         });
 
         if (!platformNode) {
-            platformNode = document.createElementNS(null, 'platform');
+            platformNode = sugar.document.createElementNS(null, 'platform');
             platformNode.setAttribute('name', platform);
-            addNodeIndented(platformNode, doc.root);
+            addNodeIndented(sugar, platformNode, sugar.root);
         }
 
         return platformNode;
 
     }
 
-    function updateOrAddNode(doc, filter, data) {
+    function updateOrAddNode(sugar: XMLSugar, filter: any, data: any) {
         filter = filter || {};
-        var found = findNode(doc, filter);
+        var found = findNode(sugar, filter);
         if (!found) {
-            var parent = parentNodeForPlatform(doc, filter.platform);
+            var parent = parentNodeForPlatform(sugar, filter.platform);
             if (hasNS(filter.tag)) {
-                found = document.createElementNS(cocoonNS, filter.tag);
+                found = sugar.document.createElementNS(cocoonNS, filter.tag);
             }
             else {
-                found = document.createElementNS(null, filter.tag);
+                found = sugar.document.createElementNS(null, filter.tag);
             }
-            addNodeIndented(found, parent);
+            addNodeIndented(sugar, found, parent);
         }
 
         if (typeof data.value !== 'undefined') {
@@ -734,10 +745,10 @@ module CocoonSDK {
         }
     }
 
-    function removeNode(doc, filter) {
-        var node = findNode(doc, filter);
+    function removeNode(sugar: XMLSugar, filter:any) {
+        var node = findNode(sugar, filter);
         if (node && node.parentNode) {
-            var parent = node.parentNode;
+            var parent = <Element>node.parentNode;
             parent.removeChild(node);
 
             //remove empty platform node
