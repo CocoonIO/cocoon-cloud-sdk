@@ -1,5 +1,5 @@
 {
-  "name": "cocoon-cloud-sdk",
+  "name": "cocoon-cloud",
   "version": "1.0.0",
   "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
   "main": "cocoon.sdk.js",
@@ -33,7 +33,6 @@
   "homepage": "https://github.com/CocoonIO/cocoon-cloud-sdk",
   "dependencies": {
     "form-data": "^1.0.0-rc3",
-    "request": "^2.69.0",
     "xmldom": "^0.1.22",
     "xmlhttprequest": "^1.8.0"
   }
