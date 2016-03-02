@@ -10,14 +10,13 @@ You need to create a ClientID in order to use this SDK with your application. Pl
 
 ## API Reference
 
-See [`d.ts declaration file`](dist/cocoon.sdk.d.ts) for a complete overview of the capabilities of the SDK.
+* See [`d.ts declaration file`](dist/cocoon.sdk.d.ts) for a complete overview of the capabilities of the SDK.
+* See [`web`](sample/web) for a complete express project which uses the CocoonSDK
+* See [`cli`](sample/cli) for a complete gulp project which allows to upload, compile and download apps from the command line
 
 ## Usage
 
 Include the [`CocoonSDK library`](dist/cocoon.sdk.js) in your Web Application or NodeJS application
-
-See [`web`](sample/web) for a complete express project which uses the CocoonSDK
-See [`cli`](sample/cli) for a complete gulp project which allows to upload, compile and download apps from the command line
 
 ```
 <script src="scripts/cocoon.sdk.js"></script>
