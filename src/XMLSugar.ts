@@ -44,10 +44,7 @@ module CocoonSDK {
             }
 
             // Replace old syntax
-            text = text.replace(/cocoon:platform/g, 'engine');
-            text = text.replace(/cocoon:plugin/g, 'plugin');
-            text = text.replace(/<param/g, '<variable');
-            text = text.replace(/version=/g, 'spec=');
+            text = this.replaceOldSyntax(text);
 
             this.doc = parser.parseFromString(text, 'text/xml');
             this.root = this.doc.getElementsByTagName('widget')[0];
@@ -183,8 +180,7 @@ module CocoonSDK {
         }
 
         getNodeValue(tagName:string, platform?:string, fallback?:boolean):Element {
-            var node = this.getNode(tagName, platform, fallback);
-            return node;
+            return this.getNode(tagName, platform, fallback);
         }
 
         setValue(tagName:string, value:string, platform?:string) {
@@ -431,6 +427,13 @@ module CocoonSDK {
             return findNodes(this, filter);
         }
 
+        /**
+         *
+         * @deprecated As of release 1.1.0, replaced by {@link findPluginVariable(string,string)}.
+         * @param pluginName Name of the plugin.
+         * @param paramName Name of the parameter.
+         * @returns {string} Value of the parameter in the specified plugin.
+         */
         findPluginParameter(pluginName:string, paramName:string):String {
             var plugin = this.findPlugin(pluginName);
             var result:string = null;
@@ -446,6 +449,12 @@ module CocoonSDK {
             return result;
         }
 
+        /**
+         *
+         * @param pluginName Name of the plugin.
+         * @param varName Name of the variable.
+         * @returns {string} Value of the variable in the specified plugin.
+         */
         findPluginVariable(pluginName:string, varName:string):String {
             var plugin = this.findPlugin(pluginName);
             var result:string = null;
@@ -461,6 +470,13 @@ module CocoonSDK {
             return result;
         }
 
+        /**
+         *
+         * @deprecated As of release 1.1.0, replaced by {@link addPluginVariable(string,string,string)}.
+         * @param pluginName Name of the plugin.
+         * @param paramName Name of the parameter.
+         * @param paramValue Value for the parameter.
+         */
         addPluginParameter(pluginName:string, paramName:string, paramValue:string) {
             this.addPlugin(pluginName);
 
@@ -485,6 +501,12 @@ module CocoonSDK {
             }
         }
 
+        /**
+         *
+         * @param pluginName Name of the plugin.
+         * @param varName Name of the variable.
+         * @param varValue Value for the variable.
+         */
         addPluginVariable(pluginName:string, varName:string, varValue:string) {
             this.addPlugin(pluginName);
 
@@ -592,6 +614,18 @@ module CocoonSDK {
                 .replace(/&amp;/g, '&');
         }
 
+        /**
+         * Replaces every Cocoon specific XML tag and parameter name with the ones from Cordova.
+         * @param str configuration of a Cordova project in XML format.
+         * @returns {string} the same configuration using only Cordova tags.
+         */
+        replaceOldSyntax(str:string):string {
+            var newSyntax = str.replace(/cocoon:platform/g, 'engine');
+            newSyntax = newSyntax.replace(/cocoon:plugin/g, 'plugin');
+            newSyntax = newSyntax.replace(/<param/g, '<variable');
+            newSyntax = newSyntax.replace(/version=/g, 'spec=');
+            return newSyntax;
+        }
     }
     var canvasPlusPlugins:any = {
 
@@ -659,10 +693,22 @@ module CocoonSDK {
         return true;
     }
 
+    /**
+     *
+     * @deprecated As of release 1.1.0, the new syntax does not need NameSpaces.
+     * @param tag
+     * @returns {boolean}
+     */
     function hasNS(tag:string) {
         return tag.indexOf(':') !== -1;
     }
 
+    /**
+     *
+     * @deprecated As of release 1.1.0, the new syntax does not need NameSpaces.
+     * @param tag
+     * @returns {any}
+     */
     function cleanNS(tag?:string) {
         if (!tag) {
             return null;
