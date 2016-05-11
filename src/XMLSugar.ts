@@ -5,9 +5,6 @@
 
 module CocoonSDK {
 
-    var cocoonNS = 'http://cocoon.io/ns/1.0';
-    var xmlnsNS = 'http://www.w3.org/2000/xmlns/';
-
     export enum Orientation {
         PORTRAIT = 0,
         LANDSCAPE = 1,
@@ -46,12 +43,14 @@ module CocoonSDK {
                 this.document = dom.createDocument();
             }
 
+            // Replace old syntax
+            text = text.replace(/cocoon:platform/g, 'engine');
+            text = text.replace(/cocoon:plugin/g, 'plugin');
+            text = text.replace(/<param/g, '<variable');
+            text = text.replace(/version=/g, 'spec=');
+
             this.doc = parser.parseFromString(text, 'text/xml');
-            var root = this.doc.getElementsByTagName('widget')[0];
-            if (root && !root.getAttributeNS(xmlnsNS, 'cocoon')) {
-                root.setAttributeNS(xmlnsNS, 'xmlns:cocoon', cocoonNS);
-            }
-            this.root = root;
+            this.root = this.doc.getElementsByTagName('widget')[0];
         }
 
         isErrored(): boolean {
@@ -67,7 +66,7 @@ module CocoonSDK {
             //fix </platform> indentation
             xml = xml.replace(/^[<][/]platform[>]/gm, '    </platform>');
             //fix </plugin> indentation
-            xml = xml.replace(/^[<][/]cocoon[:]plugin[>]/gm, '    </cocoon:plugin>');
+            xml = xml.replace(/^[<][/]plugin[>]/gm, '    </plugin>');
             return xml;
         }
 
@@ -289,11 +288,11 @@ module CocoonSDK {
             this.setPreference('Fullscreen', value === null ? null : (!!value).toString(), platform);
         }
 
-        getCocoonPlatform(platform:string): Element {
+        getCocoonPlatform(engine:string): Element {
             var filter = {
-                tag: 'cocoon:platform',
+                tag: 'engine',
                 attributes: [
-                    {name:'name', value:platform}
+                    {name:'name', value:engine}
                 ]
             };
 
@@ -305,18 +304,18 @@ module CocoonSDK {
             return node ? node.getAttribute('version') : null;
         }
 
-        setCocoonPlatformVersion(platform:string, value:string) {
+        setCocoonPlatformVersion(engine:string, value:string) {
             var filter = {
-                tag: 'cocoon:platform',
+                tag: 'engine',
                 attributes: [
-                    {name:'name', value:platform}
+                    {name:'name', value:engine}
                 ]
             };
             if (value) {
                 var update = {
                     attributes: [
-                        {name:'name', value:platform},
-                        {name:'version', value:value}
+                        {name:'name', value:engine},
+                        {name:'spec', value:value}
                     ]
                 };
                 updateOrAddNode(this, filter, update);
@@ -326,11 +325,11 @@ module CocoonSDK {
             }
         }
 
-        isCocoonPlatformEnabled(platform:string): boolean {
+        isCocoonPlatformEnabled(engine:string): boolean {
             var filter = {
-                tag: 'cocoon:platform',
+                tag: 'engine',
                 attributes: [
-                    {name:'name', value:platform}
+                    {name:'name', value:engine}
                 ]
             };
 
@@ -341,17 +340,17 @@ module CocoonSDK {
 
             return node.getAttribute('enabled') !== 'false';
         }
-        setCocoonPlatformEnabled(platform:string, enabled:boolean) {
+        setCocoonPlatformEnabled(engine:string, enabled:boolean) {
             var filter = {
-                tag: 'cocoon:platform',
+                tag: 'engine',
                 attributes: [
-                    {name:'name', value:platform}
+                    {name:'name', value:engine}
                 ]
             };
             var update = {
                 attributes: [
                     {name:'enabled', value:enabled ? null : 'false'},
-                    {name:'name', value:platform}
+                    {name:'name', value:engine}
                 ]
             };
             updateOrAddNode(this, filter, update);
@@ -387,7 +386,7 @@ module CocoonSDK {
 
         addPlugin(name:string) {
             var filter = {
-                tag: 'cocoon:plugin',
+                tag: 'plugin',
                 attributes: [
                     {name:'name', value:name}
                 ]
@@ -403,7 +402,7 @@ module CocoonSDK {
 
         removePlugin(name:string) {
             var filter = {
-                tag: '*:plugin',
+                tag: 'plugin',
                 attributes: [
                     {name:'name', value:name}
                 ]
@@ -414,7 +413,7 @@ module CocoonSDK {
 
         findPlugin(name:string):Element {
             var filter = {
-                tag: 'cocoon:plugin',
+                tag: 'plugin',
                 attributes: [
                     {name:'name', value:name}
                 ]
@@ -425,7 +424,7 @@ module CocoonSDK {
 
         findAllPlugins(): Element[] {
             var filter = {
-                tag: 'cocoon:plugin'
+                tag: 'plugin'
             };
 
             return findNodes(this, filter);
@@ -438,6 +437,21 @@ module CocoonSDK {
                 var nodes = plugin.childNodes;
                 for (var i = 0; i < nodes.length; ++i) {
                     if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === paramName) {
+                        result = this.decode((<Element>nodes[i]).getAttribute('value')) || '';
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        findPluginVariable(pluginName:string, varName:string): String {
+            var plugin = this.findPlugin(pluginName);
+            var result:string = null;
+            if (plugin) {
+                var nodes = plugin.childNodes;
+                for (var i = 0; i < nodes.length; ++i) {
+                    if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === varName) {
                         result = this.decode((<Element>nodes[i]).getAttribute('value')) || '';
                         break;
                     }
@@ -461,12 +475,36 @@ module CocoonSDK {
                 }
 
                 if (!node) {
-                    node = this.document.createElementNS(null, 'param');
+                    node = this.document.createElementNS(null, 'variable');
                     node.setAttribute('name', paramName || '');
                     addNodeIndented(this, node, plugin);
                 }
 
                 node.setAttribute('value', this.encode(paramValue) || '');
+            }
+        }
+
+        addPluginVariable(pluginName:string, varName:string, varValue:string) {
+            this.addPlugin(pluginName);
+
+            var plugin = this.findPlugin(pluginName);
+            if (plugin) {
+                var nodes = plugin.childNodes;
+                var node: Element = null;
+                for (var i = 0; i < nodes.length; ++i) {
+                    if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === varName) {
+                        node = <Element>nodes[i];
+                        break;
+                    }
+                }
+
+                if (!node) {
+                    node = this.document.createElementNS(null, 'variable');
+                    node.setAttribute('name', varName || '');
+                    addNodeIndented(this, node, plugin);
+                }
+
+                node.setAttribute('value', this.encode(varValue) || '');
             }
         }
 
@@ -576,13 +614,19 @@ module CocoonSDK {
     };
 
     var bundleIdAliases: {[key:string]: string} = {
-        ios: 'ios-CFBundleIdentifier',
         android: 'android-packageName',
+        ios: 'ios-CFBundleIdentifier',
+        osx: 'osx-tmpPlaceholder',//TODO: find real name
+        ubuntu: 'ubuntu-tmpPlaceholder',//TODO: find real name
+        windows: 'windows-tmpPlaceholder'//TODO: find real name
     };
 
     var versionCodeAliases: {[key:string]: string} = {
+        android: 'android-versionCode',
         ios: 'ios-CFBundleVersion',
-        android: 'android-versionCode'
+        osx: 'osx-CFBundleVersion',
+        ubuntu: 'ubuntu-tmpVersionPlaceholder',//TODO: find real name
+        windows: 'windows-packageVersion'
     };
 
     function matchesFilter(sugar: XMLSugar, node:Element, filter:any) {
@@ -632,21 +676,12 @@ module CocoonSDK {
         return tag;
     }
 
-
     function getElements(sugar:XMLSugar, filter: any) {
-
-        if (hasNS(filter.tag)) {
-            var ns = filter.tag[0] === '*' ? '*' : cocoonNS;
-            return sugar.doc.getElementsByTagNameNS(ns, cleanNS(filter.tag));
-        }
-        else {
-            return sugar.doc.getElementsByTagName(filter.tag || '*');
-        }
+        return sugar.doc.getElementsByTagName(filter.tag || '*');
     }
 
     function findNode(sugar:XMLSugar, filter: any): Element {
         filter = filter || {};
-
 
         var nodes = getElements(sugar, filter);
 
@@ -660,9 +695,7 @@ module CocoonSDK {
             delete filter.platform;
             return findNode(sugar, filter);
         }
-
         return null;
-
     }
 
     function findNodes(doc:XMLSugar, filter:any): Element[] {
@@ -720,12 +753,7 @@ module CocoonSDK {
         var found = findNode(sugar, filter);
         if (!found) {
             var parent = parentNodeForPlatform(sugar, filter.platform);
-            if (hasNS(filter.tag)) {
-                found = sugar.document.createElementNS(cocoonNS, filter.tag);
-            }
-            else {
-                found = sugar.document.createElementNS(null, filter.tag);
-            }
+            found = sugar.document.createElementNS(null, filter.tag);
             addNodeIndented(sugar, found, parent);
         }
 
