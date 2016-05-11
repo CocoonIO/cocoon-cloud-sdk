@@ -18,13 +18,13 @@ module CocoonSDK {
         CANVAS_PLUS = 2
     }
 
-    declare var require: any;
+    declare var require:any;
 
     export class XMLSugar {
         doc:XMLDocument;
         serializer:XMLSerializer;
         root:Element;
-        document: HTMLDocument;
+        document:HTMLDocument;
 
         constructor(text:string) {
 
@@ -53,7 +53,7 @@ module CocoonSDK {
             this.root = this.doc.getElementsByTagName('widget')[0];
         }
 
-        isErrored(): boolean {
+        isErrored():boolean {
             return this.doc.getElementsByTagName('parsererror').length > 0 || !this.root;
         }
 
@@ -84,9 +84,9 @@ module CocoonSDK {
             return this.root.getAttribute('id');
         }
 
-        getVersion(platform?:string, fallback?:boolean): string {
+        getVersion(platform?:string, fallback?:boolean):string {
             if (platform) {
-                var version =  this.root.getAttribute(platform + '-version');
+                var version = this.root.getAttribute(platform + '-version');
                 if (version) {
                     return version;
                 }
@@ -101,11 +101,11 @@ module CocoonSDK {
             return this.root.getAttribute('version');
         }
 
-        getVersionCode(platform?:string, fallback?:boolean): string {
+        getVersionCode(platform?:string, fallback?:boolean):string {
             if (platform) {
                 var name = versionCodeAliases[platform];
                 if (name) {
-                    var version =  this.root.getAttribute(name);
+                    var version = this.root.getAttribute(name);
                     if (version) {
                         return version;
                     }
@@ -169,7 +169,7 @@ module CocoonSDK {
             return this.root.setAttribute('version', value);
         }
 
-        getNode(tagName:string, platform?:string, fallback?:boolean): Element {
+        getNode(tagName:string, platform?:string, fallback?:boolean):Element {
             return findNode(this, {
                 tag: tagName,
                 platform: platform,
@@ -177,12 +177,12 @@ module CocoonSDK {
             });
         }
 
-        getValue(tagName:string, platform?:string, fallback?:boolean): string {
+        getValue(tagName:string, platform?:string, fallback?:boolean):string {
             var node = this.getNode(tagName, platform, fallback);
             return node ? node.textContent : null;
         }
 
-        getNodeValue(tagName:string, platform?:string, fallback?:boolean): Element {
+        getNodeValue(tagName:string, platform?:string, fallback?:boolean):Element {
             var node = this.getNode(tagName, platform, fallback);
             return node;
         }
@@ -196,7 +196,7 @@ module CocoonSDK {
             });
         }
 
-        removeValue(tagName:string,  platform?:string) {
+        removeValue(tagName:string, platform?:string) {
             removeNode(this, {
                 tag: tagName,
                 platform: platform
@@ -208,7 +208,7 @@ module CocoonSDK {
                 tag: 'preference',
                 platform: platform,
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ],
                 fallback: fallback
             };
@@ -221,15 +221,15 @@ module CocoonSDK {
                 tag: 'preference',
                 platform: platform,
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ]
             };
 
             if (value) {
                 var update = {
                     attributes: [
-                        {name:'name', value:name},
-                        {name:'value', value:value}
+                        {name: 'name', value: name},
+                        {name: 'value', value: value}
                     ]
                 };
                 updateOrAddNode(this, filter, update);
@@ -247,8 +247,8 @@ module CocoonSDK {
             this.setPreference('cocoon-version', version);
         }
 
-        getOrientation(platform?:string, fallback?:boolean): Orientation {
-            var value =  this.getPreference('Orientation', platform, fallback);
+        getOrientation(platform?:string, fallback?:boolean):Orientation {
+            var value = this.getPreference('Orientation', platform, fallback);
             if (!value) {
                 return Orientation.SYSTEM_DEFAULT;
             }
@@ -279,7 +279,7 @@ module CocoonSDK {
             this.setPreference('Orientation', cordovaValue, platform);
         }
 
-        isFullScreen(platform?:string, fallback?:boolean): boolean {
+        isFullScreen(platform?:string, fallback?:boolean):boolean {
             var value = this.getPreference('Fullscreen', platform, fallback);
             return value ? value !== 'false' : false;
         }
@@ -288,18 +288,18 @@ module CocoonSDK {
             this.setPreference('Fullscreen', value === null ? null : (!!value).toString(), platform);
         }
 
-        getCocoonPlatform(engine:string): Element {
+        getCocoonPlatform(engine:string):Element {
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    {name:'name', value:engine}
+                    {name: 'name', value: engine}
                 ]
             };
 
             return findNode(this, filter);
         }
 
-        getCocoonPlatformVersion(platform:string): string {
+        getCocoonPlatformVersion(platform:string):string {
             var node = this.getCocoonPlatform(platform);
             return node ? node.getAttribute('version') : null;
         }
@@ -308,14 +308,14 @@ module CocoonSDK {
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    {name:'name', value:engine}
+                    {name: 'name', value: engine}
                 ]
             };
             if (value) {
                 var update = {
                     attributes: [
-                        {name:'name', value:engine},
-                        {name:'spec', value:value}
+                        {name: 'name', value: engine},
+                        {name: 'spec', value: value}
                     ]
                 };
                 updateOrAddNode(this, filter, update);
@@ -325,11 +325,11 @@ module CocoonSDK {
             }
         }
 
-        isCocoonPlatformEnabled(engine:string): boolean {
+        isCocoonPlatformEnabled(engine:string):boolean {
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    {name:'name', value:engine}
+                    {name: 'name', value: engine}
                 ]
             };
 
@@ -340,17 +340,18 @@ module CocoonSDK {
 
             return node.getAttribute('enabled') !== 'false';
         }
+
         setCocoonPlatformEnabled(engine:string, enabled:boolean) {
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    {name:'name', value:engine}
+                    {name: 'name', value: engine}
                 ]
             };
             var update = {
                 attributes: [
-                    {name:'enabled', value:enabled ? null : 'false'},
-                    {name:'name', value:engine}
+                    {name: 'enabled', value: enabled ? null : 'false'},
+                    {name: 'name', value: engine}
                 ]
             };
             updateOrAddNode(this, filter, update);
@@ -374,7 +375,7 @@ module CocoonSDK {
             if (value) {
                 var update = {
                     attributes: [
-                        {name:'src', value:value}
+                        {name: 'src', value: value}
                     ]
                 };
                 updateOrAddNode(this, filter, update);
@@ -388,13 +389,13 @@ module CocoonSDK {
             var filter = {
                 tag: 'plugin',
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ]
             };
 
             var update = {
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ]
             };
             updateOrAddNode(this, filter, update);
@@ -404,7 +405,7 @@ module CocoonSDK {
             var filter = {
                 tag: 'plugin',
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ]
             };
 
@@ -415,14 +416,14 @@ module CocoonSDK {
             var filter = {
                 tag: 'plugin',
                 attributes: [
-                    {name:'name', value:name}
+                    {name: 'name', value: name}
                 ]
             };
             return findNode(this, filter);
 
         }
 
-        findAllPlugins(): Element[] {
+        findAllPlugins():Element[] {
             var filter = {
                 tag: 'plugin'
             };
@@ -430,7 +431,7 @@ module CocoonSDK {
             return findNodes(this, filter);
         }
 
-        findPluginParameter(pluginName:string, paramName:string): String {
+        findPluginParameter(pluginName:string, paramName:string):String {
             var plugin = this.findPlugin(pluginName);
             var result:string = null;
             if (plugin) {
@@ -445,7 +446,7 @@ module CocoonSDK {
             return result;
         }
 
-        findPluginVariable(pluginName:string, varName:string): String {
+        findPluginVariable(pluginName:string, varName:string):String {
             var plugin = this.findPlugin(pluginName);
             var result:string = null;
             if (plugin) {
@@ -466,7 +467,7 @@ module CocoonSDK {
             var plugin = this.findPlugin(pluginName);
             if (plugin) {
                 var nodes = plugin.childNodes;
-                var node: Element = null;
+                var node:Element = null;
                 for (var i = 0; i < nodes.length; ++i) {
                     if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === paramName) {
                         node = <Element>nodes[i];
@@ -490,7 +491,7 @@ module CocoonSDK {
             var plugin = this.findPlugin(pluginName);
             if (plugin) {
                 var nodes = plugin.childNodes;
-                var node: Element = null;
+                var node:Element = null;
                 for (var i = 0; i < nodes.length; ++i) {
                     if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === varName) {
                         node = <Element>nodes[i];
@@ -508,7 +509,7 @@ module CocoonSDK {
             }
         }
 
-        getEnvironment(platform?:string): Environment {
+        getEnvironment(platform?:string):Environment {
             if (!platform) {
                 var envs = [this.getEnvironment('ios'), this.getEnvironment('android')];
                 for (var j = 1; j < envs.length; ++j) {
@@ -521,7 +522,7 @@ module CocoonSDK {
                 return envs[0];
             }
 
-            var infos: any[] = [canvasPlusPlugins, webviewPlusPlugins];
+            var infos:any[] = [canvasPlusPlugins, webviewPlusPlugins];
 
             var env = Environment.WEBVIEW;
             for (var i = 0; i < infos.length; ++i) {
@@ -541,7 +542,7 @@ module CocoonSDK {
 
             for (var i = 0; i < names.length; ++i) {
                 var name = names[i];
-                var info: any;
+                var info:any;
                 if (value === Environment.CANVAS_PLUS) {
                     info = canvasPlusPlugins[name];
                     if (info) {
@@ -580,7 +581,7 @@ module CocoonSDK {
                 .replace(/'/g, '&apos;');
         }
 
-        decode(str:string):string{
+        decode(str:string):string {
             if (!str) {
                 return str;
             }
@@ -592,7 +593,7 @@ module CocoonSDK {
         }
 
     }
-    var canvasPlusPlugins: any = {
+    var canvasPlusPlugins:any = {
 
         value: Environment.CANVAS_PLUS,
         ios: {
@@ -603,7 +604,7 @@ module CocoonSDK {
         }
     };
 
-    var webviewPlusPlugins: any = {
+    var webviewPlusPlugins:any = {
         value: Environment.WEBVIEW_PLUS,
         ios: {
             plugin: 'com.ludei.webviewplus.ios'
@@ -613,7 +614,7 @@ module CocoonSDK {
         }
     };
 
-    var bundleIdAliases: {[key:string]: string} = {
+    var bundleIdAliases:{[key:string]: string} = {
         android: 'android-packageName',
         ios: 'ios-CFBundleIdentifier',
         osx: 'osx-tmpPlaceholder',//TODO: find real name
@@ -621,7 +622,7 @@ module CocoonSDK {
         windows: 'windows-tmpPlaceholder'//TODO: find real name
     };
 
-    var versionCodeAliases: {[key:string]: string} = {
+    var versionCodeAliases:{[key:string]: string} = {
         android: 'android-versionCode',
         ios: 'ios-CFBundleVersion',
         osx: 'osx-CFBundleVersion',
@@ -629,7 +630,7 @@ module CocoonSDK {
         windows: 'windows-packageVersion'
     };
 
-    function matchesFilter(sugar: XMLSugar, node:Element, filter:any) {
+    function matchesFilter(sugar:XMLSugar, node:Element, filter:any) {
         filter = filter || {};
         var parent = <Element>node.parentNode;
         if (filter.platform) {
@@ -642,7 +643,7 @@ module CocoonSDK {
         }
 
         //double check to avoid namespace mismatches in getElementsById
-        if (filter.tag && filter.tag !== node.tagName  && filter.tag.indexOf('*') < 0) {
+        if (filter.tag && filter.tag !== node.tagName && filter.tag.indexOf('*') < 0) {
             return false;
         }
 
@@ -658,29 +659,27 @@ module CocoonSDK {
         return true;
     }
 
-    function hasNS(tag: string)
-    {
+    function hasNS(tag:string) {
         return tag.indexOf(':') !== -1;
     }
 
-    function cleanNS(tag?:string)
-    {
+    function cleanNS(tag?:string) {
         if (!tag) {
             return null;
         }
         var nsIndex = tag.indexOf(':');
-        if (nsIndex >=0) {
+        if (nsIndex >= 0) {
             return tag.slice(nsIndex + 1);
         }
 
         return tag;
     }
 
-    function getElements(sugar:XMLSugar, filter: any) {
+    function getElements(sugar:XMLSugar, filter:any) {
         return sugar.doc.getElementsByTagName(filter.tag || '*');
     }
 
-    function findNode(sugar:XMLSugar, filter: any): Element {
+    function findNode(sugar:XMLSugar, filter:any):Element {
         filter = filter || {};
 
         var nodes = getElements(sugar, filter);
@@ -698,12 +697,12 @@ module CocoonSDK {
         return null;
     }
 
-    function findNodes(doc:XMLSugar, filter:any): Element[] {
+    function findNodes(doc:XMLSugar, filter:any):Element[] {
         filter = filter || {};
 
         var nodes = getElements(doc, filter);
 
-        var result: Element[] = [];
+        var result:Element[] = [];
         for (var i = 0; i < nodes.length; ++i) {
             if (matchesFilter(doc, nodes[i], filter)) {
                 result.push(nodes[i]);
@@ -712,7 +711,7 @@ module CocoonSDK {
         return result;
     }
 
-    function addNodeIndented(sugar:XMLSugar, node: Element, parent: Element) {
+    function addNodeIndented(sugar:XMLSugar, node:Element, parent:Element) {
         parent.appendChild(sugar.document.createTextNode('\n'));
         var p = parent.parentNode;
         do {
@@ -722,11 +721,11 @@ module CocoonSDK {
         while (!!p);
 
         parent.appendChild(node);
-        node.setAttribute('xmlns','');
+        node.setAttribute('xmlns', '');
         parent.appendChild(sugar.document.createTextNode('\n'));
     }
 
-    function parentNodeForPlatform(sugar: XMLSugar, platform?: string): Element {
+    function parentNodeForPlatform(sugar:XMLSugar, platform?:string):Element {
         if (!platform) {
             return sugar.root;
         }
@@ -748,7 +747,7 @@ module CocoonSDK {
 
     }
 
-    function updateOrAddNode(sugar: XMLSugar, filter: any, data: any) {
+    function updateOrAddNode(sugar:XMLSugar, filter:any, data:any) {
         filter = filter || {};
         var found = findNode(sugar, filter);
         if (!found) {
@@ -773,7 +772,7 @@ module CocoonSDK {
         }
     }
 
-    function removeNode(sugar: XMLSugar, filter:any) {
+    function removeNode(sugar:XMLSugar, filter:any) {
         var node = findNode(sugar, filter);
         if (node && node.parentNode) {
             var parent = <Element>node.parentNode;
