@@ -199,7 +199,7 @@ module CocoonSDK {
             });
         }
 
-        getPreference(name:string, platform?:string, fallback?:boolean) {
+        getPreference(name:string, platform?:string, fallback?:boolean):string {
             var filter = {
                 tag: 'preference',
                 platform: platform,
@@ -284,7 +284,22 @@ module CocoonSDK {
             this.setPreference('Fullscreen', value === null ? null : (!!value).toString(), platform);
         }
 
+        /**
+         * Gets the XML node of the engine specified.
+         * @deprecated As of release 1.2.0, replaced by {@link getCocoonEngine(string)}.
+         * @param engine name of the engine (aka platform).
+         * @returns {string} The node of the engine specified.
+         */
         getCocoonPlatform(engine:string):Element {
+            return this.getCocoonEngine(engine);
+        }
+
+        /**
+         * Gets the XML node of the engine specified.
+         * @param engine name of the engine (aka platform).
+         * @returns {string} The node of the engine specified.
+         */
+        getCocoonEngine(engine:string):Element {
             var filter = {
                 tag: 'engine',
                 attributes: [
@@ -295,33 +310,42 @@ module CocoonSDK {
             return findNode(this, filter);
         }
 
+        /**
+         * Gets the semantic version of the engine specified that will be required in a compilation of a project with this XML.
+         * @deprecated As of release 1.2.0, replaced by {@link getCocoonEngineSpec(string)}.
+         * @param platform name of the engine (aka platform).
+         * @returns {string} The SemVer of the engine specified.
+         */
         getCocoonPlatformVersion(platform:string):string {
-            var node = this.getCocoonPlatform(platform);
-            return node ? node.getAttribute('version') : null;
+            return this.getCocoonEngineSpec(platform);
         }
 
+        /**
+         * Gets the semantic version of the engine specified that will be required in a compilation of a project with this XML.
+         * @param engine name of the engine (aka platform).
+         * @returns {string} The SemVer of the engine specified.
+         */
+        getCocoonEngineSpec(engine:string):string {
+            var node = this.getCocoonEngine(engine);
+            return node ? node.getAttribute('spec') : null;
+        }
+
+        /**
+         * Sets the semantic version of the specified engine. This version will be required in a compilation of a project with this XML.
+         * @deprecated As of release 1.2.0, replaced by {@link setCocoonEngineSpec(string,string)}.
+         * @param engine Name of the engine (aka platform).
+         * @param value SemVer of the version.
+         */
         setCocoonPlatformVersion(engine:string, value:string) {
-            var filter = {
-                tag: 'engine',
-                attributes: [
-                    {name: 'name', value: engine}
-                ]
-            };
-            if (value) {
-                var update = {
-                    attributes: [
-                        {name: 'name', value: engine},
-                        {name: 'spec', value: value}
-                    ]
-                };
-                updateOrAddNode(this, filter, update);
-            }
-            else {
-                removeNode(this, filter);
-            }
+            this.setCocoonEngineSpec(engine, value);
         }
 
-        isCocoonPlatformEnabled(engine:string):boolean {
+        /**
+         * Sets the semantic version of the specified engine. This version will be required in a compilation of a project with this XML.
+         * @param engine Name of the engine (aka platform).
+         * @param spec SemVer of the version.
+         */
+        setCocoonEngineSpec(engine:string, spec:string = '*') {
             var filter = {
                 tag: 'engine',
                 attributes: [
@@ -329,31 +353,55 @@ module CocoonSDK {
                 ]
             };
 
-            var node = findNode(this, filter);
-            if (!node) {
-                return true;
-            }
-
-            return node.getAttribute('enabled') !== 'false';
-        }
-
-        setCocoonPlatformEnabled(engine:string, enabled:boolean) {
-            var filter = {
-                tag: 'engine',
-                attributes: [
-                    {name: 'name', value: engine}
-                ]
-            };
             var update = {
                 attributes: [
-                    {name: 'enabled', value: enabled ? null : 'false'},
-                    {name: 'name', value: engine}
+                    {name: 'name', value: engine},
+                    {name: 'spec', value: spec}
                 ]
             };
             updateOrAddNode(this, filter, update);
         }
 
-        getContentURL(platform?:string, fallback?:boolean) {
+        /**
+         * Returns a boolean indicating if a project with this XML will be compiled for the specified engine.
+         * @deprecated As of release 1.2.0, replaced by {@link isCocoonEngineEnabled(string)}.
+         * @param engine Name of the engine (aka platform).
+         * @returns {boolean} If the engine is enabled.
+         */
+        isCocoonPlatformEnabled(engine:string):boolean {
+            return this.isCocoonEngineEnabled(engine);
+        }
+
+        /**
+         * Returns a boolean indicating if a project with this XML will be compiled for the specified engine.
+         * @param engine Name of the engine (aka platform).
+         * @returns {boolean} If the engine is enabled.
+         */
+        isCocoonEngineEnabled(engine:string):boolean {
+            var preference = this.getPreference('enabled', engine);
+            return preference === 'true';
+        }
+
+        /**
+         * Sets if a project with this XML should be compiled for the specified engine.
+         * @deprecated As of release 1.2.0, replaced by {@link setCocoonEngineEnabled(string,boolean)}.
+         * @param engine Name of the engine (aka platform).
+         * @param enabled If the engine should be enabled.
+         */
+        setCocoonPlatformEnabled(engine:string, enabled:boolean) {
+            this.setPreference('enabled', enabled.toString(), engine);
+        }
+
+        /**
+         * Sets if a project with this XML should be compiled for the specified engine.
+         * @param engine Name of the engine (aka platform).
+         * @param enabled If the engine should be enabled.
+         */
+        setCocoonEngineEnabled(engine:string, enabled:boolean) {
+            this.setPreference('enabled', enabled ? null : 'false', engine);
+        }
+
+        getContentURL(platform?:string, fallback?:boolean):string {
             var filter = {
                 tag: 'content',
                 platform: platform,
@@ -381,7 +429,7 @@ module CocoonSDK {
             }
         }
 
-        addPlugin(name:string) {
+        addPlugin(name:string, spec:string = '*') {
             var filter = {
                 tag: 'plugin',
                 attributes: [
@@ -391,7 +439,8 @@ module CocoonSDK {
 
             var update = {
                 attributes: [
-                    {name: 'name', value: name}
+                    {name: 'name', value: name},
+                    {name: 'spec', value: spec}
                 ]
             };
             updateOrAddNode(this, filter, update);
@@ -435,18 +484,7 @@ module CocoonSDK {
          * @returns {string} Value of the parameter in the specified plugin.
          */
         findPluginParameter(pluginName:string, paramName:string):String {
-            var plugin = this.findPlugin(pluginName);
-            var result:string = null;
-            if (plugin) {
-                var nodes = plugin.childNodes;
-                for (var i = 0; i < nodes.length; ++i) {
-                    if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === paramName) {
-                        result = this.decode((<Element>nodes[i]).getAttribute('value')) || '';
-                        break;
-                    }
-                }
-            }
-            return result;
+            return this.findPluginVariable(pluginName, paramName);
         }
 
         /**
@@ -478,27 +516,7 @@ module CocoonSDK {
          * @param paramValue Value for the parameter.
          */
         addPluginParameter(pluginName:string, paramName:string, paramValue:string) {
-            this.addPlugin(pluginName);
-
-            var plugin = this.findPlugin(pluginName);
-            if (plugin) {
-                var nodes = plugin.childNodes;
-                var node:Element = null;
-                for (var i = 0; i < nodes.length; ++i) {
-                    if (nodes[i].nodeType === 1 && (<Element>nodes[i]).getAttribute('name') === paramName) {
-                        node = <Element>nodes[i];
-                        break;
-                    }
-                }
-
-                if (!node) {
-                    node = this.document.createElementNS(null, 'variable');
-                    node.setAttribute('name', paramName || '');
-                    addNodeIndented(this, node, plugin);
-                }
-
-                node.setAttribute('value', this.encode(paramValue) || '');
-            }
+            this.addPluginVariable(pluginName, paramName, paramValue);
         }
 
         /**
@@ -616,14 +634,29 @@ module CocoonSDK {
 
         /**
          * Replaces every Cocoon specific XML tag and parameter name with the ones from Cordova.
-         * @param str configuration of a Cordova project in XML format.
+         * @param str configuration of a Cocoon or Cordova project in XML format.
          * @returns {string} the same configuration using only Cordova tags.
          */
         replaceOldSyntax(str:string):string {
-            var newSyntax = str.replace(/cocoon:platform/g, 'engine');
+            var newSyntax = str.replace(/<cocoon:platform\s+enabled="([^"]*)"\s+name="([^"]*)"\s*\/?>/g, function (substring, enabled, engine) {
+                return '<platform name="' + engine + '">' +
+                    '<preference name="enabled" value="' + enabled + '" />' +
+                    '</platform>';
+            });
+            newSyntax = newSyntax.replace(/<cocoon:platform\s+name="([^"]*)"\s+enabled="([^"]*)"\s*\/?>/g, function (substring, engine, enabled) {
+                return '<platform name="' + engine + '">' +
+                    '<preference name="enabled" value="' + enabled + '" />' +
+                    '</platform>';
+            });
+            newSyntax = newSyntax.replace(/cocoon:platform/g, 'engine');
             newSyntax = newSyntax.replace(/cocoon:plugin/g, 'plugin');
             newSyntax = newSyntax.replace(/<param/g, '<variable');
-            newSyntax = newSyntax.replace(/version=/g, 'spec=');
+            newSyntax = newSyntax.replace(/<plugin\s+(.*?)\s*version=/g, function (substring, middleData) {
+                return '<plugin ' +  middleData ? middleData+' ' : '' + 'spec=';
+            });
+            newSyntax = newSyntax.replace(/<engine\s+(.*?)\s*version=/g, function (substring, middleData) {
+                return '<engine ' +  middleData ? middleData+' ' : '' + 'spec=';
+            });
             return newSyntax;
         }
     }
@@ -689,7 +722,6 @@ module CocoonSDK {
                 }
             }
         }
-
         return true;
     }
 

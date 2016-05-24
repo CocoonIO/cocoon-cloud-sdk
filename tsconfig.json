@@ -6,11 +6,12 @@
         "preserveConstEnums": true,
         "out": "./dist/cocoon.sdk.js",
         "sourceMap": true,
-        "declaration": false
+        "declaration": true
     },
     "filesGlob": [
         "./src/*.ts",
         "!./node_modules/**/*.ts",
-        "!./test/**/*.ts"
+        "!./test/**/*.ts",
+        "!./dist/**/*.ts"
     ]
 }
