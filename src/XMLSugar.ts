@@ -379,7 +379,7 @@ namespace CocoonSDK {
          */
         isCocoonEngineEnabled(engine: string): boolean {
             var preference = this.getPreference('enabled', engine);
-            return preference === 'true';
+            return !(preference === 'false');
         }
 
         /**
