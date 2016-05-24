@@ -1,18 +1,19 @@
 var CocoonSDK;
 (function (CocoonSDK) {
+    'use strict';
     (function (Status) {
-        Status[Status["Created"] = "created"] = "Created";
-        Status[Status["Waiting"] = "waiting"] = "Waiting";
-        Status[Status["Compiling"] = "compiling"] = "Compiling";
-        Status[Status["Completed"] = "completed"] = "Completed";
-        Status[Status["Disabled"] = "disabled"] = "Disabled";
+        Status[Status["Created"] = 'created'] = "Created";
+        Status[Status["Waiting"] = 'waiting'] = "Waiting";
+        Status[Status["Compiling"] = 'compiling'] = "Compiling";
+        Status[Status["Completed"] = 'completed'] = "Completed";
+        Status[Status["Disabled"] = 'disabled'] = "Disabled";
     })(CocoonSDK.Status || (CocoonSDK.Status = {}));
     var Status = CocoonSDK.Status;
     var Platform = (function () {
         function Platform() {
         }
-        Platform.IOS = "ios";
-        Platform.ANDROID = "android";
+        Platform.IOS = 'ios';
+        Platform.ANDROID = 'android';
         Platform.platforms = [Platform.IOS, Platform.ANDROID];
         return Platform;
     }());
@@ -32,7 +33,7 @@ var CocoonSDK;
             return this.data.error && this.data.error.hasOwnProperty(this.platform);
         };
         Compilation.prototype.getError = function () {
-            return this.isErrored() ? this.data.error[this.platform] : "";
+            return this.isErrored() ? this.data.error[this.platform] : '';
         };
         Compilation.prototype.getStatus = function () {
             if (this.data.status && this.data.status.hasOwnProperty(this.platform)) {
@@ -49,7 +50,7 @@ var CocoonSDK;
             if (this.data.download && this.data.download.hasOwnProperty(this.platform)) {
                 return this.data.download[this.platform];
             }
-            return "";
+            return '';
         };
         return Compilation;
     }());
@@ -104,7 +105,7 @@ var CocoonSDK;
         };
         Project.prototype.refresh = function (callback) {
             var _this = this;
-            this.client.request("GET", "project/" + this.data.id, null, function (response, error) {
+            this.client.request('GET', 'project/' + this.data.id, null, function (response, error) {
                 if (response && !error) {
                     _this.syncNewData(response);
                 }
@@ -169,9 +170,9 @@ var CocoonSDK;
         Project.prototype.getDownloadLink = function (platform) {
             var compilation = this.getCompilation(platform);
             if (compilation && compilation.getDownloadLink()) {
-                return compilation.getDownloadLink() + "?access_token=" + this.client.getAccessToken();
+                return compilation.getDownloadLink() + '?access_token=' + this.client.getAccessToken();
             }
-            return "";
+            return '';
         };
         Project.prototype.delete = function (callback) {
             this.client.project.delete(this.data.id, callback);
@@ -182,6 +183,11 @@ var CocoonSDK;
 })(CocoonSDK || (CocoonSDK = {}));
 var CocoonSDK;
 (function (CocoonSDK) {
+    'use strict';
+})(CocoonSDK || (CocoonSDK = {}));
+var CocoonSDK;
+(function (CocoonSDK) {
+    'use strict';
     (function (GrantType) {
         GrantType[GrantType["Implicit"] = 0] = "Implicit";
         GrantType[GrantType["AuthorizationCode"] = 1] = "AuthorizationCode";
@@ -195,9 +201,15 @@ var CocoonSDK;
     var APIURL = (function () {
         function APIURL() {
         }
-        APIURL.COMPILE = function (projectId) { return 'project/' + projectId + '/compile/'; };
-        APIURL.DEVAPP = function (projectId) { return 'project/' + projectId + '/devapp/'; };
-        APIURL.ICON = function (projectId, platform) { return 'project/' + projectId + '/icon/'; };
+        APIURL.COMPILE = function (projectId) {
+            return 'project/' + projectId + '/compile/';
+        };
+        APIURL.DEVAPP = function (projectId) {
+            return 'project/' + projectId + '/devapp/';
+        };
+        APIURL.ICON = function (projectId, platform) {
+            return 'project/' + projectId + '/icon/';
+        };
         APIURL.PROJECT = 'project/';
         APIURL.USER_PROFILE = 'me/';
         APIURL.SINGNING_KEY = 'signkey/';
@@ -213,13 +225,13 @@ var CocoonSDK;
     var APIClient = (function () {
         function APIClient(options) {
             if (!options || !options.clientId) {
-                throw new Error("Missing parameter clientId");
+                throw new Error('Missing parameter clientId');
             }
             this.config = {
                 clientId: options.clientId,
                 clientSecret: options.clientSecret,
-                apiURL: options.apiURL || "https://api.cocoon.io/v1/",
-                oauthURL: options.oauthURL || "https://cloud.cocoon.io/oauth/"
+                apiURL: options.apiURL || 'https://api.cocoon.io/v1/',
+                oauthURL: options.oauthURL || 'https://cloud.cocoon.io/oauth/'
             };
             this.setOauthMode({ grantType: GrantType.Implicit });
             this.project = new ProjectAPI(this);
@@ -244,7 +256,7 @@ var CocoonSDK;
         };
         APIClient.prototype.logInWithPassword = function (user, password, callback) {
             var _this = this;
-            var url = this.config.oauthURL + "access_token";
+            var url = this.config.oauthURL + 'access_token';
             var params = {
                 client_id: this.config.clientId,
                 client_secret: this.config.clientSecret,
@@ -252,8 +264,12 @@ var CocoonSDK;
                 username: user,
                 password: password
             };
-            callback = callback || function () { };
-            this.request("POST", url, { params: params, contentType: "application/x-www-form-urlencoded" }, function (response, error) {
+            callback = callback || function () {
+            };
+            this.request('POST', url, {
+                params: params,
+                contentType: 'application/x-www-form-urlencoded'
+            }, function (response, error) {
                 if (error) {
                     callback(false, error);
                 }
@@ -262,7 +278,7 @@ var CocoonSDK;
                     callback(true, null);
                 }
                 else {
-                    callback(false, { code: 0, message: "No error but access_token not found in the response" });
+                    callback(false, { code: 0, message: 'No error but access_token not found in the response' });
                 }
             });
         };
@@ -284,9 +300,9 @@ var CocoonSDK;
             }
             var left = Math.floor(window.screenX + (window.outerWidth - w) / 2);
             var top = Math.floor(window.screenY + (window.outerHeight - h) / 8);
-            var windowOptions = "width=" + w + ",height=" + h;
-            windowOptions += ",toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0";
-            windowOptions += ",left=" + left + ",top=" + top;
+            var windowOptions = 'width=' + w + ',height=' + h;
+            windowOptions += ',toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0';
+            windowOptions += ',left=' + left + ',top=' + top;
             var tokenReceived = false;
             var me = this;
             function processToken(accessToken) {
@@ -310,13 +326,13 @@ var CocoonSDK;
                 }
             };
             if (window.addEventListener) {
-                window.addEventListener("message", getMessage, false);
+                window.addEventListener('message', getMessage, false);
             }
             else if (window.attachEvent) {
-                window.attachEvent("onmessage", getMessage);
+                window.attachEvent('onmessage', getMessage);
             }
             else if (document.attachEvent) {
-                document.attachEvent("onmessage", getMessage);
+                document.attachEvent('onmessage', getMessage);
             }
             var chrome = window.chrome;
             if (chrome && chrome.runtime && chrome.runtime.onMessageExternal) {
@@ -325,14 +341,14 @@ var CocoonSDK;
                     return getMessage(request);
                 });
             }
-            var wnd = window.open(url, "Authorization", windowOptions);
+            var wnd = window.open(url, 'Authorization', windowOptions);
             function checkUrl() {
                 if (tokenReceived) {
                     return true;
                 }
                 var url = wnd.location.href;
                 if (url.indexOf(redirectUri) >= 0) {
-                    var access_token = url.split("access_token=")[1];
+                    var access_token = url.split('access_token=')[1];
                     if (access_token) {
                         processToken(access_token);
                         return true;
@@ -349,20 +365,20 @@ var CocoonSDK;
                     if (checkUrl() || wnd === null || wnd.closed) {
                         window.clearInterval(interval);
                         if (!tokenReceived) {
-                            callback(null, { message: "The popup was closed", code: 0 });
+                            callback(null, { message: 'The popup was closed', code: 0 });
                         }
                     }
                 }, 100);
             }
             else {
-                callback(null, { message: "Cannot open window", code: 0 });
+                callback(null, { message: 'Cannot open window', code: 0 });
             }
         };
         APIClient.prototype.logout = function () {
             this.credentials.logout();
             if (typeof document !== 'undefined') {
-                var iframe = document.createElement("iframe");
-                iframe.style.display = "none";
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
                 iframe.onload = function () {
                     if (this.parentNode) {
                         this.parentNode.removeChild(this);
@@ -378,14 +394,14 @@ var CocoonSDK;
                 xhr = new XMLHttpRequest();
             }
             else {
-                xhr = new (require("xmlhttprequest").XMLHttpRequest);
+                xhr = new (require('xmlhttprequest').XMLHttpRequest);
             }
             var url = path;
             if (path.indexOf('://') < 0) {
                 url = this.config.apiURL + path;
             }
-            xhr.open(method || "GET", url);
-            xhr.setRequestHeader("Authorization", "Bearer " + this.credentials.getAccessToken());
+            xhr.open(method || 'GET', url);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + this.credentials.getAccessToken());
             xhr.onerror = function () {
                 if (callback) {
                     callback(null, { message: this.statusText || 'Error with status ' + this.status, code: this.status });
@@ -394,7 +410,7 @@ var CocoonSDK;
             xhr.onload = function () {
                 if (callback) {
                     if (this.status < 200 || this.status >= 300) {
-                        var errorMessage = { code: this.status, message: "Error with code: " + this.status };
+                        var errorMessage = { code: this.status, message: 'Error with code: ' + this.status };
                         try {
                             data = JSON.parse(this.responseText);
                             if (data.description) {
@@ -420,7 +436,7 @@ var CocoonSDK;
                         callback(data || null, null);
                     }
                     catch (ex) {
-                        callback(null, { message: "Error parsing json: " + ex, code: 0 });
+                        callback(null, { message: 'Error parsing json: ' + ex, code: 0 });
                     }
                 }
             };
@@ -428,16 +444,16 @@ var CocoonSDK;
                 xhr.responseType = options.responseType;
             }
             if (options && options.params) {
-                if (options.contentType === "multipart/form-data") {
+                if (options.contentType === 'multipart/form-data') {
                     xhr.send(options.params);
                 }
-                else if (options.contentType === "application/x-www-form-urlencoded" && typeof options.params === "object") {
-                    xhr.setRequestHeader("Content-Type", options.contentType);
-                    var sendData = "";
+                else if (options.contentType === 'application/x-www-form-urlencoded' && typeof options.params === 'object') {
+                    xhr.setRequestHeader('Content-Type', options.contentType);
+                    var sendData = '';
                     for (var key in options.params) {
                         if (options.params.hasOwnProperty(key)) {
                             if (sendData.length > 0) {
-                                sendData += "&";
+                                sendData += '&';
                             }
                             sendData += key + '=' + encodeURIComponent(options.params[key]);
                         }
@@ -445,11 +461,11 @@ var CocoonSDK;
                     xhr.send(sendData);
                 }
                 else if (options.contentType) {
-                    xhr.setRequestHeader("Content-Type", options.contentType);
+                    xhr.setRequestHeader('Content-Type', options.contentType);
                     xhr.send(options.params);
                 }
                 else if (typeof options.params === 'object') {
-                    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
                     xhr.send(JSON.stringify(options.params));
                 }
             }
@@ -458,13 +474,13 @@ var CocoonSDK;
             }
         };
         APIClient.prototype.me = function (callback) {
-            this.request("GET", APIURL.USER_PROFILE, null, callback);
+            this.request('GET', APIURL.USER_PROFILE, null, callback);
         };
         APIClient.prototype.getLoginURL = function (redirect_uri) {
-            var result = this.config.oauthURL + "authorization?client_id=" + this.config.clientId;
-            result += "&response_type=token";
+            var result = this.config.oauthURL + 'authorization?client_id=' + this.config.clientId;
+            result += '&response_type=token';
             if (redirect_uri) {
-                result += "&redirect_uri=" + encodeURI(redirect_uri);
+                result += '&redirect_uri=' + encodeURI(redirect_uri);
             }
             return result;
         };
@@ -477,7 +493,7 @@ var CocoonSDK;
         }
         ProjectAPI.prototype.createFromRepository = function (data, callback) {
             var _this = this;
-            this.client.request("POST", APIURL.GITHUB_CREATE, { params: data }, function (response, error) {
+            this.client.request('POST', APIURL.GITHUB_CREATE, { params: data }, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -488,7 +504,7 @@ var CocoonSDK;
         };
         ProjectAPI.prototype.createFromPublicZip = function (url, callback) {
             var _this = this;
-            this.client.request("POST", APIURL.URL_CREATE, { params: { url: url } }, function (response, error) {
+            this.client.request('POST', APIURL.URL_CREATE, { params: { url: url } }, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -502,10 +518,10 @@ var CocoonSDK;
             var formData = typeof FormData !== 'undefined' ? new FormData() : new (require('form-data'));
             formData.append('file', file);
             var xhrOptions = {
-                contentType: "multipart/form-data",
+                contentType: 'multipart/form-data',
                 params: formData
             };
-            this.client.request("POST", APIURL.PROJECT, xhrOptions, function (response, error) {
+            this.client.request('POST', APIURL.PROJECT, xhrOptions, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -516,7 +532,7 @@ var CocoonSDK;
         };
         ProjectAPI.prototype.get = function (projectId, callback) {
             var _this = this;
-            this.client.request("GET", APIURL.PROJECT + projectId, null, function (response, error) {
+            this.client.request('GET', APIURL.PROJECT + projectId, null, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -526,14 +542,14 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.delete = function (projectId, callback) {
-            this.client.request("DELETE", "project/" + projectId, null, function (response, error) {
+            this.client.request('DELETE', 'project/' + projectId, null, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
             });
         };
         ProjectAPI.prototype.list = function (callback) {
-            this.client.request("GET", "project", null, function (response, error) {
+            this.client.request('GET', 'project', null, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -548,14 +564,14 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.compile = function (projectId, callback) {
-            this.client.request("POST", APIURL.COMPILE(projectId), null, function (response, error) {
+            this.client.request('POST', APIURL.COMPILE(projectId), null, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
             });
         };
         ProjectAPI.prototype.compileDevApp = function (projectId, callback) {
-            this.client.request("POST", APIURL.DEVAPP(projectId), null, function (response, error) {
+            this.client.request('POST', APIURL.DEVAPP(projectId), null, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
@@ -567,7 +583,7 @@ var CocoonSDK;
                     return xhr.responseText;
                 }
             };
-            this.client.request("GET", configURL, xhrOptions, function (response, error) {
+            this.client.request('GET', configURL, xhrOptions, function (response, error) {
                 callback(response, error);
             });
         };
@@ -578,7 +594,7 @@ var CocoonSDK;
                     return xhr.response;
                 }
             };
-            this.client.request("GET", APIURL.ICON(projectId, platform), xhrOptions, function (response, error) {
+            this.client.request('GET', APIURL.ICON(projectId, platform), xhrOptions, function (response, error) {
                 callback(response, error);
             });
         };
@@ -588,12 +604,12 @@ var CocoonSDK;
         ProjectAPI.prototype.putConfigXml = function (configURL, xml, callback) {
             var formData = new FormData();
             var blob = new Blob([xml], { type: 'text/xml;charset=utf-8;' });
-            formData.append('file', blob, "config.xml");
+            formData.append('file', blob, 'config.xml');
             var xhrOptions = {
-                contentType: "multipart/form-data",
+                contentType: 'multipart/form-data',
                 params: formData
             };
-            this.client.request("PUT", configURL, xhrOptions, function (response, error) {
+            this.client.request('PUT', configURL, xhrOptions, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
@@ -604,22 +620,22 @@ var CocoonSDK;
                 var formData = new FormData();
                 formData.append('file', file);
                 var xhrOptions = {
-                    contentType: "multipart/form-data",
+                    contentType: 'multipart/form-data',
                     params: formData
                 };
-                this.client.request("PUT", APIURL.PROJECT + projectId, xhrOptions, function (response, error) {
+                this.client.request('PUT', APIURL.PROJECT + projectId, xhrOptions, function (response, error) {
                     if (callback) {
                         callback(response, error);
                     }
                 });
             }
             else {
-                var url = require("url").parse(this.client.config.apiURL + APIURL.PROJECT + projectId);
+                var url = require('url').parse(this.client.config.apiURL + APIURL.PROJECT + projectId);
                 var form = new (require('form-data'));
                 form.append('file', file);
                 form.submit({
                     protocol: url.protocol,
-                    method: "put",
+                    method: 'put',
                     host: url.hostname,
                     path: url.path,
                     headers: { 'Authorization': 'Bearer ' + this.client.credentials.getAccessToken() }
@@ -654,14 +670,14 @@ var CocoonSDK;
             }
         };
         ProjectAPI.prototype.updatePublicZip = function (projectId, url, callback) {
-            this.client.request("PUT", APIURL.URL_SYNC + projectId, { params: { url: url } }, function (response, error) {
+            this.client.request('PUT', APIURL.URL_SYNC + projectId, { params: { url: url } }, function (response, error) {
                 if (callback) {
                     callback(response, error);
                 }
             });
         };
         ProjectAPI.prototype.syncRepository = function (projectId, repo, callback) {
-            this.client.request("PUT", APIURL.GITHUB_SYNC + projectId, { params: repo }, function (response, error) {
+            this.client.request('PUT', APIURL.GITHUB_SYNC + projectId, { params: repo }, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
@@ -673,10 +689,19 @@ var CocoonSDK;
     var MemoryCredentialStorage = (function () {
         function MemoryCredentialStorage() {
         }
-        MemoryCredentialStorage.prototype.getAccessToken = function () { return this.access_token; };
-        MemoryCredentialStorage.prototype.getRefreshToken = function () { return this.refresh_token; };
-        MemoryCredentialStorage.prototype.setAccessToken = function (value, expires) { this.access_token = value; this.expires = expires; };
-        MemoryCredentialStorage.prototype.setRefreshToken = function (value) { this.refresh_token = value; };
+        MemoryCredentialStorage.prototype.getAccessToken = function () {
+            return this.access_token;
+        };
+        MemoryCredentialStorage.prototype.getRefreshToken = function () {
+            return this.refresh_token;
+        };
+        MemoryCredentialStorage.prototype.setAccessToken = function (value, expires) {
+            this.access_token = value;
+            this.expires = expires;
+        };
+        MemoryCredentialStorage.prototype.setRefreshToken = function (value) {
+            this.refresh_token = value;
+        };
         MemoryCredentialStorage.prototype.logout = function () {
             this.access_token = null;
             this.refresh_token = null;
@@ -688,20 +713,20 @@ var CocoonSDK;
         function CookieCredentialStorage() {
         }
         CookieCredentialStorage.prototype.getAccessToken = function () {
-            return CookieHelper.getItem("access_token");
+            return CookieHelper.getItem('access_token');
         };
         CookieCredentialStorage.prototype.getRefreshToken = function () {
-            return CookieHelper.getItem("refresh_token");
+            return CookieHelper.getItem('refresh_token');
         };
         CookieCredentialStorage.prototype.setAccessToken = function (value, expires) {
-            CookieHelper.setItem("access_token", value, expires || Infinity);
+            CookieHelper.setItem('access_token', value, expires || Infinity);
         };
         CookieCredentialStorage.prototype.setRefreshToken = function (value) {
-            CookieHelper.setItem("access_token", value, Infinity);
+            CookieHelper.setItem('access_token', value, Infinity);
         };
         CookieCredentialStorage.prototype.logout = function () {
-            CookieHelper.removeItem("access_token");
-            CookieHelper.removeItem("refresh_token");
+            CookieHelper.removeItem('access_token');
+            CookieHelper.removeItem('refresh_token');
         };
         return CookieCredentialStorage;
     }());
@@ -733,6 +758,7 @@ if (typeof module !== 'undefined') {
 }
 var CocoonSDK;
 (function (CocoonSDK) {
+    'use strict';
     (function (Orientation) {
         Orientation[Orientation["PORTRAIT"] = 0] = "PORTRAIT";
         Orientation[Orientation["LANDSCAPE"] = 1] = "LANDSCAPE";

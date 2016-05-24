@@ -1,4 +1,4 @@
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum Status {
         Created,
         Waiting,
@@ -85,7 +85,7 @@ declare module CocoonSDK {
         delete(callback: (error: Error) => void): void;
     }
 }
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     interface PaymentPlan {
         name: string;
     }
@@ -104,7 +104,7 @@ declare module CocoonSDK {
         migration: any;
     }
 }
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum GrantType {
         Implicit = 0,
         AuthorizationCode = 1,
@@ -199,7 +199,7 @@ declare module CocoonSDK {
     }
 }
 declare var module: any;
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum Orientation {
         PORTRAIT = 0,
         LANDSCAPE = 1,
