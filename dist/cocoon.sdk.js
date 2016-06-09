@@ -1041,7 +1041,7 @@ var CocoonSDK;
             return !(preference === 'false');
         };
         XMLSugar.prototype.setCocoonPlatformEnabled = function (engine, enabled) {
-            this.setPreference('enabled', enabled.toString(), engine);
+            this.setCocoonEngineEnabled(engine, enabled);
         };
         XMLSugar.prototype.setCocoonEngineEnabled = function (engine, enabled) {
             this.setPreference('enabled', enabled ? null : 'false', engine);

@@ -389,7 +389,7 @@ namespace CocoonSDK {
          * @param enabled If the engine should be enabled.
          */
         setCocoonPlatformEnabled(engine: string, enabled: boolean) {
-            this.setPreference('enabled', enabled.toString(), engine);
+            this.setCocoonEngineEnabled(engine, enabled);
         }
 
         /**
