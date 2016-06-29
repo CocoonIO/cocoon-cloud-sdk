@@ -652,10 +652,10 @@ namespace CocoonSDK {
             newSyntax     = newSyntax.replace(/cocoon:plugin/g, 'plugin');
             newSyntax     = newSyntax.replace(/<param/g, '<variable');
             newSyntax     = newSyntax.replace(/<plugin\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<plugin ' + middleData ? middleData + ' ' : '' + 'spec=';
+                return '<plugin ' + (middleData ? middleData + ' ' : '') + 'spec=';
             });
             newSyntax     = newSyntax.replace(/<engine\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<engine ' + middleData ? middleData + ' ' : '' + 'spec=';
+                return '<engine ' + (middleData ? middleData + ' ' : '') + 'spec=';
             });
             return newSyntax;
         }
