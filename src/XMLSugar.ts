@@ -510,6 +510,16 @@ namespace CocoonSDK {
 
         /**
          *
+         * @param pluginName Name of the plugin.
+         * @returns {NodeListOf<Element>} List of the variables in the specified plugin. Null if the plugin doesn't exist.
+         */
+        getPluginVariables(pluginName: string): NodeListOf<Element> {
+            var plugin = this.findPlugin(pluginName);
+            return plugin ? plugin.getElementsByTagName('variable') : null;
+        }
+
+        /**
+         *
          * @deprecated As of release 1.1.0, replaced by {@link addPluginVariable(string,string,string)}.
          * @param pluginName Name of the plugin.
          * @param paramName Name of the parameter.

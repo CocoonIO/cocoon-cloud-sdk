@@ -256,6 +256,7 @@ declare namespace CocoonSDK {
         findAllPlugins(): Element[];
         findPluginParameter(pluginName: string, paramName: string): String;
         findPluginVariable(pluginName: string, varName: string): String;
+        getPluginVariables(pluginName: string): NodeListOf<Element>;
         addPluginParameter(pluginName: string, paramName: string, paramValue: string): void;
         addPluginVariable(pluginName: string, varName: string, varValue: string): void;
         getEnvironment(platform?: string): Environment;

@@ -1129,6 +1129,10 @@ var CocoonSDK;
             }
             return result;
         };
+        XMLSugar.prototype.getPluginVariables = function (pluginName) {
+            var plugin = this.findPlugin(pluginName);
+            return plugin ? plugin.getElementsByTagName('variable') : null;
+        };
         XMLSugar.prototype.addPluginParameter = function (pluginName, paramName, paramValue) {
             this.addPluginVariable(pluginName, paramName, paramValue);
         };
