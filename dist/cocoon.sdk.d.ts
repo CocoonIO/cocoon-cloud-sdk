@@ -219,6 +219,7 @@ declare namespace CocoonSDK {
         constructor(text: string);
         isErrored(): boolean;
         xml(): string;
+        formatXml(xml: string): string;
         getBundleId(platform?: string, fallback?: boolean): string;
         getVersion(platform?: string, fallback?: boolean): string;
         getVersionCode(platform?: string, fallback?: boolean): string;
@@ -263,6 +264,8 @@ declare namespace CocoonSDK {
         setEnvironment(value: Environment, platform?: string): void;
         encode(str: string): string;
         decode(str: string): string;
-        replaceOldSyntax(str: string): string;
+        replaceOldSyntax(doc: Document): Document;
+        replaceOldPlatformSyntax(doc: Document): Document;
+        replaceOldPluginSyntax(doc: Document): Document;
     }
 }

@@ -5,6 +5,10 @@
 namespace CocoonSDK {
     'use strict';
 
+    var cocoonNS  = 'http://cocoon.io/ns/1.0';
+    var cordovaNS = 'http://cordova.apache.org/ns/1.0';
+    var xmlnsNS   = 'http://www.w3.org/2000/xmlns/';
+
     export enum Orientation {
         PORTRAIT       = 0,
         LANDSCAPE      = 1,
@@ -43,11 +47,12 @@ namespace CocoonSDK {
                 this.document   = dom.createDocument();
             }
 
-            // Replace old syntax
-            text = this.replaceOldSyntax(text);
-
-            this.doc  = parser.parseFromString(text, 'text/xml');
-            this.root = this.doc.getElementsByTagName('widget')[0];
+            this.doc = this.replaceOldSyntax(parser.parseFromString(text, 'text/xml'));
+            var root = this.doc.getElementsByTagName('widget')[0];
+            if (root && !root.getAttributeNS(xmlnsNS, 'cdv')) {
+                root.setAttributeNS(xmlnsNS, 'xmlns:cdv', cordovaNS);
+            }
+            this.root = root;
         }
 
         isErrored(): boolean {
@@ -58,13 +63,61 @@ namespace CocoonSDK {
             var xml = this.serializer.serializeToString(this.doc);
             //remove empty xmls
             xml     = xml.replace(/[ ]xmlns[=]["]["]/g, '');
-            //remove empty lines
-            xml     = xml.replace(/^\s*[\r\n]/gm, '');
-            //fix </platform> indentation
-            xml     = xml.replace(/^[<][/]platform[>]/gm, '    </platform>');
-            //fix </plugin> indentation
-            xml     = xml.replace(/^[<][/]plugin[>]/gm, '    </plugin>');
-            return xml;
+            return this.formatXml(xml);
+        }
+
+        formatXml(xml: string): string {
+            var reg: RegExp                          = /(>)\s*(<)(\/*)/g;
+            var wsexp: RegExp                        = / *(.*) +\n/g;
+            var contexp: RegExp                      = /(<.+>)(.+\n)/g;
+            xml                                      = xml.replace(reg, '$1\n$2$3').replace(wsexp, '$1\n').replace(contexp, '$1\n$2');
+            var formatted: string                    = '';
+            var lines: string[]                      = xml.split('\n');
+            var indent: number                       = 0;
+            var lastType: string                     = 'other';
+            // 4 types of tags - single, closing, opening, other (text, doctype, comment) - 4*4 = 16 transitions
+            var transitions: {[key: string]: number} = {
+                'single->single'  : 0,
+                'single->closing' : -1,
+                'single->opening' : 0,
+                'single->other'   : 0,
+                'closing->single' : 0,
+                'closing->closing': -1,
+                'closing->opening': 0,
+                'closing->other'  : 0,
+                'opening->single' : 1,
+                'opening->closing': 0,
+                'opening->opening': 1,
+                'opening->other'  : 1,
+                'other->single'   : 0,
+                'other->closing'  : -1,
+                'other->opening'  : 0,
+                'other->other'    : 0
+            };
+
+            for (var i = 0; i < lines.length; i++) {
+                var ln: string       = lines[i];
+                var single: boolean  = Boolean(ln.match(/<.+\/>/)); // is this line a single tag? ex. <br />
+                var closing: boolean = Boolean(ln.match(/<\/.+>/)); // is this a closing tag? ex. </a>
+                var opening: boolean = Boolean(ln.match(/<[^!].*>/)); // is this even a tag (that's not <!something>)
+                var type: string     = single ? 'single' : closing ? 'closing' : opening ? 'opening' : 'other';
+                var fromTo: string   = lastType + '->' + type;
+                lastType             = type;
+                var padding: string  = '';
+
+                indent += transitions[fromTo];
+                for (var j = 0; j < indent; j++) {
+                    padding += '\t';
+                }
+                if (fromTo === 'opening->closing') {
+                    formatted = formatted.substr(0, formatted.length - 1) + ln + '\n';
+                }// substr removes line break (\n) from prev loop
+                else {
+                    formatted += padding + ln + '\n';
+                }
+            }
+
+            return formatted;
         }
 
         getBundleId(platform?: string, fallback?: boolean): string {
@@ -169,7 +222,7 @@ namespace CocoonSDK {
         getNode(tagName: string, platform?: string, fallback?: boolean): Element {
             return findNode(this, {
                 tag     : tagName,
-                platform: platform,
+                engine  : platform,
                 fallback: fallback
             });
         }
@@ -185,8 +238,8 @@ namespace CocoonSDK {
 
         setValue(tagName: string, value: string, platform?: string) {
             updateOrAddNode(this, {
-                platform: platform,
-                tag     : tagName
+                engine: platform,
+                tag   : tagName
             }, {
                                 value: value
                             });
@@ -194,8 +247,8 @@ namespace CocoonSDK {
 
         removeValue(tagName: string, platform?: string) {
             removeNode(this, {
-                tag     : tagName,
-                platform: platform
+                tag   : tagName,
+                engine: platform
             });
         }
 
@@ -404,7 +457,7 @@ namespace CocoonSDK {
         getContentURL(platform?: string, fallback?: boolean): string {
             var filter = {
                 tag     : 'content',
-                platform: platform,
+                engine  : platform,
                 fallback: fallback
             };
             var node   = findNode(this, filter);
@@ -413,8 +466,8 @@ namespace CocoonSDK {
 
         setContentURL(value: string, platform?: string) {
             var filter = {
-                tag     : 'content',
-                platform: platform
+                tag   : 'content',
+                engine: platform
             };
             if (value) {
                 var update = {
@@ -644,32 +697,87 @@ namespace CocoonSDK {
 
         /**
          * Replaces every Cocoon specific XML tag and parameter name with the ones from Cordova.
-         * @param str configuration of a Cocoon or Cordova project in XML format.
-         * @returns {string} the same configuration using only Cordova tags.
+         * @param doc configuration of a Cocoon or Cordova project.
+         * @returns {Document} the same configuration using only Cordova tags.
          */
-        replaceOldSyntax(str: string): string {
-            var newSyntax = str.replace(/<cocoon:platform\s+enabled="([^"]*)"\s+name="([^"]*)"\s*\/?>/g, function (substring, enabled, engine) {
-                return '<platform name="' + engine + '">' +
-                    '<preference name="enabled" value="' + enabled + '" />' +
-                    '</platform>';
-            });
-            newSyntax     = newSyntax.replace(/<cocoon:platform\s+name="([^"]*)"\s+enabled="([^"]*)"\s*\/?>/g, function (substring, engine, enabled) {
-                return '<platform name="' + engine + '">' +
-                    '<preference name="enabled" value="' + enabled + '" />' +
-                    '</platform>';
-            });
-            newSyntax     = newSyntax.replace(/cocoon:platform/g, 'engine');
-            newSyntax     = newSyntax.replace(/cocoon:plugin/g, 'plugin');
-            newSyntax     = newSyntax.replace(/<param/g, '<variable');
-            newSyntax     = newSyntax.replace(/<plugin\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<plugin ' + (middleData ? middleData + ' ' : '') + 'spec=';
-            });
-            newSyntax     = newSyntax.replace(/<engine\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<engine ' + (middleData ? middleData + ' ' : '') + 'spec=';
-            });
-            return newSyntax;
+        replaceOldSyntax(doc: Document): Document {
+            var newDoc: Document = this.replaceOldPlatformSyntax(doc);
+            newDoc               = this.replaceOldPluginSyntax(newDoc);
+
+            return newDoc;
+        }
+
+        /**
+         * Replaces every Cocoon specific XML tag and parameter name related with platforms with the ones from Cordova.
+         * @param doc configuration of a Cocoon or Cordova project.
+         * @returns {Document} the same configuration using only Cordova tags.
+         */
+        replaceOldPlatformSyntax(doc: Document): Document {
+            var a: Array<Element> = Array.prototype.slice.call(doc.getElementsByTagName('cocoon:platform')),
+                b: Array<Element> = Array.prototype.slice.call(doc.getElementsByTagName('platform'));
+
+            var platforms: Array<Element> = a.concat(b);
+
+            for (var i = platforms.length - 1; i >= 0; i--) {
+                var engine: Element = doc.createElementNS(null, 'engine');
+                engine.setAttribute('name', platforms[i].getAttribute('name'));
+                if (platforms[i].getAttribute('version')) {
+                    engine.setAttribute('spec', platforms[i].getAttribute('version'));
+                }
+
+                var childs: NodeList = platforms[i].childNodes;
+                for (var j = childs.length - 1; j >= 0; j--) {
+                    if (childs[j].nodeType === 1) {
+                        engine.appendChild(childs[j]);
+                    }
+                }
+
+                if (platforms[i].getAttribute('enabled')) {
+                    var preference: Element = doc.createElementNS(null, 'preference');
+                    preference.setAttribute('name', 'enabled');
+                    preference.setAttribute('value', platforms[i].getAttribute('enabled'));
+                    engine.appendChild(preference);
+                }
+
+                platforms[i].parentNode.insertBefore(engine, platforms[i]);
+                platforms[i].parentNode.removeChild(platforms[i]);
+            }
+
+            return doc;
+        }
+
+        /**
+         * Replaces every Cocoon specific XML tag and parameter name related with plugins with the ones from Cordova.
+         * @param doc configuration of a Cocoon or Cordova project.
+         * @returns {Document} the same configuration using only Cordova tags.
+         */
+        replaceOldPluginSyntax(doc: Document): Document {
+            var plugins: NodeListOf<Element> = doc.getElementsByTagName('cocoon:plugin');
+
+            for (var i = plugins.length - 1; i >= 0; i--) {
+                var plugin: Element = doc.createElementNS(null, 'plugin');
+                plugin.setAttribute('name', plugins[i].getAttribute('name'));
+                plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+
+                var childs: NodeList = plugins[i].childNodes;
+                for (var j = childs.length - 1; j >= 0; j--) {
+                    if (childs[j].nodeName === 'PARAM') {
+                        var variable: Element = doc.createElementNS(null, 'variable');
+                        variable.setAttribute('name', (<Element> childs[j]).getAttribute('name'));
+                        variable.setAttribute('value', (<Element> childs[j]).getAttribute('value'));
+
+                        plugin.appendChild(variable);
+                    }
+                }
+
+                plugins[i].parentNode.insertBefore(plugin, plugins[i]);
+                plugins[i].parentNode.removeChild(plugins[i]);
+            }
+
+            return doc;
         }
     }
+
     var canvasPlusPlugins: any = {
 
         value  : Environment.CANVAS_PLUS,
@@ -711,7 +819,7 @@ namespace CocoonSDK {
         filter     = filter || {};
         var parent = <Element>node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'engine' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
@@ -819,14 +927,14 @@ namespace CocoonSDK {
         }
 
         var platformNode = findNode(sugar, {
-            tag       : 'platform',
+            tag       : 'engine',
             attributes: [
                 {name: 'name', value: platform}
             ]
         });
 
         if (!platformNode) {
-            platformNode = sugar.document.createElementNS(null, 'platform');
+            platformNode = sugar.document.createElementNS(null, 'engine');
             platformNode.setAttribute('name', platform);
             addNodeIndented(sugar, platformNode, sugar.root);
         }
@@ -867,7 +975,7 @@ namespace CocoonSDK {
             parent.removeChild(node);
 
             //remove empty platform node
-            if (parent.tagName === 'platform' && parent.parentNode) {
+            if (parent.tagName === 'engine' && parent.parentNode) {
                 var children = parent.childNodes;
                 for (var i = 0; i < children.length; ++i) {
                     if (children[i].nodeType !== 3) {

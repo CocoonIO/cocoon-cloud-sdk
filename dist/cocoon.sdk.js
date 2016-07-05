@@ -759,6 +759,9 @@ if (typeof module !== 'undefined') {
 var CocoonSDK;
 (function (CocoonSDK) {
     'use strict';
+    var cocoonNS = 'http://cocoon.io/ns/1.0';
+    var cordovaNS = 'http://cordova.apache.org/ns/1.0';
+    var xmlnsNS = 'http://www.w3.org/2000/xmlns/';
     (function (Orientation) {
         Orientation[Orientation["PORTRAIT"] = 0] = "PORTRAIT";
         Orientation[Orientation["LANDSCAPE"] = 1] = "LANDSCAPE";
@@ -787,9 +790,12 @@ var CocoonSDK;
                 var dom = new xmldom.DOMImplementation();
                 this.document = dom.createDocument();
             }
-            text = this.replaceOldSyntax(text);
-            this.doc = parser.parseFromString(text, 'text/xml');
-            this.root = this.doc.getElementsByTagName('widget')[0];
+            this.doc = this.replaceOldSyntax(parser.parseFromString(text, 'text/xml'));
+            var root = this.doc.getElementsByTagName('widget')[0];
+            if (root && !root.getAttributeNS(xmlnsNS, 'cdv')) {
+                root.setAttributeNS(xmlnsNS, 'xmlns:cdv', cordovaNS);
+            }
+            this.root = root;
         }
         XMLSugar.prototype.isErrored = function () {
             return this.doc.getElementsByTagName('parsererror').length > 0 || !this.root;
@@ -797,10 +803,56 @@ var CocoonSDK;
         XMLSugar.prototype.xml = function () {
             var xml = this.serializer.serializeToString(this.doc);
             xml = xml.replace(/[ ]xmlns[=]["]["]/g, '');
-            xml = xml.replace(/^\s*[\r\n]/gm, '');
-            xml = xml.replace(/^[<][/]platform[>]/gm, '    </platform>');
-            xml = xml.replace(/^[<][/]plugin[>]/gm, '    </plugin>');
-            return xml;
+            return this.formatXml(xml);
+        };
+        XMLSugar.prototype.formatXml = function (xml) {
+            var reg = /(>)\s*(<)(\/*)/g;
+            var wsexp = / *(.*) +\n/g;
+            var contexp = /(<.+>)(.+\n)/g;
+            xml = xml.replace(reg, '$1\n$2$3').replace(wsexp, '$1\n').replace(contexp, '$1\n$2');
+            var formatted = '';
+            var lines = xml.split('\n');
+            var indent = 0;
+            var lastType = 'other';
+            var transitions = {
+                'single->single': 0,
+                'single->closing': -1,
+                'single->opening': 0,
+                'single->other': 0,
+                'closing->single': 0,
+                'closing->closing': -1,
+                'closing->opening': 0,
+                'closing->other': 0,
+                'opening->single': 1,
+                'opening->closing': 0,
+                'opening->opening': 1,
+                'opening->other': 1,
+                'other->single': 0,
+                'other->closing': -1,
+                'other->opening': 0,
+                'other->other': 0
+            };
+            for (var i = 0; i < lines.length; i++) {
+                var ln = lines[i];
+                var single = Boolean(ln.match(/<.+\/>/));
+                var closing = Boolean(ln.match(/<\/.+>/));
+                var opening = Boolean(ln.match(/<[^!].*>/));
+                var type = single ? 'single' : closing ? 'closing' : opening ? 'opening' : 'other';
+                var fromTo = lastType + '->' + type;
+                lastType = type;
+                var padding = '';
+                indent += transitions[fromTo];
+                for (var j = 0; j < indent; j++) {
+                    padding += '\t';
+                }
+                if (fromTo === 'opening->closing') {
+                    formatted = formatted.substr(0, formatted.length - 1) + ln + '\n';
+                }
+                else {
+                    formatted += padding + ln + '\n';
+                }
+            }
+            return formatted;
         };
         XMLSugar.prototype.getBundleId = function (platform, fallback) {
             if (platform) {
@@ -896,7 +948,7 @@ var CocoonSDK;
         XMLSugar.prototype.getNode = function (tagName, platform, fallback) {
             return findNode(this, {
                 tag: tagName,
-                platform: platform,
+                engine: platform,
                 fallback: fallback
             });
         };
@@ -909,7 +961,7 @@ var CocoonSDK;
         };
         XMLSugar.prototype.setValue = function (tagName, value, platform) {
             updateOrAddNode(this, {
-                platform: platform,
+                engine: platform,
                 tag: tagName
             }, {
                 value: value
@@ -918,7 +970,7 @@ var CocoonSDK;
         XMLSugar.prototype.removeValue = function (tagName, platform) {
             removeNode(this, {
                 tag: tagName,
-                platform: platform
+                engine: platform
             });
         };
         XMLSugar.prototype.getPreference = function (name, platform, fallback) {
@@ -1049,7 +1101,7 @@ var CocoonSDK;
         XMLSugar.prototype.getContentURL = function (platform, fallback) {
             var filter = {
                 tag: 'content',
-                platform: platform,
+                engine: platform,
                 fallback: fallback
             };
             var node = findNode(this, filter);
@@ -1058,7 +1110,7 @@ var CocoonSDK;
         XMLSugar.prototype.setContentURL = function (value, platform) {
             var filter = {
                 tag: 'content',
-                platform: platform
+                engine: platform
             };
             if (value) {
                 var update = {
@@ -1230,27 +1282,56 @@ var CocoonSDK;
                 .replace(/&lt;/g, '<')
                 .replace(/&amp;/g, '&');
         };
-        XMLSugar.prototype.replaceOldSyntax = function (str) {
-            var newSyntax = str.replace(/<cocoon:platform\s+enabled="([^"]*)"\s+name="([^"]*)"\s*\/?>/g, function (substring, enabled, engine) {
-                return '<platform name="' + engine + '">' +
-                    '<preference name="enabled" value="' + enabled + '" />' +
-                    '</platform>';
-            });
-            newSyntax = newSyntax.replace(/<cocoon:platform\s+name="([^"]*)"\s+enabled="([^"]*)"\s*\/?>/g, function (substring, engine, enabled) {
-                return '<platform name="' + engine + '">' +
-                    '<preference name="enabled" value="' + enabled + '" />' +
-                    '</platform>';
-            });
-            newSyntax = newSyntax.replace(/cocoon:platform/g, 'engine');
-            newSyntax = newSyntax.replace(/cocoon:plugin/g, 'plugin');
-            newSyntax = newSyntax.replace(/<param/g, '<variable');
-            newSyntax = newSyntax.replace(/<plugin\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<plugin ' + (middleData ? middleData + ' ' : '') + 'spec=';
-            });
-            newSyntax = newSyntax.replace(/<engine\s+(.*?)\s*version=/g, function (substring, middleData) {
-                return '<engine ' + (middleData ? middleData + ' ' : '') + 'spec=';
-            });
-            return newSyntax;
+        XMLSugar.prototype.replaceOldSyntax = function (doc) {
+            var newDoc = this.replaceOldPlatformSyntax(doc);
+            newDoc = this.replaceOldPluginSyntax(newDoc);
+            return newDoc;
+        };
+        XMLSugar.prototype.replaceOldPlatformSyntax = function (doc) {
+            var a = Array.prototype.slice.call(doc.getElementsByTagName('cocoon:platform')), b = Array.prototype.slice.call(doc.getElementsByTagName('platform'));
+            var platforms = a.concat(b);
+            for (var i = platforms.length - 1; i >= 0; i--) {
+                var engine = doc.createElementNS(null, 'engine');
+                engine.setAttribute('name', platforms[i].getAttribute('name'));
+                if (platforms[i].getAttribute('version')) {
+                    engine.setAttribute('spec', platforms[i].getAttribute('version'));
+                }
+                var childs = platforms[i].childNodes;
+                for (var j = childs.length - 1; j >= 0; j--) {
+                    if (childs[j].nodeType === 1) {
+                        engine.appendChild(childs[j]);
+                    }
+                }
+                if (platforms[i].getAttribute('enabled')) {
+                    var preference = doc.createElementNS(null, 'preference');
+                    preference.setAttribute('name', 'enabled');
+                    preference.setAttribute('value', platforms[i].getAttribute('enabled'));
+                    engine.appendChild(preference);
+                }
+                platforms[i].parentNode.insertBefore(engine, platforms[i]);
+                platforms[i].parentNode.removeChild(platforms[i]);
+            }
+            return doc;
+        };
+        XMLSugar.prototype.replaceOldPluginSyntax = function (doc) {
+            var plugins = doc.getElementsByTagName('cocoon:plugin');
+            for (var i = plugins.length - 1; i >= 0; i--) {
+                var plugin = doc.createElementNS(null, 'plugin');
+                plugin.setAttribute('name', plugins[i].getAttribute('name'));
+                plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+                var childs = plugins[i].childNodes;
+                for (var j = childs.length - 1; j >= 0; j--) {
+                    if (childs[j].nodeName === 'PARAM') {
+                        var variable = doc.createElementNS(null, 'variable');
+                        variable.setAttribute('name', childs[j].getAttribute('name'));
+                        variable.setAttribute('value', childs[j].getAttribute('value'));
+                        plugin.appendChild(variable);
+                    }
+                }
+                plugins[i].parentNode.insertBefore(plugin, plugins[i]);
+                plugins[i].parentNode.removeChild(plugins[i]);
+            }
+            return doc;
         };
         return XMLSugar;
     }());
@@ -1291,7 +1372,7 @@ var CocoonSDK;
         filter = filter || {};
         var parent = node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'engine' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
@@ -1368,13 +1449,13 @@ var CocoonSDK;
             return sugar.root;
         }
         var platformNode = findNode(sugar, {
-            tag: 'platform',
+            tag: 'engine',
             attributes: [
                 { name: 'name', value: platform }
             ]
         });
         if (!platformNode) {
-            platformNode = sugar.document.createElementNS(null, 'platform');
+            platformNode = sugar.document.createElementNS(null, 'engine');
             platformNode.setAttribute('name', platform);
             addNodeIndented(sugar, platformNode, sugar.root);
         }
@@ -1408,7 +1489,7 @@ var CocoonSDK;
         if (node && node.parentNode) {
             var parent = node.parentNode;
             parent.removeChild(node);
-            if (parent.tagName === 'platform' && parent.parentNode) {
+            if (parent.tagName === 'engine' && parent.parentNode) {
                 var children = parent.childNodes;
                 for (var i = 0; i < children.length; ++i) {
                     if (children[i].nodeType !== 3) {
