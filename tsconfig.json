@@ -1,16 +1,19 @@
+// Typescript Compiler v1.8.10
 {
+    "compileOnSave": true,
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "system",
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "out": "./dist/cocoon.sdk.js",
+        "outFile": "./dist/cocoon.sdk.js",
         "sourceMap": true,
-        "declaration": false
+        "declaration": true
     },
-    "filesGlob": [
-        "./src/*.ts",
-        "!./node_modules/**/*.ts",
-        "!./test/**/*.ts"
+    "files": [
+        "./src/APIClient.ts",
+        "./src/Project.ts",
+        "./src/User.ts",
+        "./src/XMLSugar.ts"
     ]
 }

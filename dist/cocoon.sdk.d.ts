@@ -1,4 +1,4 @@
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum Status {
         Created,
         Waiting,
@@ -85,7 +85,7 @@ declare module CocoonSDK {
         delete(callback: (error: Error) => void): void;
     }
 }
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     interface PaymentPlan {
         name: string;
     }
@@ -104,7 +104,7 @@ declare module CocoonSDK {
         migration: any;
     }
 }
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum GrantType {
         Implicit = 0,
         AuthorizationCode = 1,
@@ -199,7 +199,7 @@ declare module CocoonSDK {
     }
 }
 declare var module: any;
-declare module CocoonSDK {
+declare namespace CocoonSDK {
     enum Orientation {
         PORTRAIT = 0,
         LANDSCAPE = 1,
@@ -219,6 +219,7 @@ declare module CocoonSDK {
         constructor(text: string);
         isErrored(): boolean;
         xml(): string;
+        formatXml(xml: string): string;
         getBundleId(platform?: string, fallback?: boolean): string;
         getVersion(platform?: string, fallback?: boolean): string;
         getVersionCode(platform?: string, fallback?: boolean): string;
@@ -230,7 +231,7 @@ declare module CocoonSDK {
         getNodeValue(tagName: string, platform?: string, fallback?: boolean): Element;
         setValue(tagName: string, value: string, platform?: string): void;
         removeValue(tagName: string, platform?: string): void;
-        getPreference(name: string, platform?: string, fallback?: boolean): any;
+        getPreference(name: string, platform?: string, fallback?: boolean): string;
         setPreference(name: string, value: string, platform?: string): void;
         getCocoonVersion(): string;
         setCocoonVersion(version: string): void;
@@ -238,22 +239,33 @@ declare module CocoonSDK {
         setOrientation(value: Orientation, platform?: string): void;
         isFullScreen(platform?: string, fallback?: boolean): boolean;
         setFullScreen(value: boolean, platform?: string): void;
-        getCocoonPlatform(platform: string): Element;
+        getCocoonPlatform(engine: string): Element;
+        getCocoonEngine(engine: string): Element;
         getCocoonPlatformVersion(platform: string): string;
-        setCocoonPlatformVersion(platform: string, value: string): void;
-        isCocoonPlatformEnabled(platform: string): boolean;
-        setCocoonPlatformEnabled(platform: string, enabled: boolean): void;
-        getContentURL(platform?: string, fallback?: boolean): any;
+        getCocoonEngineSpec(engine: string): string;
+        setCocoonPlatformVersion(engine: string, value: string): void;
+        setCocoonEngineSpec(engine: string, spec?: string): void;
+        isCocoonPlatformEnabled(engine: string): boolean;
+        isCocoonEngineEnabled(engine: string): boolean;
+        setCocoonPlatformEnabled(engine: string, enabled: boolean): void;
+        setCocoonEngineEnabled(engine: string, enabled: boolean): void;
+        getContentURL(platform?: string, fallback?: boolean): string;
         setContentURL(value: string, platform?: string): void;
-        addPlugin(name: string): void;
+        addPlugin(name: string, spec?: string): void;
         removePlugin(name: string): void;
         findPlugin(name: string): Element;
         findAllPlugins(): Element[];
         findPluginParameter(pluginName: string, paramName: string): String;
+        findPluginVariable(pluginName: string, varName: string): String;
+        getPluginVariables(pluginName: string): NodeListOf<Element>;
         addPluginParameter(pluginName: string, paramName: string, paramValue: string): void;
+        addPluginVariable(pluginName: string, varName: string, varValue: string): void;
         getEnvironment(platform?: string): Environment;
         setEnvironment(value: Environment, platform?: string): void;
         encode(str: string): string;
         decode(str: string): string;
+        replaceOldSyntax(doc: Document): Document;
+        replaceOldPlatformSyntax(doc: Document): Document;
+        replaceOldPluginSyntax(doc: Document): Document;
     }
 }
