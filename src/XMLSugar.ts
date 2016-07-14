@@ -222,7 +222,7 @@ namespace CocoonSDK {
         getNode(tagName: string, platform?: string, fallback?: boolean): Element {
             return findNode(this, {
                 tag     : tagName,
-                engine  : platform,
+                platform: platform,
                 fallback: fallback
             });
         }
@@ -238,8 +238,8 @@ namespace CocoonSDK {
 
         setValue(tagName: string, value: string, platform?: string) {
             updateOrAddNode(this, {
-                engine: platform,
-                tag   : tagName
+                platform: platform,
+                tag     : tagName
             }, {
                                 value: value
                             });
@@ -247,8 +247,8 @@ namespace CocoonSDK {
 
         removeValue(tagName: string, platform?: string) {
             removeNode(this, {
-                tag   : tagName,
-                engine: platform
+                tag     : tagName,
+                platform: platform
             });
         }
 
@@ -338,25 +338,15 @@ namespace CocoonSDK {
         }
 
         /**
-         * Gets the XML node of the engine specified.
-         * @deprecated As of release 1.2.0, replaced by {@link getCocoonEngine(string)}.
-         * @param engine name of the engine (aka platform).
-         * @returns {string} The node of the engine specified.
+         * Gets the XML node of the platform specified.
+         * @param platform Name of the platform.
+         * @returns {string} The node of the platform specified.
          */
-        getCocoonPlatform(engine: string): Element {
-            return this.getCocoonEngine(engine);
-        }
-
-        /**
-         * Gets the XML node of the engine specified.
-         * @param engine name of the engine (aka platform).
-         * @returns {string} The node of the engine specified.
-         */
-        getCocoonEngine(engine: string): Element {
+        getCocoonPlatform(platform: string): Element {
             var filter = {
-                tag       : 'engine',
+                tag       : 'platform',
                 attributes: [
-                    {name: 'name', value: engine}
+                    {name: 'name', value: platform}
                 ]
             };
 
@@ -364,51 +354,67 @@ namespace CocoonSDK {
         }
 
         /**
-         * Gets the semantic version of the engine specified that will be required in a compilation of a project with this XML.
+         * Gets the XML node of the engine specified.
+         * @param platform Name of the platform.
+         * @returns {string} The engine node of the platform specified.
+         */
+        getCocoonEngine(platform: string): Element {
+            var filter = {
+                tag       : 'engine',
+                attributes: [
+                    {name: 'name', value: platform}
+                ]
+            };
+
+            return findNode(this, filter);
+        }
+
+        /**
+         * Gets the semantic version of the engine for the platform specified that will be required in a compilation of a project with this XML.
          * @deprecated As of release 1.2.0, replaced by {@link getCocoonEngineSpec(string)}.
-         * @param platform name of the engine (aka platform).
-         * @returns {string} The SemVer of the engine specified.
+         * @param platform Name of the platform.
+         * @returns {string} The SemVer of the engine for the platform specified.
          */
         getCocoonPlatformVersion(platform: string): string {
             return this.getCocoonEngineSpec(platform);
         }
 
         /**
-         * Gets the semantic version of the engine specified that will be required in a compilation of a project with this XML.
-         * @param engine name of the engine (aka platform).
-         * @returns {string} The SemVer of the engine specified.
+         * Gets the semantic version of the engine for the platform specified that will be required in a compilation of a project with this XML.
+         * @param platform Name of the platform.
+         * @returns {string} The SemVer of the engine for the platform specified.
          */
-        getCocoonEngineSpec(engine: string): string {
-            var node = this.getCocoonEngine(engine);
+        getCocoonEngineSpec(platform: string): string {
+            var node = this.getCocoonEngine(platform);
             return node ? node.getAttribute('spec') : null;
         }
 
         /**
-         * Sets the semantic version of the specified engine. This version will be required in a compilation of a project with this XML.
+         * Sets the semantic version of the engine for the platform specified that will be required in a compilation of a project with this XML.
          * @deprecated As of release 1.2.0, replaced by {@link setCocoonEngineSpec(string,string)}.
-         * @param engine Name of the engine (aka platform).
+         * @param platform Name of the platform.
          * @param value SemVer of the version.
          */
-        setCocoonPlatformVersion(engine: string, value: string) {
-            this.setCocoonEngineSpec(engine, value);
+        setCocoonPlatformVersion(platform: string, value: string) {
+            this.setCocoonEngineSpec(platform, value);
         }
 
         /**
-         * Sets the semantic version of the specified engine. This version will be required in a compilation of a project with this XML.
-         * @param engine Name of the engine (aka platform).
+         * Sets the semantic version of the engine for the platform specified that will be required in a compilation of a project with this XML.
+         * @param platform Name of the platform.
          * @param spec SemVer of the version.
          */
-        setCocoonEngineSpec(engine: string, spec: string = '*') {
+        setCocoonEngineSpec(platform: string, spec: string = '*') {
             var filter = {
                 tag       : 'engine',
                 attributes: [
-                    {name: 'name', value: engine}
+                    {name: 'name', value: platform}
                 ]
             };
 
             var update = {
                 attributes: [
-                    {name: 'name', value: engine},
+                    {name: 'name', value: platform},
                     {name: 'spec', value: spec}
                 ]
             };
@@ -416,48 +422,28 @@ namespace CocoonSDK {
         }
 
         /**
-         * Returns a boolean indicating if a project with this XML will be compiled for the specified engine.
-         * @deprecated As of release 1.2.0, replaced by {@link isCocoonEngineEnabled(string)}.
-         * @param engine Name of the engine (aka platform).
-         * @returns {boolean} If the engine is enabled.
+         * Returns a boolean indicating if a project with this XML will be compiled for the specified platform.
+         * @param platform Name of the platform.
+         * @returns {boolean} If the platform is enabled.
          */
-        isCocoonPlatformEnabled(engine: string): boolean {
-            return this.isCocoonEngineEnabled(engine);
-        }
-
-        /**
-         * Returns a boolean indicating if a project with this XML will be compiled for the specified engine.
-         * @param engine Name of the engine (aka platform).
-         * @returns {boolean} If the engine is enabled.
-         */
-        isCocoonEngineEnabled(engine: string): boolean {
-            var preference = this.getPreference('enabled', engine);
+        isCocoonPlatformEnabled(platform: string): boolean {
+            var preference = this.getPreference('enabled', platform);
             return !(preference === 'false');
         }
 
         /**
-         * Sets if a project with this XML should be compiled for the specified engine.
-         * @deprecated As of release 1.2.0, replaced by {@link setCocoonEngineEnabled(string,boolean)}.
-         * @param engine Name of the engine (aka platform).
-         * @param enabled If the engine should be enabled.
+         * Sets if a project with this XML will be compiled for the specified platform.
+         * @param platform Name of the platform.
+         * @param enabled If the platform should be enabled.
          */
-        setCocoonPlatformEnabled(engine: string, enabled: boolean) {
-            this.setCocoonEngineEnabled(engine, enabled);
-        }
-
-        /**
-         * Sets if a project with this XML should be compiled for the specified engine.
-         * @param engine Name of the engine (aka platform).
-         * @param enabled If the engine should be enabled.
-         */
-        setCocoonEngineEnabled(engine: string, enabled: boolean) {
-            this.setPreference('enabled', enabled ? null : 'false', engine);
+        setCocoonPlatformEnabled(platform: string, enabled: boolean) {
+            this.setPreference('enabled', enabled ? null : 'false', platform);
         }
 
         getContentURL(platform?: string, fallback?: boolean): string {
             var filter = {
                 tag     : 'content',
-                engine  : platform,
+                platform: platform,
                 fallback: fallback
             };
             var node   = findNode(this, filter);
@@ -466,8 +452,8 @@ namespace CocoonSDK {
 
         setContentURL(value: string, platform?: string) {
             var filter = {
-                tag   : 'content',
-                engine: platform
+                tag     : 'content',
+                platform: platform
             };
             if (value) {
                 var update = {
@@ -713,22 +699,21 @@ namespace CocoonSDK {
          * @returns {Document} the same configuration using only Cordova tags.
          */
         replaceOldPlatformSyntax(doc: Document): Document {
-            var a: Array<Element> = Array.prototype.slice.call(doc.getElementsByTagName('cocoon:platform')),
-                b: Array<Element> = Array.prototype.slice.call(doc.getElementsByTagName('platform'));
-
-            var platforms: Array<Element> = a.concat(b);
+            var platforms: NodeListOf<Element> = doc.getElementsByTagName('cocoon:platform');
 
             for (var i = platforms.length - 1; i >= 0; i--) {
-                var engine: Element = doc.createElementNS(null, 'engine');
-                engine.setAttribute('name', platforms[i].getAttribute('name'));
+                var platform: Element = doc.createElementNS(null, 'platform');
+                platform.setAttribute('name', platforms[i].getAttribute('name'));
                 if (platforms[i].getAttribute('version')) {
+                    var engine: Element = doc.createElementNS(null, 'engine');
                     engine.setAttribute('spec', platforms[i].getAttribute('version'));
+                    platforms[i].parentNode.insertBefore(engine, platforms[i]);
                 }
 
                 var childs: NodeList = platforms[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {
                     if (childs[j].nodeType === 1) {
-                        engine.appendChild(childs[j]);
+                        platform.appendChild(childs[j]);
                     }
                 }
 
@@ -736,10 +721,10 @@ namespace CocoonSDK {
                     var preference: Element = doc.createElementNS(null, 'preference');
                     preference.setAttribute('name', 'enabled');
                     preference.setAttribute('value', platforms[i].getAttribute('enabled'));
-                    engine.appendChild(preference);
+                    platform.appendChild(preference);
                 }
 
-                platforms[i].parentNode.insertBefore(engine, platforms[i]);
+                platforms[i].parentNode.insertBefore(platform, platforms[i]);
                 platforms[i].parentNode.removeChild(platforms[i]);
             }
 
@@ -819,7 +804,7 @@ namespace CocoonSDK {
         filter     = filter || {};
         var parent = <Element>node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'engine' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
@@ -927,14 +912,14 @@ namespace CocoonSDK {
         }
 
         var platformNode = findNode(sugar, {
-            tag       : 'engine',
+            tag       : 'platform',
             attributes: [
                 {name: 'name', value: platform}
             ]
         });
 
         if (!platformNode) {
-            platformNode = sugar.document.createElementNS(null, 'engine');
+            platformNode = sugar.document.createElementNS(null, 'platform');
             platformNode.setAttribute('name', platform);
             addNodeIndented(sugar, platformNode, sugar.root);
         }
@@ -975,7 +960,7 @@ namespace CocoonSDK {
             parent.removeChild(node);
 
             //remove empty platform node
-            if (parent.tagName === 'engine' && parent.parentNode) {
+            if (parent.tagName === 'platform' && parent.parentNode) {
                 var children = parent.childNodes;
                 for (var i = 0; i < children.length; ++i) {
                     if (children[i].nodeType !== 3) {
