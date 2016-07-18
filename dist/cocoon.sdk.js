@@ -948,7 +948,7 @@ var CocoonSDK;
         XMLSugar.prototype.getNode = function (tagName, platform, fallback) {
             return findNode(this, {
                 tag: tagName,
-                engine: platform,
+                platform: platform,
                 fallback: fallback
             });
         };
@@ -961,7 +961,7 @@ var CocoonSDK;
         };
         XMLSugar.prototype.setValue = function (tagName, value, platform) {
             updateOrAddNode(this, {
-                engine: platform,
+                platform: platform,
                 tag: tagName
             }, {
                 value: value
@@ -970,7 +970,7 @@ var CocoonSDK;
         XMLSugar.prototype.removeValue = function (tagName, platform) {
             removeNode(this, {
                 tag: tagName,
-                engine: platform
+                platform: platform
             });
         };
         XMLSugar.prototype.getPreference = function (name, platform, fallback) {
@@ -1047,14 +1047,20 @@ var CocoonSDK;
         XMLSugar.prototype.setFullScreen = function (value, platform) {
             this.setPreference('Fullscreen', value === null ? null : (!!value).toString(), platform);
         };
-        XMLSugar.prototype.getCocoonPlatform = function (engine) {
-            return this.getCocoonEngine(engine);
+        XMLSugar.prototype.getCocoonPlatform = function (platform) {
+            var filter = {
+                tag: 'platform',
+                attributes: [
+                    { name: 'name', value: platform }
+                ]
+            };
+            return findNode(this, filter);
         };
-        XMLSugar.prototype.getCocoonEngine = function (engine) {
+        XMLSugar.prototype.getCocoonEngine = function (platform) {
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    { name: 'name', value: engine }
+                    { name: 'name', value: platform }
                 ]
             };
             return findNode(this, filter);
@@ -1062,46 +1068,40 @@ var CocoonSDK;
         XMLSugar.prototype.getCocoonPlatformVersion = function (platform) {
             return this.getCocoonEngineSpec(platform);
         };
-        XMLSugar.prototype.getCocoonEngineSpec = function (engine) {
-            var node = this.getCocoonEngine(engine);
+        XMLSugar.prototype.getCocoonEngineSpec = function (platform) {
+            var node = this.getCocoonEngine(platform);
             return node ? node.getAttribute('spec') : null;
         };
-        XMLSugar.prototype.setCocoonPlatformVersion = function (engine, value) {
-            this.setCocoonEngineSpec(engine, value);
+        XMLSugar.prototype.setCocoonPlatformVersion = function (platform, value) {
+            this.setCocoonEngineSpec(platform, value);
         };
-        XMLSugar.prototype.setCocoonEngineSpec = function (engine, spec) {
+        XMLSugar.prototype.setCocoonEngineSpec = function (platform, spec) {
             if (spec === void 0) { spec = '*'; }
             var filter = {
                 tag: 'engine',
                 attributes: [
-                    { name: 'name', value: engine }
+                    { name: 'name', value: platform }
                 ]
             };
             var update = {
                 attributes: [
-                    { name: 'name', value: engine },
+                    { name: 'name', value: platform },
                     { name: 'spec', value: spec }
                 ]
             };
             updateOrAddNode(this, filter, update);
         };
-        XMLSugar.prototype.isCocoonPlatformEnabled = function (engine) {
-            return this.isCocoonEngineEnabled(engine);
-        };
-        XMLSugar.prototype.isCocoonEngineEnabled = function (engine) {
-            var preference = this.getPreference('enabled', engine);
+        XMLSugar.prototype.isCocoonPlatformEnabled = function (platform) {
+            var preference = this.getPreference('enabled', platform);
             return !(preference === 'false');
         };
-        XMLSugar.prototype.setCocoonPlatformEnabled = function (engine, enabled) {
-            this.setCocoonEngineEnabled(engine, enabled);
-        };
-        XMLSugar.prototype.setCocoonEngineEnabled = function (engine, enabled) {
-            this.setPreference('enabled', enabled ? null : 'false', engine);
+        XMLSugar.prototype.setCocoonPlatformEnabled = function (platform, enabled) {
+            this.setPreference('enabled', enabled ? null : 'false', platform);
         };
         XMLSugar.prototype.getContentURL = function (platform, fallback) {
             var filter = {
                 tag: 'content',
-                engine: platform,
+                platform: platform,
                 fallback: fallback
             };
             var node = findNode(this, filter);
@@ -1110,7 +1110,7 @@ var CocoonSDK;
         XMLSugar.prototype.setContentURL = function (value, platform) {
             var filter = {
                 tag: 'content',
-                engine: platform
+                platform: platform
             };
             if (value) {
                 var update = {
@@ -1288,27 +1288,28 @@ var CocoonSDK;
             return newDoc;
         };
         XMLSugar.prototype.replaceOldPlatformSyntax = function (doc) {
-            var a = Array.prototype.slice.call(doc.getElementsByTagName('cocoon:platform')), b = Array.prototype.slice.call(doc.getElementsByTagName('platform'));
-            var platforms = a.concat(b);
+            var platforms = doc.getElementsByTagName('cocoon:platform');
             for (var i = platforms.length - 1; i >= 0; i--) {
-                var engine = doc.createElementNS(null, 'engine');
-                engine.setAttribute('name', platforms[i].getAttribute('name'));
+                var platform = doc.createElementNS(null, 'platform');
+                platform.setAttribute('name', platforms[i].getAttribute('name'));
                 if (platforms[i].getAttribute('version')) {
+                    var engine = doc.createElementNS(null, 'engine');
                     engine.setAttribute('spec', platforms[i].getAttribute('version'));
+                    platforms[i].parentNode.insertBefore(engine, platforms[i]);
                 }
                 var childs = platforms[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {
                     if (childs[j].nodeType === 1) {
-                        engine.appendChild(childs[j]);
+                        platform.appendChild(childs[j]);
                     }
                 }
                 if (platforms[i].getAttribute('enabled')) {
                     var preference = doc.createElementNS(null, 'preference');
                     preference.setAttribute('name', 'enabled');
                     preference.setAttribute('value', platforms[i].getAttribute('enabled'));
-                    engine.appendChild(preference);
+                    platform.appendChild(preference);
                 }
-                platforms[i].parentNode.insertBefore(engine, platforms[i]);
+                platforms[i].parentNode.insertBefore(platform, platforms[i]);
                 platforms[i].parentNode.removeChild(platforms[i]);
             }
             return doc;
@@ -1372,7 +1373,7 @@ var CocoonSDK;
         filter = filter || {};
         var parent = node.parentNode;
         if (filter.platform) {
-            if (parent.tagName !== 'engine' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
+            if (parent.tagName !== 'platform' || parent.getAttribute && parent.getAttribute('name') !== filter.platform) {
                 return false;
             }
         }
@@ -1449,13 +1450,13 @@ var CocoonSDK;
             return sugar.root;
         }
         var platformNode = findNode(sugar, {
-            tag: 'engine',
+            tag: 'platform',
             attributes: [
                 { name: 'name', value: platform }
             ]
         });
         if (!platformNode) {
-            platformNode = sugar.document.createElementNS(null, 'engine');
+            platformNode = sugar.document.createElementNS(null, 'platform');
             platformNode.setAttribute('name', platform);
             addNodeIndented(sugar, platformNode, sugar.root);
         }
@@ -1489,7 +1490,7 @@ var CocoonSDK;
         if (node && node.parentNode) {
             var parent = node.parentNode;
             parent.removeChild(node);
-            if (parent.tagName === 'engine' && parent.parentNode) {
+            if (parent.tagName === 'platform' && parent.parentNode) {
                 var children = parent.childNodes;
                 for (var i = 0; i < children.length; ++i) {
                     if (children[i].nodeType !== 3) {
