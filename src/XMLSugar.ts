@@ -699,7 +699,7 @@ namespace CocoonSDK {
          * @returns {Document} the same configuration using only Cordova tags.
          */
         replaceOldPlatformSyntax(doc: Document): Document {
-            var platforms: NodeListOf<Element> = doc.getElementsByTagName('cocoon:platform');
+            var platforms: NodeListOf<Element> = doc.getElementsByTagNameNS('cocoon', 'platform');
 
             for (var i = platforms.length - 1; i >= 0; i--) {
                 var platform: Element = doc.createElementNS(null, 'platform');
@@ -737,7 +737,7 @@ namespace CocoonSDK {
          * @returns {Document} the same configuration using only Cordova tags.
          */
         replaceOldPluginSyntax(doc: Document): Document {
-            var plugins: NodeListOf<Element> = doc.getElementsByTagName('cocoon:plugin');
+            var plugins: NodeListOf<Element> = doc.getElementsByTagNameNS('cocoon', 'plugin');
 
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin: Element = doc.createElementNS(null, 'plugin');
