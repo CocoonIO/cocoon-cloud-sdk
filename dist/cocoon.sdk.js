@@ -1288,7 +1288,7 @@ var CocoonSDK;
             return newDoc;
         };
         XMLSugar.prototype.replaceOldPlatformSyntax = function (doc) {
-            var platforms = doc.getElementsByTagName('cocoon:platform');
+            var platforms = doc.getElementsByTagNameNS('cocoon', 'platform');
             for (var i = platforms.length - 1; i >= 0; i--) {
                 var platform = doc.createElementNS(null, 'platform');
                 platform.setAttribute('name', platforms[i].getAttribute('name'));
@@ -1315,7 +1315,7 @@ var CocoonSDK;
             return doc;
         };
         XMLSugar.prototype.replaceOldPluginSyntax = function (doc) {
-            var plugins = doc.getElementsByTagName('cocoon:plugin');
+            var plugins = doc.getElementsByTagNameNS('cocoon', 'plugin');
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin = doc.createElementNS(null, 'plugin');
                 plugin.setAttribute('name', plugins[i].getAttribute('name'));
