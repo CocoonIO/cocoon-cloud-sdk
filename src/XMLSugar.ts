@@ -742,7 +742,9 @@ namespace CocoonSDK {
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin: Element = doc.createElementNS(null, 'plugin');
                 plugin.setAttribute('name', plugins[i].getAttribute('name'));
-                plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+                if (plugins[i].getAttribute('version')) {
+                    plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+                }
 
                 var childs: NodeList = plugins[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {

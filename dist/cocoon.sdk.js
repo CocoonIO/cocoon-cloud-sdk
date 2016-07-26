@@ -1319,10 +1319,12 @@ var CocoonSDK;
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin = doc.createElementNS(null, 'plugin');
                 plugin.setAttribute('name', plugins[i].getAttribute('name'));
-                plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+                if (plugins[i].getAttribute('version')) {
+                    plugin.setAttribute('spec', plugins[i].getAttribute('version'));
+                }
                 var childs = plugins[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {
-                    if (childs[j].nodeName.toUpperCase() === 'PARAM') {
+                    if (childs[j].nodeName === 'PARAM') {
                         var variable = doc.createElementNS(null, 'variable');
                         variable.setAttribute('name', childs[j].getAttribute('name'));
                         variable.setAttribute('value', childs[j].getAttribute('value'));
