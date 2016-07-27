@@ -706,6 +706,7 @@ namespace CocoonSDK {
                 platform.setAttribute('name', platforms[i].getAttribute('name'));
                 if (platforms[i].getAttribute('version')) {
                     var engine: Element = doc.createElementNS(null, 'engine');
+                    engine.setAttribute('name', platforms[i].getAttribute('name'));
                     engine.setAttribute('spec', platforms[i].getAttribute('version'));
                     platforms[i].parentNode.insertBefore(engine, platforms[i]);
                 }
