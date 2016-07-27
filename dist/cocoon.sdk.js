@@ -1324,7 +1324,7 @@ var CocoonSDK;
                 }
                 var childs = plugins[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {
-                    if (childs[j].nodeName === 'PARAM') {
+                    if (childs[j].nodeName.toUpperCase() === 'PARAM') {
                         var variable = doc.createElementNS(null, 'variable');
                         variable.setAttribute('name', childs[j].getAttribute('name'));
                         variable.setAttribute('value', childs[j].getAttribute('value'));

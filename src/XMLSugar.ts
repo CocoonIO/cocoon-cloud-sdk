@@ -748,7 +748,7 @@ namespace CocoonSDK {
 
                 var childs: NodeList = plugins[i].childNodes;
                 for (var j = childs.length - 1; j >= 0; j--) {
-                    if (childs[j].nodeName === 'PARAM') {
+                    if (childs[j].nodeName.toUpperCase() === 'PARAM') {
                         var variable: Element = doc.createElementNS(null, 'variable');
                         variable.setAttribute('name', (<Element> childs[j]).getAttribute('name'));
                         variable.setAttribute('value', (<Element> childs[j]).getAttribute('value'));
