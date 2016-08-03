@@ -469,6 +469,9 @@ namespace CocoonSDK {
         }
 
         addPlugin(name: string, spec: string = '*') {
+            if (isValidUrl(name) && name.indexOf('.git') !== -1 && name !== spec) {
+                spec = name;
+            }
             var filter = {
                 tag       : 'plugin',
                 attributes: [
@@ -689,6 +692,7 @@ namespace CocoonSDK {
         replaceOldSyntax(doc: Document): Document {
             var newDoc: Document = this.replaceOldPlatformSyntax(doc);
             newDoc               = this.replaceOldPluginSyntax(newDoc);
+            newDoc               = this.replaceErrors(newDoc);
 
             return newDoc;
         }
@@ -743,7 +747,9 @@ namespace CocoonSDK {
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin: Element = doc.createElementNS(null, 'plugin');
                 plugin.setAttribute('name', plugins[i].getAttribute('name'));
-                if (plugins[i].getAttribute('version')) {
+                if (isValidUrl(plugins[i].getAttribute('name')) && plugins[i].getAttribute('name').indexOf('.git') !== -1) {
+                    plugin.setAttribute('spec', plugins[i].getAttribute('name'));
+                } else if (plugins[i].getAttribute('version')) {
                     plugin.setAttribute('spec', plugins[i].getAttribute('version'));
                 }
 
@@ -760,6 +766,23 @@ namespace CocoonSDK {
 
                 plugins[i].parentNode.insertBefore(plugin, plugins[i]);
                 plugins[i].parentNode.removeChild(plugins[i]);
+            }
+
+            return doc;
+        }
+
+        /**
+         * Fixes every custom plugin where the attribute name is the url where the plugin is located and the attribute spec is not by setting the spec with the value of the name.
+         * @param doc configuration of a Cocoon or Cordova project.
+         * @returns {Document} the same configuration using only Cordova tags.
+         */
+        replaceErrors(doc: Document): Document {
+            var plugins: NodeListOf<Element> = doc.getElementsByTagName('plugin');
+
+            for (var i = plugins.length - 1; i >= 0; i--) {
+                if (isValidUrl(plugins[i].getAttribute('name')) && plugins[i].getAttribute('name').indexOf('.git') !== -1 && plugins[i].getAttribute('name') !== plugins[i].getAttribute('spec')) {
+                    plugins[i].setAttribute('spec', plugins[i].getAttribute('name'));
+                }
             }
 
             return doc;
@@ -974,6 +997,15 @@ namespace CocoonSDK {
             }
         }
 
+    }
+
+    /**
+     * From jQuery (https://github.com/jzaefferer/jquery-validation/blob/master/src/core.js#L1349)
+     * @param value
+     * @returns {boolean}
+     */
+    function isValidUrl(value: string) {
+        return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
     }
 
 }

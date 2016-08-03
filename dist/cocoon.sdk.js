@@ -1126,6 +1126,9 @@ var CocoonSDK;
         };
         XMLSugar.prototype.addPlugin = function (name, spec) {
             if (spec === void 0) { spec = '*'; }
+            if (isValidUrl(name) && name.indexOf('.git') !== -1 && name !== spec) {
+                spec = name;
+            }
             var filter = {
                 tag: 'plugin',
                 attributes: [
@@ -1285,6 +1288,7 @@ var CocoonSDK;
         XMLSugar.prototype.replaceOldSyntax = function (doc) {
             var newDoc = this.replaceOldPlatformSyntax(doc);
             newDoc = this.replaceOldPluginSyntax(newDoc);
+            newDoc = this.replaceErrors(newDoc);
             return newDoc;
         };
         XMLSugar.prototype.replaceOldPlatformSyntax = function (doc) {
@@ -1320,7 +1324,10 @@ var CocoonSDK;
             for (var i = plugins.length - 1; i >= 0; i--) {
                 var plugin = doc.createElementNS(null, 'plugin');
                 plugin.setAttribute('name', plugins[i].getAttribute('name'));
-                if (plugins[i].getAttribute('version')) {
+                if (isValidUrl(plugins[i].getAttribute('name')) && plugins[i].getAttribute('name').indexOf('.git') !== -1) {
+                    plugin.setAttribute('spec', plugins[i].getAttribute('name'));
+                }
+                else if (plugins[i].getAttribute('version')) {
                     plugin.setAttribute('spec', plugins[i].getAttribute('version'));
                 }
                 var childs = plugins[i].childNodes;
@@ -1334,6 +1341,15 @@ var CocoonSDK;
                 }
                 plugins[i].parentNode.insertBefore(plugin, plugins[i]);
                 plugins[i].parentNode.removeChild(plugins[i]);
+            }
+            return doc;
+        };
+        XMLSugar.prototype.replaceErrors = function (doc) {
+            var plugins = doc.getElementsByTagName('plugin');
+            for (var i = plugins.length - 1; i >= 0; i--) {
+                if (isValidUrl(plugins[i].getAttribute('name')) && plugins[i].getAttribute('name').indexOf('.git') !== -1 && plugins[i].getAttribute('name') !== plugins[i].getAttribute('spec')) {
+                    plugins[i].setAttribute('spec', plugins[i].getAttribute('name'));
+                }
             }
             return doc;
         };
@@ -1503,6 +1519,9 @@ var CocoonSDK;
                 parent.parentNode.removeChild(parent);
             }
         }
+    }
+    function isValidUrl(value) {
+        return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})).?)(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
     }
 })(CocoonSDK || (CocoonSDK = {}));
 //# sourceMappingURL=cocoon.sdk.js.map

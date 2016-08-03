@@ -265,5 +265,6 @@ declare namespace CocoonSDK {
         replaceOldSyntax(doc: Document): Document;
         replaceOldPlatformSyntax(doc: Document): Document;
         replaceOldPluginSyntax(doc: Document): Document;
+        replaceErrors(doc: Document): Document;
     }
 }
