@@ -428,7 +428,7 @@ namespace CocoonSDK {
          */
         isCocoonPlatformEnabled(platform: string): boolean {
             var preference = this.getPreference('enabled', platform);
-            return !(preference === 'false');
+            return preference !== null && preference !== 'false';
         }
 
         /**
