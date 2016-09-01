@@ -437,7 +437,7 @@ namespace CocoonSDK {
          * @param enabled If the platform should be enabled.
          */
         setCocoonPlatformEnabled(platform: string, enabled: boolean) {
-            this.setPreference('enabled', enabled ? null : 'false', platform);
+            this.setPreference('enabled', enabled ? 'true' : 'false', platform);
         }
 
         getContentURL(platform?: string, fallback?: boolean): string {
