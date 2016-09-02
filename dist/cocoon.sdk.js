@@ -1093,10 +1093,10 @@ var CocoonSDK;
         };
         XMLSugar.prototype.isCocoonPlatformEnabled = function (platform) {
             var preference = this.getPreference('enabled', platform);
-            return !(preference === 'false');
+            return preference !== null && preference !== 'false';
         };
         XMLSugar.prototype.setCocoonPlatformEnabled = function (platform, enabled) {
-            this.setPreference('enabled', enabled ? null : 'false', platform);
+            this.setPreference('enabled', enabled ? 'true' : 'false', platform);
         };
         XMLSugar.prototype.getContentURL = function (platform, fallback) {
             var filter = {
