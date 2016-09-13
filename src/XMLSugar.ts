@@ -761,6 +761,8 @@ namespace CocoonSDK {
                         variable.setAttribute('value', (<Element> childs[j]).getAttribute('value'));
 
                         plugin.appendChild(variable);
+                    } else if (childs[j].nodeType === 1) {
+                        plugin.appendChild(childs[j]);
                     }
                 }
 

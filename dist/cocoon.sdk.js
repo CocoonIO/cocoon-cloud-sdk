@@ -1338,6 +1338,9 @@ var CocoonSDK;
                         variable.setAttribute('value', childs[j].getAttribute('value'));
                         plugin.appendChild(variable);
                     }
+                    else if (childs[j].nodeType === 1) {
+                        plugin.appendChild(childs[j]);
+                    }
                 }
                 plugins[i].parentNode.insertBefore(plugin, plugins[i]);
                 plugins[i].parentNode.removeChild(plugins[i]);
