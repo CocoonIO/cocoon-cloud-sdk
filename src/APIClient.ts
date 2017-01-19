@@ -498,21 +498,66 @@ namespace CocoonSDK {
         }
 
         putConfigXml(configURL: string, xml: string, callback: (error: Error) => void) {
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                var blob     = new Blob([xml], {type: 'text/xml;charset=utf-8;'});
+                formData.append('file', blob, 'config.xml');
 
-            var formData = new FormData();
-            var blob     = new Blob([xml], {type: 'text/xml;charset=utf-8;'});
-            formData.append('file', blob, 'config.xml');
+                var xhrOptions = {
+                    contentType: 'multipart/form-data',
+                    params     : formData
+                };
 
-            var xhrOptions = {
-                contentType: 'multipart/form-data',
-                params     : formData
-            };
-
-            this.client.request('PUT', configURL, xhrOptions, (response: string, error: Error) => {
-                if (callback) {
-                    callback(error);
-                }
-            });
+                this.client.request('PUT', configURL, xhrOptions, (response: string, error: Error) => {
+                    if (callback) {
+                        callback(error);
+                    }
+                });
+            }
+            else { //node.js compatibility
+                var data = new Buffer(xml, 'utf-8');
+                var form = new (require('form-data'));
+                var url = require('url').parse(configURL);
+                form.append('file', data, {
+                    contentType: 'text/xml;charset=utf-8;',
+                    filename: 'config.xml',
+                    knownLength: data.length
+                });
+                form.submit({
+                    protocol: url.protocol,
+                    method: 'put',
+                    host: url.hostname,
+                    path: url.path,
+                    headers: { 'Authorization': 'Bearer ' + this.client.credentials.getAccessToken() }
+                }, function (err, res) {
+                    var data = '';
+                    if (err) {
+                        callback(null, { message: err.message, code: err.http_code });
+                        return;
+                    }
+                    res.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    res.on('end', function () {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                var errorMessage = { code: res.statusCode, message: res.statusMessage };
+                                if (result.description) {
+                                    errorMessage = { code: result.code, message: result.description };
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, { code: 0, message: ex.message });
+                        }
+                    });
+                });
+            }
         }
 
         uploadZip(projectId: string, file: File, callback: (data: ProjectData, error: Error) => void) {
