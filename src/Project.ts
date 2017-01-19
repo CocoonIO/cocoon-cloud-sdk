@@ -135,7 +135,7 @@ namespace CocoonSDK {
         }
 
         getConfigXml(callback: (xml: string, error: Error) => void) {
-            this.client.project.getConfigXml(this.data.config, function (xml: string, error: Error) {
+            this.client.project.getConfigXml(this.data.config, (xml: string, error: Error) => {
                 if (xml) {
                     this.cachedXml = xml;
                 }
