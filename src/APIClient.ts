@@ -429,7 +429,7 @@ namespace CocoonSDK {
         }
 
         delete(projectId: string, callback: (error: Error) => void) {
-            this.client.request('DELETE', 'project/' + projectId, null, (response: any, error: Error) => {
+            this.client.request('DELETE', APIURL.PROJECT + projectId, null, (response: any, error: Error) => {
                 if (callback) {
                     callback(error);
                 }
@@ -438,7 +438,7 @@ namespace CocoonSDK {
         }
 
         list(callback: (projects: Project[], error: Error) => void) {
-            this.client.request('GET', 'project', null, function (response: ProjectData[], error: Error) {
+            this.client.request('GET', APIURL.PROJECT, null, (response: ProjectData[], error: Error) => {
                 if (error) {
                     callback(null, error);
                 }

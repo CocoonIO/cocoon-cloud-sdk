@@ -543,14 +543,15 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.delete = function (projectId, callback) {
-            this.client.request('DELETE', 'project/' + projectId, null, function (response, error) {
+            this.client.request('DELETE', APIURL.PROJECT + projectId, null, function (response, error) {
                 if (callback) {
                     callback(error);
                 }
             });
         };
         ProjectAPI.prototype.list = function (callback) {
-            this.client.request('GET', 'project', null, function (response, error) {
+            var _this = this;
+            this.client.request('GET', APIURL.PROJECT, null, function (response, error) {
                 if (error) {
                     callback(null, error);
                 }
@@ -558,7 +559,7 @@ var CocoonSDK;
                     var data = response || [];
                     var result = [];
                     for (var i = 0; i < data.length; ++i) {
-                        result.push(new CocoonSDK.Project(data[i], this.client));
+                        result.push(new CocoonSDK.Project(data[i], _this.client));
                     }
                     callback(result, null);
                 }
