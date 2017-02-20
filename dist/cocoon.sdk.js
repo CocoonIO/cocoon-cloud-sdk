@@ -60,8 +60,8 @@ var CocoonSDK;
             this.data = data;
             this.compilations = [];
             this.client = client;
-            for (var i = 0; i < Platform.platforms.length; ++i) {
-                this.compilations.push(new Compilation(Platform.platforms[i], this.data));
+            for (var i = 0; i < this.data.platforms.length; ++i) {
+                this.compilations.push(new Compilation(this.data.platforms[i], this.data));
             }
         }
         Project.prototype.syncNewData = function (newData) {
@@ -90,9 +90,10 @@ var CocoonSDK;
             this.client.project.compileDevApp(this.data.id, callback);
         };
         Project.prototype.getConfigXml = function (callback) {
+            var _this = this;
             this.client.project.getConfigXml(this.data.config, function (xml, error) {
                 if (xml) {
-                    this.cachedXml = xml;
+                    _this.cachedXml = xml;
                 }
                 if (callback) {
                     callback(xml, error);
@@ -602,18 +603,64 @@ var CocoonSDK;
             return this.client.config.apiURL + APIURL.ICON(projectId, platform) + '?access_token=' + this.client.credentials.getAccessToken();
         };
         ProjectAPI.prototype.putConfigXml = function (configURL, xml, callback) {
-            var formData = new FormData();
-            var blob = new Blob([xml], { type: 'text/xml;charset=utf-8;' });
-            formData.append('file', blob, 'config.xml');
-            var xhrOptions = {
-                contentType: 'multipart/form-data',
-                params: formData
-            };
-            this.client.request('PUT', configURL, xhrOptions, function (response, error) {
-                if (callback) {
-                    callback(error);
-                }
-            });
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                var blob = new Blob([xml], { type: 'text/xml;charset=utf-8;' });
+                formData.append('file', blob, 'config.xml');
+                var xhrOptions = {
+                    contentType: 'multipart/form-data',
+                    params: formData
+                };
+                this.client.request('PUT', configURL, xhrOptions, function (response, error) {
+                    if (callback) {
+                        callback(error);
+                    }
+                });
+            }
+            else {
+                var data = new Buffer(xml, 'utf-8');
+                var form = new (require('form-data'));
+                var url = require('url').parse(configURL);
+                form.append('file', data, {
+                    contentType: 'text/xml;charset=utf-8;',
+                    filename: 'config.xml',
+                    knownLength: data.length
+                });
+                form.submit({
+                    protocol: url.protocol,
+                    method: 'put',
+                    host: url.hostname,
+                    path: url.path,
+                    headers: { 'Authorization': 'Bearer ' + this.client.credentials.getAccessToken() }
+                }, function (err, res) {
+                    var data = '';
+                    if (err) {
+                        callback(null, { message: err.message, code: err.http_code });
+                        return;
+                    }
+                    res.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    res.on('end', function () {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                var errorMessage = { code: res.statusCode, message: res.statusMessage };
+                                if (result.description) {
+                                    errorMessage = { code: result.code, message: result.description };
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, { code: 0, message: ex.message });
+                        }
+                    });
+                });
+            }
         };
         ProjectAPI.prototype.uploadZip = function (projectId, file, callback) {
             if (typeof FormData !== 'undefined') {

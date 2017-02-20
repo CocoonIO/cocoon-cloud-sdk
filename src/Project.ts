@@ -99,8 +99,8 @@ namespace CocoonSDK {
             this.data         = data;
             this.compilations = [];
             this.client       = client;
-            for (var i = 0; i < Platform.platforms.length; ++i) {
-                this.compilations.push(new Compilation(Platform.platforms[i], this.data));
+            for (var i = 0; i < this.data.platforms.length; ++i) {
+                this.compilations.push(new Compilation(this.data.platforms[i], this.data));
             }
         }
 
