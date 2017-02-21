@@ -399,22 +399,61 @@ namespace CocoonSDK {
         }
 
         createFromZipUpload(file: File, callback: (project: Project, error: Error) => void) {
-            var formData = typeof FormData !== 'undefined' ? new FormData() : new (require('form-data'));
-            formData.append('file', file);
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                formData.append('file', file);
 
-            var xhrOptions = {
-                contentType: 'multipart/form-data',
-                params     : formData
-            };
+                var xhrOptions = {
+                    contentType: 'multipart/form-data',
+                    params     : formData
+                };
 
-            this.client.request('POST', APIURL.PROJECT, xhrOptions, (response: any, error: Error) => {
-                if (error) {
-                    callback(null, error);
-                }
-                else {
-                    callback(new Project(response as ProjectData, this.client), null);
-                }
-            });
+                this.client.request('POST', APIURL.PROJECT, xhrOptions, (response: Project, error: Error) => {
+                    if (callback) {
+                        callback(response, error);
+                    }
+                });
+            }
+            else { //node.js compatibility. //TODO: move to generic request code
+                var url  = require('url').parse(this.client.config.apiURL + APIURL.PROJECT);
+                var form = new (require('form-data'));
+                form.append('file', file); //created with fs.createReadStream
+
+                form.submit({
+                    protocol: url.protocol,
+                    method  : 'post',
+                    host    : url.hostname,
+                    path    : url.path,
+                    headers : {'Authorization': 'Bearer ' + this.client.credentials.getAccessToken()}
+                }, function (err: any, res: any) {
+                    var data = '';
+                    if (err) {
+                        callback(null, {message: err.message, code: err.http_code});
+                        return;
+                    }
+                    res.on('data', function (chunk: any) {
+                        data += chunk;
+                    });
+                    res.on('end', function () {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                var errorMessage = {code: res.statusCode, message: res.statusMessage};
+                                if (result.description) {
+                                    errorMessage = {code: result.code, message: result.description};
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, {code: 0, message: ex.message});
+                        }
+                    });
+                });
+            }
         }
 
         get(projectId: string, callback: (project: Project, error: Error) => void) {

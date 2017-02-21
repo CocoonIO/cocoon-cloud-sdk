@@ -515,21 +515,58 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.createFromZipUpload = function (file, callback) {
-            var _this = this;
-            var formData = typeof FormData !== 'undefined' ? new FormData() : new (require('form-data'));
-            formData.append('file', file);
-            var xhrOptions = {
-                contentType: 'multipart/form-data',
-                params: formData
-            };
-            this.client.request('POST', APIURL.PROJECT, xhrOptions, function (response, error) {
-                if (error) {
-                    callback(null, error);
-                }
-                else {
-                    callback(new CocoonSDK.Project(response, _this.client), null);
-                }
-            });
+            if (typeof FormData !== 'undefined') {
+                var formData = new FormData();
+                formData.append('file', file);
+                var xhrOptions = {
+                    contentType: 'multipart/form-data',
+                    params: formData
+                };
+                this.client.request('POST', APIURL.PROJECT, xhrOptions, function (response, error) {
+                    if (callback) {
+                        callback(response, error);
+                    }
+                });
+            }
+            else {
+                var url = require('url').parse(this.client.config.apiURL + APIURL.PROJECT);
+                var form = new (require('form-data'));
+                form.append('file', file);
+                form.submit({
+                    protocol: url.protocol,
+                    method: 'post',
+                    host: url.hostname,
+                    path: url.path,
+                    headers: { 'Authorization': 'Bearer ' + this.client.credentials.getAccessToken() }
+                }, function (err, res) {
+                    var data = '';
+                    if (err) {
+                        callback(null, { message: err.message, code: err.http_code });
+                        return;
+                    }
+                    res.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    res.on('end', function () {
+                        try {
+                            var result = JSON.parse(data);
+                            if (res.statusCode < 200 || res.statusCode >= 300) {
+                                var errorMessage = { code: res.statusCode, message: res.statusMessage };
+                                if (result.description) {
+                                    errorMessage = { code: result.code, message: result.description };
+                                }
+                                callback(null, errorMessage);
+                            }
+                            else {
+                                callback(result, null);
+                            }
+                        }
+                        catch (ex) {
+                            callback(null, { code: 0, message: ex.message });
+                        }
+                    });
+                });
+            }
         };
         ProjectAPI.prototype.get = function (projectId, callback) {
             var _this = this;

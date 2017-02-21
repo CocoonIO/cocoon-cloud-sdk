@@ -1,6 +1,6 @@
 {
   "name": "cocoon-cloud",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
   "main": "cocoon.sdk.js",
   "types": "cocoon.sdk.d.ts",
