@@ -408,9 +408,9 @@ namespace CocoonSDK {
                     params     : formData
                 };
 
-                this.client.request('POST', APIURL.PROJECT, xhrOptions, (response: Project, error: Error) => {
+                this.client.request('POST', APIURL.PROJECT, xhrOptions, (response: any, error: Error) => {
                     if (callback) {
-                        callback(response, error);
+                        callback(new Project(response as ProjectData, this.client), error);
                     }
                 });
             }
@@ -425,16 +425,16 @@ namespace CocoonSDK {
                     host    : url.hostname,
                     path    : url.path,
                     headers : {'Authorization': 'Bearer ' + this.client.credentials.getAccessToken()}
-                }, function (err: any, res: any) {
+                }, (err: any, res: any) => {
                     var data = '';
                     if (err) {
                         callback(null, {message: err.message, code: err.http_code});
                         return;
                     }
-                    res.on('data', function (chunk: any) {
+                    res.on('data', (chunk: any) => {
                         data += chunk;
                     });
-                    res.on('end', function () {
+                    res.on('end', () => {
                         try {
                             var result = JSON.parse(data);
                             if (res.statusCode < 200 || res.statusCode >= 300) {
@@ -445,7 +445,7 @@ namespace CocoonSDK {
                                 callback(null, errorMessage);
                             }
                             else {
-                                callback(result, null);
+                                callback(new Project(result as ProjectData, this.client), null);
                             }
                         }
                         catch (ex) {

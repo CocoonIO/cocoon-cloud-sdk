@@ -515,6 +515,7 @@ var CocoonSDK;
             });
         };
         ProjectAPI.prototype.createFromZipUpload = function (file, callback) {
+            var _this = this;
             if (typeof FormData !== 'undefined') {
                 var formData = new FormData();
                 formData.append('file', file);
@@ -524,7 +525,7 @@ var CocoonSDK;
                 };
                 this.client.request('POST', APIURL.PROJECT, xhrOptions, function (response, error) {
                     if (callback) {
-                        callback(response, error);
+                        callback(new CocoonSDK.Project(response, _this.client), error);
                     }
                 });
             }
@@ -558,7 +559,7 @@ var CocoonSDK;
                                 callback(null, errorMessage);
                             }
                             else {
-                                callback(result, null);
+                                callback(new CocoonSDK.Project(result, _this.client), null);
                             }
                         }
                         catch (ex) {
