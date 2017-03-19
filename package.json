@@ -1,0 +1,53 @@
+{
+  "name": "cocoon-cloud-sdk",
+  "version": "2.0.0-alpha.0",
+  "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
+	"files": ["out"],
+	"main": "out/index.js",
+	"types": "out/index.d.ts",
+  "scripts": {
+    "inspect-spec": "node_modules/eslint/bin/eslint.js spec/tests && node_modules/jshint/bin/jshint spec/tests; exit 0",
+    "inspect-src": "node_modules/tslint/bin/tslint --project tsconfig.json; exit 0",
+    "postinstall": "node_modules/typescript/bin/tsc; exit 0",
+    "test": "node_modules/jasmine/bin/jasmine.js",
+    "transpile": "node_modules/typescript/bin/tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CocoonIO/cocoon-cloud-sdk"
+  },
+  "keywords": [
+    "apps",
+    "cli",
+    "cloud",
+    "cocoon",
+    "cocoon.io",
+    "compiler",
+    "html5",
+    "games",
+    "gulp",
+    "grunt",
+    "javascript",
+    "js",
+    "sdk",
+    "typescript"
+  ],
+  "author": "Ludei Developers <devs@ludei.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CocoonIO/cocoon-cloud-sdk/issues"
+  },
+  "homepage": "https://github.com/CocoonIO/cocoon-cloud-sdk",
+  "dependencies": {
+    "cocoon-xml-sugar": "^2.0.0-alpha.3",
+    "popsicle": "^9.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.8",
+    "eslint": "^3.18.0",
+    "jasmine": "^2.5.3",
+    "jshint": "^2.9.4",
+    "tslint": "^4.5.1",
+    "typescript": "^2.2.1"
+  }
+}

@@ -1,275 +1,205 @@
-# cocoon-cloud-sdk
+# Cocoon Cloud SDK [![Travis Build Status](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg)](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk) [![NPM Version](https://img.shields.io/npm/v/cocoon-cloud-sdk.svg)](https://www.npmjs.com/package/cocoon-cloud-sdk)
 
-Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content. 
+[![bitHound Overall Score](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/score.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
+[![bitHound Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/dependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
+[![bitHound Dev Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/devDependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
+[![bitHound Code](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/code.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
 
-The Cocoon Cloud SDK is the easiest way to integrate the cocoon.io cloud compiler in any service or app. With this simple API anyone can authenticate with their cocoon.io account and create, update and compile HTML5 projects in the cloud programmatically. It also includes a XML Sugar utility to make Cordova based config.xml changes super easy.
+[![Code Climate](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/gpa.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk)
+[![Test Coverage](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/coverage.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/coverage)
+[![Issue Count](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/issue_count.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk)
+---
 
-## Setup your project
+The Cocoon Cloud SDK is the easiest way to integrate the Cocoon.io cloud compiler in any service or app.
+With this simple API, anyone can authenticate with their Cocoon.io account and create, update and compile HTML5 projects
+in the cloud programmatically.
 
-You need to create a ClientID in order to use this SDK with your application. Please, contact us at support@cocoon.io to ask for the required credentials to use CocoonSDK with your Website or application.
+## Getting Started
 
-## API Reference
+These instructions will get you a copy of the project up and running on your local machine for development and testing
+purposes. See deployment for notes on how to deploy the project on a live system.
 
-* See [`d.ts declaration file`](dist/cocoon.sdk.d.ts) for a complete overview of the capabilities of the SDK.
-* See [`web`](sample/web) for a complete express project which uses the CocoonSDK
-* See [`cli`](sample/cli) for a complete gulp project which allows to upload, compile and download apps from the command line
+### Prerequisites
 
-## Usage
+First things first. In order to access the Cocoon.io API you will need a ClientID credential. You can contact us at
+[support@cocoon.io](support@cocoon.io) to request it.
 
-Include the [`CocoonSDK library`](dist/cocoon.sdk.js) in your Web Application or NodeJS application
+Other than that, you only need to have [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) installed in
+your system.
 
+```bash
+curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+sudo apt install -y nodejs
 ```
-<script src="scripts/cocoon.sdk.js"></script>
+
+### Installing
+
+Clone the repository.
+
+```bash
+git clone https://github.com/CocoonIO/cocoon-cloud-sdk.git
 ```
 
-Initialize the APIClient
+And install its dependencies
+
+```bash
+npm install
+```
+
+The transpiled code should be in the **out** folder.
+
+## Running the tests
+
+The tests are found in [spec/tests](spec/tests).
+
+```bash
+npm test
+```
+
+### Coding style tests
+
+To inspect the code style of the [source code](src):
+
+```bash
+npm run inspect-src
+```
+
+To inspect the code style of the [tests](spec/tests):
+
+```bash
+npm run inspect-spec
+```
+
+## Deployment
+
+To use this repo as a NPM module in your project follow these instructions.
+
+As mentioned previously: to access the Cocoon.io API you will need a ClientID credential. You can contact us at
+[support@cocoon.io](support@cocoon.io) to request it.
+
+Install [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) in your system.
+
+```bash
+curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+
+Install the module from [NPM](https://www.npmjs.com/package/cocoon-cloud-sdk).
+
+```bash
+npm install cocoon-cloud-sdk
+```
+
+And import it in your NodeJS or Web project.
 
 ```js
-var client = new CocoonSDK.APIClient({clientId:"MY_CLIENT_ID"});
+import cocoonSDK from "cocoon-cloud-sdk";
 ```
 
-Log In into Cocoon
+```html
+<script src="cocoon-cloud-sdk/index.js"></script>
+```
+
+### Example
+
+You can see an example of the usage in [sample](sample).
+
+### Usage
+
+Log In into Cocoon.
 
 ```js
-client.logIn({}, function(token, error) {
-    if (error) {
-        alert("Error: " + JSON.stringify(error));
-        return
-    }
-    loginSucceeded();
+cocoonSDK.APIClient.logIn("john.smith@example.com", "12345678", {clientId: "MY_CLIENT_ID"}, (error) => {
+	if (!error) {
+		loginSucceeded();
+	} else {
+		alert(JSON.stringify(error));
+	}
 });
 ```
 
-Some API Examples. The APIClient object mimics the cocoon.io REST API
+Some API Examples. The APIClient object mimics the Cocoon.io REST API.
+
+The Project API:
 
 ```js
 //List all projects
-client.project.list(function(projects, error){
+cocoonSDK.ProjectAPI.list((projectsData, error) => {
 
 });
 
 //Create a new project by uploading a zip file
-client.project.createFromZipUpload(file, function(project, error) {
+cocoonSDK.ProjectAPI.createFromZipUpload(file, (projectData, error) => {
+
+});
+
+//Create a new project from a url
+cocoonSDK.ProjectAPI.createFromURL("MY_URL", (projectData, error) => {
 
 });
 
 //Create a new project from a repository
-client.project.createFromRepository({url:"MY_GITHUB_URL"}, function(project, error) {
-
-});
-
-//Create a new project from a public zip url
-client.project.createFromPublicZip("PUBLIC_ZIP_URL", function(project, error) {
+cocoonSDK.ProjectAPI.createFromRepository({url:"MY_GITHUB_URL"}, (projectData, error) => {
 
 });
 ```
 
-Project objects returned by the APIClient methods have their own methods to ease commonly performed tasks.
+For Signing Keys:
 
 ```js
-//Fetch the project Config XML
-project.getConfigXml(function(xml, error) {
-	// Check on the XMLSugar helper functions below to see how to easily manipulate the config.xml content
-}
-
-//Save the project Config XML
-project.putConfigXml(xml, function(error) {
-});
-
-//Compile project
-project.compile(function(error){
+//List all signing keys
+cocoonSDK.SigningKeyAPI.list((signingKeysData, error) => {
 
 });
 
-//Compile DeveloperApp
-project.compileDevApp(function(error){
+//Create a new Android signing key
+cocoonSDK.SigningKeyAPI.createAndroid(name, alias, keystore, keystorePassword, certificatePassword, (signingKeyData, error) => {
 
 });
-
-//Check if a project is compiling
-project.isCompiling();
-
-//Get download link for a platform 
-project.getDownloadLink('ios');
-
-//Get project compilations data
-for (var i = 0; i < project.compilations.length; ++i) {
-    var compilation = project.compilations[i];
-    console.log(compilation.platform);
-    console.log(compilation.getStatus());
-    (...)
-}
-
-//Upload a new zip for a project
-project.uploadZip(file, function(error){
-
-})
-
-//Refresh compilation status changes
-project.refreshUntilCompleted(function(completed){
-
-});
-
 ```
 
-XMLSugar Utility: Helper functions to work with the config.xml content.
+The data objects returned by the API can be used to create objects with their own methods to ease commonly performed tasks.
 
 ```js
-var sugar = new CocoonSDK.XMLSugar(xml);
+let project
+let signingKey
 
-//get or set bundleId
-sugar.getBundleId();
-sugar.setBundleId("com.ludei.devapp");
+//Creating a Project object
+cocoonSDK.ProjectAPI.get("PROJECT_ID", (projectData, error) => {
+	project = new cocoonSDK.Project(projectData);
+	//project.isCompiling();
+	//project.updateZip(zipFile, callback);
+	//project.delete(callback);
+	//project.assignSigningKey(signingKey, callback);
+	//...
+});
 
-//install or remove plugins
-sugar.addPlugin("cocoon-plugin-multiplayer-ios-gamecenter");
-sugar.removePlugin("cocoon-plugin-multiplayer-ios-gamecenter");
-
-//get or set preferences
-sugar.getPreference('PREFERENCE_NAME');
-sugar.setPreference('PREFERENCE_NAME', value);
-
-//And many more helper methods. Check the XMLSugar.ts source code for details.
-(...)
-
-//Export to xml string
-console.log(sugar.xml());
-
+cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID", (signingKeyData, error) => {
+	signingKey = new cocoonSDK.SigningKey(signingKeyData);
+	//signingKey.delete(callback);
+});
 ```
 
-## Gulp Example
+## Built With
 
-Sample Gulp project which uses Cocoon.io to upload, compile and download apps from the command line
+* [Typescript](https://www.typescriptlang.org/) - Language
+* [NPM](http://www.npmjs.com/) - Dependency Management
+* [Jasmine](https://jasmine.github.io/) - Testing Framework
+* [Popsicle](https://github.com/blakeembrey/popsicle) - Simple HTTP requests library for node and the browser
+* [XMLSugar](https://github.com/CocoonIO/cocoon-xml-sugar) Helper functions to work with the config.xml
 
-### gulp commands
+## Versioning
 
-* gulp upload: uploads a zip file to the cloud
-* gulp compile: compiles a project in the cloud
-* gulp download: waits until a project is ready and downloads the iOS/Android builts
-* gulp deploy: upload, compile and download in a single step
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the
+[tags on this repository](https://github.com/your/project/tags). 
 
-### gulpfile.js
+## Authors
 
-```js
-var gulp = require('gulp');
-var https = require('https');
-var zip = require('gulp-zip');
-var fs = require("fs");
-var runSequence = require('run-sequence');
-var cocoon = require('cocoon-cloud');
+* **Imanol Fernandez** - *Version 1.0.0* - [MortimerGoro](https://github.com/MortimerGoro)
+* **Jorge Domínguez** - *Version 2.0.0* - [BlueSialia](https://github.com/BlueSialia)
 
+See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
-var USERNAME = "MY_USERNAME"; //Your Cocoon.io username
-var PASSWORD = "MY_PASSWORD"; //Your Cocoon.io passworld
-var PROJECT_ID = "MY_PROJECT_ID"; //Your project id (you can also fetch all projects using client.api.list());
+## License
 
-var client = new cocoon.APIClient({clientId:"CLIENT_ID", clientSecret:"CLIENT_SECRET"});
-var project; //cached project
- 
-gulp.task('zip', function(){
-    return gulp.src('src/**/*')
-        .pipe(zip('archive.zip'))
-        .pipe(gulp.dest('dist'));
-});
-
-gulp.task('login', function(done) {
-    if (client.isLoggedIn()) {
-        done();
-        return;
-    }
-    client.logInWithPassword(USERNAME, PASSWORD, function(loggedIn, error){
-        done(loggedIn ? null : JSON.stringify(error));
-    });
-});
-
-gulp.task('fetchproject', ['login'], function(done) {
-    if (project) {
-        done();
-        return;
-    }
-    client.project.get(PROJECT_ID, function(result, error){
-        project = result;
-        done(error ? JSON.stringify(error) : null);
-    });
-});
-
-gulp.task('upload', ['zip','fetchproject'], function(done){
-    var file = fs.createReadStream('./dist/archive.zip');
-    project.uploadZip(file,function(error){
-        done(error ? JSON.stringify(error) : null);
-    });
-    return null;
-});
-
-gulp.task('compile', ['fetchproject'], function(done) {
-    project.compile(function(error){
-        done(error ? JSON.stringify(error) : null);
-    });
-});
-
-gulp.task('waitCompleted', ['fetchproject'], function(done) {
-    project.refreshUntilCompleted(function(completed) {
-        if (!completed) { //Print info about waiting status
-            for (var i = 0; i < project.compilations.length; ++i) {             
-                var compilation = project.compilations[i];
-                console.log(compilation.platform + ':' + compilation.getStatus())
-            }
-        }
-        else {
-            done();
-        }
-    });
-});
-
-function downloadCompilation(url, outputPath, platform, done) {
-    var dir = require('path').dirname(outputPath);
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-    }
-    var file = fs.createWriteStream(outputPath);
-    https.get(url, function(response) {
-        response.pipe(file).on('finish', function() {
-            console.log(platform + " downloaded to '" + outputPath + "'");
-        })
-    })
-    .on('error', function(e) {
-        console.error(platform + " download failed: " + e.message);
-        done(e.message);
-    });
-}
-
-gulp.task('download', ['waitCompleted'], function(done) {
-    var compilations = project.compilations;
-    var counter = compilations.length;
-    for (var i = 0; i < compilations.length; ++i) {
-        var compilation = compilations[i];
-        var platform = compilation.platform;
-        if (compilation.isReady()) {
-            var outputPath = "./output/" + platform + ".zip";
-            downloadCompilation(project.getDownloadLink(platform), outputPath, platform, function(err){
-                if (--counter <= 0) {
-                    done();
-                }
-            });
-        }
-        else if (compilation.isErrored()) {
-            counter--;
-            console.error(platform + " compilation failed");
-        }
-        else {
-            counter--;
-            console.log(platform + " download ignored. Status: " + compilation.getStatus());
-        }
-    }
-    if (counter <=0) {
-        done();
-    }
-});
-
-gulp.task('deploy', function(done) {
-  runSequence('upload', 'compile', 'download',done);
-});
-
-```
-
-
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
