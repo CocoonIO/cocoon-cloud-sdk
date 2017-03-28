@@ -1,6 +1,7 @@
 "use strict";
 
 import {default as popsicle, plugins, Request, RequestOptions} from "popsicle/dist/common";
+import status = require("popsicle-status");
 
 import APIURL from "./api-url";
 import CookieCredentialStorage from "./cookie-credential-storage";
@@ -139,7 +140,8 @@ export default class APIClient {
 			}
 			options.headers.Authorization = "Bearer " + APIClient._credentials.getAccessToken();
 		}
-		return popsicle(options);
+		return popsicle(options)
+			.use(status());
 	}
 
 	private static _credentials: ICredentialStorage;
