@@ -2,6 +2,7 @@
 
 import XMLSugar from "cocoon-xml-sugar";
 
+import APIURL from "./api-url";
 import Compilation from "./compilation";
 import {Status} from "./enums/e-status";
 import {IError} from "./interfaces/i-error";
@@ -80,7 +81,7 @@ export default class Project {
 	}
 
 	public get configURL(): string {
-		return this._configURL;
+		return APIURL.CONFIG(this._id);
 	}
 
 	private readonly DEFAULT_WAIT_TIME = 10000;
@@ -101,7 +102,6 @@ export default class Project {
 	private _errors: {[key: string]: string};
 	private _keys: {[platform: string]: SigningKey};
 	private _sourceURL: string;
-	private _configURL: string;
 	private configXML: XMLSugar;
 
 	public constructor(projectData: IProjectData) {
@@ -142,7 +142,7 @@ export default class Project {
 		if (this.configXML) {
 			callback(this.configXML);
 		} else {
-			ProjectAPI.getConfigXml(this.configURL, (xml, error) => {
+			ProjectAPI.getConfigXml(this._id, (xml, error) => {
 				if (!error) {
 					this.configXML = new XMLSugar(xml);
 					callback(this.configXML);
@@ -389,7 +389,6 @@ export default class Project {
 		this.icons = projectData.icons;
 		this._errors = projectData.error;
 		this.splashes = projectData.splashes;
-		this._configURL = projectData.config;
 		this.configXML = null;
 		this._compilations = {};
 		for (let platform of projectData.platforms) {
