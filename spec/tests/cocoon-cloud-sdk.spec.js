@@ -32,7 +32,7 @@ describe("A spec for the Cocoon SDK", () => {
 		});
 	});
 
-	xdescribe("when the user is authenticated", () => {
+	describe("when the user is authenticated", () => {
 		beforeAll((done) => {
 			if (!cocoonSDK.APIClient.isLoggedIn()) {
 				cocoonSDK.APIClient.logIn(USERNAME, PASSWORD, {
@@ -59,7 +59,7 @@ describe("A spec for the Cocoon SDK", () => {
 			});
 		});
 
-		xit("should be able to fetch the projects list", (done) => {
+		it("should be able to fetch the projects list", (done) => {
 			cocoonSDK.ProjectAPI.list((projectDataList, error) => {
 				if (!error) {
 					expect(projectDataList).toBeDefined();
@@ -78,17 +78,17 @@ describe("A spec for the Cocoon SDK", () => {
 						expect(project.dateUpdated).toBeDefined();
 						expect(project.sourceURL).toBeDefined();
 						expect(project.configURL).toBeDefined();
-						for (let compilation of project.compilations) {
-							expect(compilation.platform).toBeDefined();
-							expect(compilation.status).toBeDefined();
-						}
+						Object.keys(project.compilations).forEach((platform) => {
+							expect(project.compilations[platform].platform).toBe(platform);
+							expect(project.compilations[platform].status).toBeDefined();
+						});
 					}
 					done();
 				} else {
 					done.fail(error);
 				}
 			});
-		}, 30000);
+		}, 60000);
 
 		it("should be able to fetch the signing keys list", (done) => {
 			cocoonSDK.SigningKeyAPI.list((signingKeyDataObj, error) => {
@@ -150,7 +150,7 @@ describe("A spec for the Cocoon SDK", () => {
 			});
 		});
 
-		it("should be able to get the cocoonSDK versions", (done) => {
+		it("should be able to get the cocoon versions", (done) => {
 			cocoonSDK.APIClient.getCocoonVersions((versions, error) => {
 				if (!error) {
 					expect(versions.length).toBeGreaterThan(0);
@@ -334,19 +334,19 @@ describe("A spec for the Cocoon SDK", () => {
 			});
 
 			afterAll((done) => {
-				project.delete((error) => {
-					if (!error) {
+				project.delete((projectError) => {
+					if (!projectError) {
 						project = null;
-						signingKey.delete((error) => {
-							if (!error) {
+						signingKey.delete((signingKeyError) => {
+							if (!signingKeyError) {
 								signingKey = null;
 								done();
 							} else {
-								done.fail(error);
+								done.fail(signingKeyError);
 							}
 						});
 					} else {
-						done.fail(error);
+						done.fail(projectError);
 					}
 				});
 			});
