@@ -119,7 +119,7 @@ export default class APIURL {
 	private static readonly _COCOON_VERSIONS = "cocoon/versions/";
 	private static readonly _COMPILE = "/compile/";
 	private static readonly _COMPILE_DEVAPP = "/devapp/";
-	private static readonly _CONFIG = "config/";
+	private static readonly _CONFIG = "/config";
 	private static readonly _CREATE_PROJECT_GITHUB = "github/";
 	private static readonly _CREATE_PROJECT_URL = "url/";
 	private static readonly _CREATE_PROJECT_ZIP = "";
