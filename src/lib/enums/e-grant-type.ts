@@ -1,6 +1,7 @@
 "use strict";
 
 export enum GrantType {
-	Implicit = 0,
-	AuthorizationCode = 1,
+	AuthorizationCode = <any> "authorization_code",
+	ClientCredentials = <any> "client_credentials", // Not available
+	Password = <any> "password",
 }

@@ -46,11 +46,10 @@ export default class APIClient {
 		if (credentials.oauthURL) {
 			APIURL.OAUTH = credentials.oauthURL;
 		}
-		APIClient.setOauthMode({grantType: GrantType.Implicit});
+		APIClient.setOauthMode({grantType: GrantType.Password});
 		const objParams = {
 			client_id: credentials.clientId,
-			client_secret: credentials.clientSecret,
-			grant_type: "password",
+			grant_type: this.oauthMode.grantType,
 			password: pPassword,
 			username: user,
 		};
@@ -58,7 +57,7 @@ export default class APIClient {
 		APIClient.request({
 			body: objParams,
 			headers: {"Content-Type": "application/x-www-form-urlencoded"},
-			method: "POST", url: APIURL.LOGIN,
+			method: "POST", url: APIURL.ACCESS_TOKEN,
 		}, false)
 			.use(plugins.parse("json"))
 			.then((response) => {
@@ -147,7 +146,7 @@ export default class APIClient {
 	private static _credentials: ICredentialStorage;
 	private static oauthMode: IOauthMode;
 
-	private static setOauthMode(options: IOauthMode = {grantType: GrantType.Implicit}) {
+	private static setOauthMode(options: IOauthMode = {grantType: GrantType.AuthorizationCode}) {
 		APIClient.oauthMode = options;
 		if (APIClient.oauthMode.storageType === StorageType.Memory || typeof document === "undefined") {
 			APIClient._credentials = new MemoryCredentialStorage();

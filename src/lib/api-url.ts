@@ -43,8 +43,12 @@ export default class APIURL {
 		return APIURL.BASE_PROJECT + APIURL._CREATE_PROJECT_ZIP;
 	}
 
-	public static get LOGIN(): string {
-		return APIURL._OAUTH + APIURL._LOGIN;
+	public static get ACCESS_TOKEN(): string {
+		return APIURL._OAUTH + APIURL._ACCESS_TOKEN;
+	}
+
+	public static get AUTHORIZATION(): string {
+		return APIURL._OAUTH + APIURL._AUTHORIZATION;
 	}
 
 	public static get LOGOUT(): string {
@@ -128,7 +132,8 @@ export default class APIURL {
 	private static readonly _SIGNING_KEYS = "signkey/";
 	private static readonly _SYNC_GITHUB = "/github/";
 	private static readonly _SYNC_URL = "/url/";
-	private static readonly _LOGIN = "access_token";
+	private static readonly _ACCESS_TOKEN = "access_token";
+	private static readonly _AUTHORIZATION = "authorization";
 	private static readonly _LOGOUT = "logout";
 	private static readonly _USER_PROFILE = "me/";
 
