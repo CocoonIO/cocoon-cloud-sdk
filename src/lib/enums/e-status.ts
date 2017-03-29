@@ -1,9 +1,9 @@
 "use strict";
 
 export enum Status {
-	Created = "created" as any,
-	Waiting = "waiting" as any,
-	Compiling = "compiling" as any,
-	Completed = "completed" as any,
-	Disabled = "disabled" as any,
+	Created = <any> "created",
+	Waiting = <any> "waiting",
+	Compiling = <any> "compiling",
+	Completed = <any> "completed",
+	Disabled = <any> "disabled",
 }
