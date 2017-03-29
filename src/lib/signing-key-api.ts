@@ -4,7 +4,7 @@ import {form, plugins} from "popsicle/dist/common";
 
 import APIClient from "./api-client";
 import APIURL from "./api-url";
-import {platforms} from "./constants/c-platforms";
+import {Platform} from "./enums/e-platform";
 import {IError} from "./interfaces/i-error";
 import {ISigningKeyData} from "./interfaces/i-signing-key-data";
 
@@ -34,7 +34,7 @@ export default class SigningKeyAPI {
 		APIClient.request({
 			body: formData,
 			method: "POST",
-			url: APIURL.CREATE_SIGNING_KEY(platforms.Android),
+			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
 		})
 			.use(plugins.parse("json"))
 			.then((response) => {
@@ -57,7 +57,7 @@ export default class SigningKeyAPI {
 	 */
 	public static createIOS(name: string, password: string, provisioningProfile: File, certificate: File,
 	                        callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
-		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, platforms.IOS, callback);
+		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.IOS, callback);
 	}
 
 	/**
@@ -73,7 +73,7 @@ export default class SigningKeyAPI {
 	 */
 	public static createMacOS(name: string, password: string, provisioningProfile: File, certificate: File,
 	                          callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
-		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, platforms.MacOS, callback);
+		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.MacOS, callback);
 	}
 
 	/**
@@ -100,7 +100,7 @@ export default class SigningKeyAPI {
 		APIClient.request({
 			body: formData,
 			method: "POST",
-			url: APIURL.CREATE_SIGNING_KEY(platforms.Windows),
+			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
 		})
 			.use(plugins.parse("json"))
 			.then((response) => {
@@ -163,7 +163,7 @@ export default class SigningKeyAPI {
 	}
 
 	private static createApple(name: string, password: string, provisioningProfile: File, certificate: File,
-	                           platform: string, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                           platform: Platform, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
 		const formData = form({});
 		const data = {
 			pass: password,
