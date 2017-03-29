@@ -5,14 +5,20 @@ const fs = require("fs");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
-const USERNAME = "USERNAME";
-const PASSWORD = "PASSWORD";
-const CLIENT_ID = "CLIENT_ID";
+// To test locally
+// const USERNAME = "USERNAME";
+// const PASSWORD = "PASSWORD";
+// const CLIENT_ID = "CLIENT_ID";
+
+// To test with Travis
+const USERNAME = process.env.COCOON_TEST_USERNAME;
+const PASSWORD = process.env.COCOON_TEST_PASSWORD;
+const CLIENT_ID = process.env.COCOON_SDK_CLIENT_ID;
 
 describe("A spec for the Cocoon SDK", () => {
 	it("should allow a user to log in", (done) => {
 		cocoonSDK.APIClient.logIn(USERNAME, PASSWORD, {
-			clientId: CLIENT_ID
+			clientId: CLIENT_ID,
 		}, (error) => {
 			if (!error) {
 				done();
@@ -36,7 +42,7 @@ describe("A spec for the Cocoon SDK", () => {
 		beforeAll((done) => {
 			if (!cocoonSDK.APIClient.isLoggedIn()) {
 				cocoonSDK.APIClient.logIn(USERNAME, PASSWORD, {
-					clientId: CLIENT_ID
+					clientId: CLIENT_ID,
 				}, (error) => {
 					if (!error) {
 						done();
