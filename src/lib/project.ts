@@ -9,6 +9,7 @@ import {IError} from "./interfaces/i-error";
 import {IProjectData} from "./interfaces/i-project-data";
 import ProjectAPI from "./project-api";
 import SigningKey from "./signing-key";
+import {Platform} from "./enums/e-platform";
 
 export default class Project {
 	public get id(): string {
@@ -158,7 +159,7 @@ export default class Project {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @param callback
 	 */
-	public getIconBlob(platform: string, callback: (data: Blob, error?: IError) => void) {
+	public getIconBlob(platform: Platform, callback: (data: Blob, error?: IError) => void) {
 		ProjectAPI.getIconBlob(this._id, platform, callback);
 	}
 
@@ -168,7 +169,7 @@ export default class Project {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @param callback
 	 */
-	public setIconBlob(icon: File, platform: string, callback: (error?: IError) => void) {
+	public setIconBlob(icon: File, platform: Platform, callback: (error?: IError) => void) {
 		ProjectAPI.setIconBlob(icon, this._id, platform, callback);
 	}
 
@@ -177,7 +178,7 @@ export default class Project {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @param callback
 	 */
-	public getSplashBlob(platform: string, callback: (data: Blob, error?: IError) => void) {
+	public getSplashBlob(platform: Platform, callback: (data: Blob, error?: IError) => void) {
 		ProjectAPI.getSplashBlob(this._id, platform, callback);
 	}
 
@@ -187,7 +188,7 @@ export default class Project {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @param callback
 	 */
-	public setSplashBlob(splash: File, platform: string, callback: (error?: IError) => void) {
+	public setSplashBlob(splash: File, platform: Platform, callback: (error?: IError) => void) {
 		ProjectAPI.setSplashBlob(splash, this._id, platform, callback);
 	}
 

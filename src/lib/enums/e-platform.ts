@@ -1,11 +1,11 @@
 "use strict";
 
-export const platforms: {[key: string]: string} = {
-	Android: "android",
-	ExplicitDefault: "default",
-	IOS: "ios",
-	ImplicitDefault: "",
-	MacOS: "osx",
-	Ubuntu: "ubuntu",
-	Windows: "windows",
-};
+export enum Platform {
+	Android = <any> "android",
+	ExplicitDefault = <any> "default",
+	IOS = <any> "ios",
+	ImplicitDefault = <any> "",
+	MacOS = <any> "osx",
+	Ubuntu = <any> "ubuntu",
+	Windows = <any> "windows",
+}

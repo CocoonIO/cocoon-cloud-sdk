@@ -4,7 +4,7 @@ import {form, plugins} from "popsicle/dist/common";
 
 import APIClient from "./api-client";
 import APIURL from "./api-url";
-import {platforms} from "./constants/c-platforms";
+import {Platform} from "./enums/e-platform";
 import {IError} from "./interfaces/i-error";
 import {IProjectData} from "./interfaces/i-project-data";
 import {IRepositoryData} from "./interfaces/i-repository-data";
@@ -130,7 +130,7 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @param callback
 	 */
-	public static getIconBlob(projectId: string, platform: string, callback: (data: Blob, error?: IError) => void) {
+	public static getIconBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
 		APIClient.request({
 			method: "GET",
 			url: APIURL.ICON(projectId, platform),
@@ -149,14 +149,14 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @param callback
 	 */
-	public static setIconBlob(icon: File, projectId: string, platform: string, callback: (error?: IError) => void) {
+	public static setIconBlob(icon: File, projectId: string, platform: Platform, callback: (error?: IError) => void) {
 		const formData = form({});
 		formData.append("file", icon, "icon.png");
 
 		APIClient.request({
 			body: formData,
 			method: "PUT",
-			url: APIURL.ICON(projectId, platform || platforms.ExplicitDefault),
+			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
 		})
 			.then(() => {
 				callback();
@@ -171,7 +171,7 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @param callback
 	 */
-	public static getSplashBlob(projectId: string, platform: string, callback: (data: Blob, error?: IError) => void) {
+	public static getSplashBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
 		APIClient.request({
 			method: "GET",
 			url: APIURL.SPLASH(projectId, platform),
@@ -190,7 +190,7 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @param callback
 	 */
-	public static setSplashBlob(splash: File, projectId: string, platform: string, callback: (error?: IError) => void) {
+	public static setSplashBlob(splash: File, projectId: string, platform: Platform, callback: (error?: IError) => void) {
 		const formData = form({});
 		formData.append("file", splash, "splash.png");
 

@@ -1,6 +1,6 @@
 "use strict";
 
-import {platforms} from "./constants/c-platforms";
+import {Platform} from "./enums/e-platform";
 
 export default class APIURL {
 	public static get BASE(): string {
@@ -87,11 +87,11 @@ export default class APIURL {
 		return APIURL.PROJECT(projectId) + APIURL._SYNC_URL;
 	}
 
-	public static ICON(projectId: string, platform: string = platforms.ImplicitDefault): string {
+	public static ICON(projectId: string, platform: Platform = Platform.ImplicitDefault): string {
 		return APIURL.PROJECT(projectId) + APIURL._ICON + platform;
 	}
 
-	public static SPLASH(projectId: string, platform: string = platforms.ExplicitDefault): string {
+	public static SPLASH(projectId: string, platform: Platform = Platform.ExplicitDefault): string {
 		return APIURL.PROJECT(projectId) + APIURL._SPLASH + platform;
 	}
 
@@ -99,7 +99,7 @@ export default class APIURL {
 		return APIURL.SIGNING_KEYS + signingKeyId;
 	}
 
-	public static CREATE_SIGNING_KEY(platform: string): string {
+	public static CREATE_SIGNING_KEY(platform: Platform): string {
 		return APIURL.SIGNING_KEYS + platform;
 	}
 
