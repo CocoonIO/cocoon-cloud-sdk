@@ -15,7 +15,7 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public static createFromZipUpload(file: File, callback: (projectData: IProjectData, error?: IError) => void) {
+	public static createFromZipUpload(file: File, callback: (projectData: IProjectData, error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
@@ -37,7 +37,7 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public static createFromURL(pUrl: string, callback: (projectData: IProjectData, error?: IError) => void) {
+	public static createFromURL(pUrl: string, callback: (projectData: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			body: {url: pUrl},
 			method: "POST",
@@ -58,7 +58,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static createFromRepository(repo: IRepositoryData,
-	                                   callback: (projectData: IProjectData, error?: IError) => void) {
+	                                   callback: (projectData: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			body: repo,
 			method: "POST",
@@ -77,7 +77,7 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to fetch.
 	 * @param callback
 	 */
-	public static get(projectId: string, callback: (projectData: IProjectData, error?: IError) => void) {
+	public static get(projectId: string, callback: (projectData: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.PROJECT(projectId),
@@ -95,7 +95,7 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to delete.
 	 * @param callback
 	 */
-	public static delete(projectId: string, callback: (error?: IError) => void) {
+	public static delete(projectId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT(projectId),
@@ -111,7 +111,7 @@ export default class ProjectAPI {
 	 * Fetch a list containing the information of all the project.
 	 * @param callback
 	 */
-	public static list(callback: (projectsData: IProjectData[], error?: IError) => void) {
+	public static list(callback: (projectsData: IProjectData[], error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.BASE_PROJECT,
@@ -130,7 +130,7 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @param callback
 	 */
-	public static getIconBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
+	public static getIconBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.ICON(projectId, platform),
@@ -149,7 +149,7 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @param callback
 	 */
-	public static setIconBlob(icon: File, projectId: string, platform: Platform, callback: (error?: IError) => void) {
+	public static setIconBlob(icon: File, projectId: string, platform: Platform, callback: (error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", icon, "icon.png");
 
@@ -171,7 +171,8 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @param callback
 	 */
-	public static getSplashBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
+	public static getSplashBlob(projectId: string, platform: Platform,
+	                            callback: (data: Blob, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SPLASH(projectId, platform),
@@ -190,7 +191,8 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @param callback
 	 */
-	public static setSplashBlob(splash: File, projectId: string, platform: Platform, callback: (error?: IError) => void) {
+	public static setSplashBlob(splash: File, projectId: string, platform: Platform,
+	                            callback: (error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", splash, "splash.png");
 
@@ -212,7 +214,7 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public static updateZip(projectId: string, file: File, callback: (data: IProjectData, error?: IError) => void) {
+	public static updateZip(projectId: string, file: File, callback: (data: IProjectData, error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
@@ -235,7 +237,7 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public static updateURL(projectId: string, pUrl: string, callback: (data: IProjectData, error?: IError) => void) {
+	public static updateURL(projectId: string, pUrl: string, callback: (data: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			body: {url: pUrl},
 			method: "PUT",
@@ -257,7 +259,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static updateRepository(projectId: string, repo: {url: string, branch?: string},
-	                               callback: (data: IProjectData, error?: IError) => void) {
+	                               callback: (data: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			body: repo,
 			method: "PUT",
@@ -275,7 +277,7 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to fetch the config.xml.
 	 * @param callback
 	 */
-	public static getConfigXml(projectId: string, callback: (xml: string, error?: IError) => void) {
+	public static getConfigXml(projectId: string, callback: (xml: string, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.CONFIG(projectId),
@@ -294,7 +296,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static updateConfigXml(projectId: string, xml: string,
-	                              callback: (projectData: IProjectData, error?: IError) => void) {
+	                              callback: (projectData: IProjectData, error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", xml, "config.xml");
 
@@ -315,7 +317,7 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to compile.
 	 * @param callback
 	 */
-	public static compile(projectId: string, callback: (error?: IError) => void) {
+	public static compile(projectId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE(projectId),
@@ -332,7 +334,7 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to compile a DevApp.
 	 * @param callback
 	 */
-	public static compileDevApp(projectId: string, callback: (error?: IError) => void) {
+	public static compileDevApp(projectId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE_DEVAPP(projectId),
@@ -351,7 +353,7 @@ export default class ProjectAPI {
 	 * @param signingKeyId ID of the signing key that you want to assign to the project.
 	 * @param callback
 	 */
-	public static assignSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void) {
+	public static assignSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
@@ -369,7 +371,7 @@ export default class ProjectAPI {
 	 * @param signingKeyId ID of the signing key that you want to remove from the project.
 	 * @param callback
 	 */
-	public static removeSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void) {
+	public static removeSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),

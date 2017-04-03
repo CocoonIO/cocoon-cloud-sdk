@@ -11,7 +11,7 @@ export default class CookieCredentialStorage implements ICredentialStorage {
 		return CookieHelper.getItem("access_token");
 	}
 
-	public setAccessToken(value: string, expires: number = this.DEFAULT_EXPIRATION) {
+	public setAccessToken(value: string, expires: number = this.DEFAULT_EXPIRATION): void {
 		const expireDate = new Date();
 		expireDate.setSeconds(expireDate.getSeconds() + expires);
 
@@ -22,11 +22,11 @@ export default class CookieCredentialStorage implements ICredentialStorage {
 		return CookieHelper.getItem("refresh_token");
 	}
 
-	public setRefreshToken(value: string) {
+	public setRefreshToken(value: string): void {
 		CookieHelper.setItem("access_token", value, this.MAX_DATE);
 	}
 
-	public logout() {
+	public logout(): void {
 		CookieHelper.removeItem("access_token");
 		CookieHelper.removeItem("refresh_token");
 	}
