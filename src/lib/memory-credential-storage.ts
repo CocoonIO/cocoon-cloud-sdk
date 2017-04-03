@@ -13,7 +13,7 @@ export default class MemoryCredentialStorage implements ICredentialStorage {
 		return this.accessToken;
 	}
 
-	public setAccessToken(value: string, expires: number = this.DEFAULT_EXPIRATION) {
+	public setAccessToken(value: string, expires: number = this.DEFAULT_EXPIRATION): void {
 		const expireDate = new Date();
 		expireDate.setSeconds(expireDate.getSeconds() + expires);
 
@@ -25,11 +25,11 @@ export default class MemoryCredentialStorage implements ICredentialStorage {
 		return this.refreshToken;
 	}
 
-	public setRefreshToken(value: string) {
+	public setRefreshToken(value: string): void {
 		this.refreshToken = value;
 	}
 
-	public logout() {
+	public logout(): void {
 		this.accessToken = null;
 		this.refreshToken = null;
 		this.expires = null;

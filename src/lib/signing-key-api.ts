@@ -20,7 +20,7 @@ export default class SigningKeyAPI {
 	 */
 	public static createAndroid(name: string, pAlias: string, keystore: File,
 	                            keystorePassword: string, certificatePassword: string,
-	                            callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                            callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		const formData = form({});
 		const data = {
 			alias: pAlias,
@@ -56,7 +56,7 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static createIOS(name: string, password: string, provisioningProfile: File, certificate: File,
-	                        callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                        callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.IOS, callback);
 	}
 
@@ -72,7 +72,7 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static createMacOS(name: string, password: string, provisioningProfile: File, certificate: File,
-	                          callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                          callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.MacOS, callback);
 	}
 
@@ -86,7 +86,8 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static createWindows(name: string, pPassword: string, pPackageThumbprint: string, pPublisherId: string,
-	                            keystore: File, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                            keystore: File,
+	                            callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		const formData = form({});
 		const data = {
 			packageThumbprint: pPackageThumbprint,
@@ -115,7 +116,7 @@ export default class SigningKeyAPI {
 	 * @param signingKeyId ID of the signing key to fetch.
 	 * @param callback
 	 */
-	public static get(signingKeyId: string, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	public static get(signingKeyId: string, callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEY(signingKeyId),
@@ -133,7 +134,7 @@ export default class SigningKeyAPI {
 	 * @param signingKeyId ID of the signing key to delete.
 	 * @param callback
 	 */
-	public static delete(signingKeyId: string, callback: (error?: IError) => void) {
+	public static delete(signingKeyId: string, callback: (error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.SIGNING_KEY(signingKeyId),
@@ -149,7 +150,8 @@ export default class SigningKeyAPI {
 	 * Fetch a list containing the information of all the signing keys.
 	 * @param callback
 	 */
-	public static list(callback: (signingKeysData: {[platform: string]: ISigningKeyData[]}, error?: IError) => void) {
+	public static list(callback: (signingKeysData: {[platform: string]: ISigningKeyData[]}, error?: IError)
+		                   => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,
@@ -163,7 +165,8 @@ export default class SigningKeyAPI {
 	}
 
 	private static createApple(name: string, password: string, provisioningProfile: File, certificate: File,
-	                           platform: Platform, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
+	                           platform: Platform,
+	                           callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
 		const formData = form({});
 		const data = {
 			pass: password,

@@ -12,7 +12,7 @@ export default class UserAPI {
 	 * Fetch the information of the user.
 	 * @param callback
 	 */
-	public static get(callback: (userData: IUserData, error?: IError) => void) {
+	public static get(callback: (userData: IUserData, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.USER_PROFILE,

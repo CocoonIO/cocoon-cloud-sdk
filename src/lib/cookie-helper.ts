@@ -11,7 +11,7 @@ export default class CookieHelper {
 		return result ? result[1] : null;
 	}
 
-	public static setItem(key: string, value: string, expires: Date, path?: string, domain?: string, secure?: boolean) {
+	public static setItem(key: string, value: string, expires: Date, path?: string, domain?: string, secure?: boolean): void {
 		document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value)
 			+ "; expires=" + expires.toUTCString()
 			+ (domain ? "; domain=" + domain : "")
@@ -19,7 +19,7 @@ export default class CookieHelper {
 			+ (secure ? "; secure" : "");
 	}
 
-	public static removeItem(key: string, path?: string, domain?: string) {
+	public static removeItem(key: string, path?: string, domain?: string): void {
 		if (CookieHelper.hasItem(key)) {
 			this.setItem(key, "", new Date(0), path, domain);
 		}

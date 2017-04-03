@@ -7,7 +7,7 @@ import {GrantType} from "./enums/e-grant-type";
 
 export default class OAuth {
 
-	private static generateRandomString(length: number = 16) {
+	private static generateRandomString(length: number = 16): string {
 		let text = "";
 		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		for (let i = 0; i < length; i++) {
@@ -48,14 +48,19 @@ export default class OAuth {
 		return this.oAuthURL.replace("oauth", this.LOGOUT);
 	}
 
+	/**
+	 * Generate the URL where the user can authorize the application following the Authorization Code OAuth flow.
+	 * @param scope Scope of the access the application requests.
+	 * @returns {string} The URL where the user can authorize the application.
+	 */
 	public authorizeAuthorizationCode(scope?: string): string {
 		if (this.grantType === GrantType.AuthorizationCode) {
 			this.state = OAuth.generateRandomString(16);
 			return this.authorizationURL
-			+ "?response_type=" + "code"
-			+ "&client_id=" + this.clientId
-			+ "&redirect_uri=" + this.redirectURI
-			+ scope ? "&scope=" + scope : ""
+				+ "?response_type=" + "code"
+				+ "&client_id=" + this.clientId
+				+ "&redirect_uri=" + this.redirectURI
+				+ (scope ? "&scope=" + scope : "")
 				+ "&state=" + this.state;
 		} else {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
@@ -63,6 +68,15 @@ export default class OAuth {
 		}
 	}
 
+	/**
+	 * Exchange the code you got after the user authorized the application for the access token following
+	 * the Authorization Code OAuth flow.
+	 * @param pCode Code found in the redirect URL, as a parameter, after the user authorizes the application.
+	 * @param state Random string present in the redirect URL, as a parameter, after the user authorizes the application.
+	 * The SDK created it when generating the authorization URL.
+	 * The server should have returned the same string and will be tested now.
+	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
+	 */
 	public tokenExchangeAuthorizationCode(pCode: string, state: string): Request {
 		const parameters = {
 			client_id: this.clientId,
@@ -109,24 +123,30 @@ export default class OAuth {
 		// return request;
 	}
 
-	public tokenExchangeImplicit() {
-		console.warn("Access with Implicit not available yet");
-		// const request = CocoonAPI.request({
-		// 	method: "POST",
-		// 	url: this.accessTokenURL
-		// 	+ "?grant_type=" + this.grantType
-		// 	+ "&client_id=" + this.clientId
-		// 	+ "&client_secret=" + this.clientSecret,
-		// }, false)
-		// .use(plugins.parse("json"));
-		//
-		// if (this.grantType !== GrantType.Implicit) {
-		// 	console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Implicit);
-		// 	request.abort();
-		// }
-		// return request;
+	/**
+	 * Generate the URL where the user can authorize the application following the Implicit OAuth flow.
+	 * @param scope Scope of the access the application requests.
+	 * @returns {string}
+	 */
+	public authorizeImplicit(scope?: string): string {
+		if (this.grantType === GrantType.Implicit) {
+			return this.authorizationURL
+				+ "?response_type=" + "token"
+				+ "&client_id=" + this.clientId
+				+ "&redirect_uri=" + this.redirectURI
+				+ (scope ? "&scope=" + scope : "");
+		} else {
+			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Implicit);
+			throw new Error("Invalid OAuth flow");
+		}
 	}
 
+	/**
+	 * Exchange a username and password for the access token following the Password OAuth flow.
+	 * @param pUsername Username of a user.
+	 * @param pPassword Password of a user.
+	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
+	 */
 	public tokenExchangePassword(pUsername: string, pPassword: string): Request {
 		const parameters = {
 			client_id: this.clientId,

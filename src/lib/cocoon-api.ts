@@ -18,7 +18,11 @@ export default class CocoonAPI {
 		return this._credentials;
 	}
 
-	public static isLoggedIn(): boolean {
+	/**
+	 * Checks if the API access works.
+	 * @returns {boolean}
+	 */
+	public static checkAPIAccess(): boolean {
 		if (CocoonAPI.credentials) {
 			return !!CocoonAPI.credentials.getAccessToken();
 		} else {
@@ -26,6 +30,13 @@ export default class CocoonAPI {
 		}
 	}
 
+	/**
+	 * Prepares the API to be used. After successfully setting up the API access you can use the whole SDK.
+	 * @param accessToken Access token provided by the Cocoon.io server.
+	 * @param refreshToken Refresh token provided by the Cocoon.io server.
+	 * @param expiration Time, in seconds, the access token is valid.
+	 * @param apiURL URL where the Cocoon.io API is located.
+	 */
 	public static setupAPIAccess(accessToken: string, refreshToken: string, expiration?: number, apiURL?: string): void {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
@@ -39,7 +50,10 @@ export default class CocoonAPI {
 		CocoonAPI._credentials.setRefreshToken(refreshToken);
 	}
 
-	public static closeAPIAccess() {
+	/**
+	 * Removes the stored credentials.
+	 */
+	public static closeAPIAccess(): void {
 		CocoonAPI.credentials.logout();
 	}
 
@@ -47,7 +61,7 @@ export default class CocoonAPI {
 	 * Get a list of the available templates for Cocoon.io projects from the API.
 	 * @param callback
 	 */
-	public static getCocoonTemplates(callback: (templates: ICocoonTemplate[], error?: IError) => void) {
+	public static getCocoonTemplates(callback: (templates: ICocoonTemplate[], error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_TEMPLATES,
@@ -64,7 +78,7 @@ export default class CocoonAPI {
 	 * Get a list of the available Cocoon.io versions.
 	 * @param callback
 	 */
-	public static getCocoonVersions(callback: (versions: ICocoonVersion[], error?: IError) => void) {
+	public static getCocoonVersions(callback: (versions: ICocoonVersion[], error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_VERSIONS,

@@ -4,12 +4,12 @@ import XMLSugar from "cocoon-xml-sugar";
 
 import APIURL from "./api-url";
 import Compilation from "./compilation";
+import {Platform} from "./enums/e-platform";
 import {Status} from "./enums/e-status";
 import {IError} from "./interfaces/i-error";
 import {IProjectData} from "./interfaces/i-project-data";
 import ProjectAPI from "./project-api";
 import SigningKey from "./signing-key";
-import {Platform} from "./enums/e-platform";
 
 export default class Project {
 	public get id(): string {
@@ -139,7 +139,7 @@ export default class Project {
 	 * Get a sugar for the XML configuration of the project.
 	 * @param callback
 	 */
-	public getConfigXML(callback: (xmlSugar: XMLSugar, error?: IError) => void) {
+	public getConfigXML(callback: (xmlSugar: XMLSugar, error?: IError) => void): void {
 		if (this.configXML) {
 			callback(this.configXML);
 		} else {
@@ -159,7 +159,7 @@ export default class Project {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @param callback
 	 */
-	public getIconBlob(platform: Platform, callback: (data: Blob, error?: IError) => void) {
+	public getIconBlob(platform: Platform, callback: (data: Blob, error?: IError) => void): void {
 		ProjectAPI.getIconBlob(this._id, platform, callback);
 	}
 
@@ -169,7 +169,7 @@ export default class Project {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @param callback
 	 */
-	public setIconBlob(icon: File, platform: Platform, callback: (error?: IError) => void) {
+	public setIconBlob(icon: File, platform: Platform, callback: (error?: IError) => void): void {
 		ProjectAPI.setIconBlob(icon, this._id, platform, callback);
 	}
 
@@ -178,7 +178,7 @@ export default class Project {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @param callback
 	 */
-	public getSplashBlob(platform: Platform, callback: (data: Blob, error?: IError) => void) {
+	public getSplashBlob(platform: Platform, callback: (data: Blob, error?: IError) => void): void {
 		ProjectAPI.getSplashBlob(this._id, platform, callback);
 	}
 
@@ -188,7 +188,7 @@ export default class Project {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @param callback
 	 */
-	public setSplashBlob(splash: File, platform: Platform, callback: (error?: IError) => void) {
+	public setSplashBlob(splash: File, platform: Platform, callback: (error?: IError) => void): void {
 		ProjectAPI.setSplashBlob(splash, this._id, platform, callback);
 	}
 
@@ -197,7 +197,7 @@ export default class Project {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public updateZip(file: File, callback: (error?: IError) => void) {
+	public updateZip(file: File, callback: (error?: IError) => void): void {
 		ProjectAPI.updateZip(this._id, file, (data: IProjectData, error?: IError) => {
 			if (error) {
 				callback(error);
@@ -213,7 +213,7 @@ export default class Project {
 	 * @param url URL to fetch the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public updateURL(url: string, callback: (error?: IError) => void) {
+	public updateURL(url: string, callback: (error?: IError) => void): void {
 		ProjectAPI.updateURL(this._id, url, (data: IProjectData, error?: IError) => {
 			if (error) {
 				callback(error);
@@ -230,7 +230,7 @@ export default class Project {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @param callback
 	 */
-	public updateRepository(repo: {url: string, branch?: string}, callback: (error?: IError) => void) {
+	public updateRepository(repo: {url: string, branch?: string}, callback: (error?: IError) => void): void {
 		ProjectAPI.updateRepository(this._id, repo, (data: IProjectData, error?: IError) => {
 			if (error) {
 				callback(error);
@@ -246,7 +246,7 @@ export default class Project {
 	 * @param xml New config.xml for the project.
 	 * @param callback
 	 */
-	public updateConfigXml(xml: string, callback: (error?: IError) => void) {
+	public updateConfigXml(xml: string, callback: (error?: IError) => void): void {
 		ProjectAPI.updateConfigXml(this._id, xml, (projectData: IProjectData, error?: IError) => {
 			if (!error) {
 				this.init(projectData);
@@ -262,7 +262,7 @@ export default class Project {
 	 * Places the project in the compilation queue.
 	 * @param callback
 	 */
-	public compile(callback: (error?: IError) => void) {
+	public compile(callback: (error?: IError) => void): void {
 		ProjectAPI.compile(this._id, callback);
 	}
 
@@ -270,7 +270,7 @@ export default class Project {
 	 * Places a DevApp of the project in the compilation queue.
 	 * @param callback
 	 */
-	public compileDevApp(callback: (error?: IError) => void) {
+	public compileDevApp(callback: (error?: IError) => void): void {
 		ProjectAPI.compileDevApp(this._id, callback);
 	}
 
@@ -278,7 +278,7 @@ export default class Project {
 	 * Fetches the project from Cocoon.io.
 	 * @param callback
 	 */
-	public refresh(callback: (error?: IError) => void) {
+	public refresh(callback: (error?: IError) => void): void {
 		ProjectAPI.get(this._id, (projectData: IProjectData, error?: IError) => {
 			if (!error) {
 				this.init(projectData);
@@ -293,7 +293,7 @@ export default class Project {
 	 * Uploads the current config.xml extracted from the sugar.
 	 * @param callback
 	 */
-	public refreshCocoon(callback: (error?: IError) => void) {
+	public refreshCocoon(callback: (error?: IError) => void): void {
 		this.getConfigXML((xmlSugar, error) => {
 			if (!error) {
 				this.updateConfigXml(xmlSugar.xml(), callback);
@@ -310,7 +310,8 @@ export default class Project {
 	 * @param maxWaitTime Maximum time to wait.
 	 */
 	public refreshUntilCompleted(callback: (completed: boolean, error?: IError) => void,
-	                             interval: number = this.DEFAULT_WAIT_TIME, maxWaitTime: number = this.MAX_WAIT_TIME) {
+	                             interval: number = this.DEFAULT_WAIT_TIME,
+	                             maxWaitTime: number = this.MAX_WAIT_TIME): void {
 		const limitTime = Date.now() + maxWaitTime;
 		this.refresh((error?: IError) => {
 			if (!error) {
@@ -336,7 +337,7 @@ export default class Project {
 	 * @param signingKey
 	 * @param callback
 	 */
-	public assignSigningKey(signingKey: SigningKey, callback: (error?: IError) => void) {
+	public assignSigningKey(signingKey: SigningKey, callback: (error?: IError) => void): void {
 		ProjectAPI.assignSigningKey(this._id, signingKey.id, (error) => {
 			if (!error) {
 				this._keys[signingKey.platform] = signingKey;
@@ -352,7 +353,7 @@ export default class Project {
 	 * @param platform
 	 * @param callback
 	 */
-	public removeSigningKey(platform: string, callback: (error?: IError) => void) {
+	public removeSigningKey(platform: string, callback: (error?: IError) => void): void {
 		if (this._keys[platform]) {
 			ProjectAPI.removeSigningKey(this._id, this._keys[platform].id, (error) => {
 				if (!error) {
@@ -372,11 +373,11 @@ export default class Project {
 	 * Deletes the project.
 	 * @param callback
 	 */
-	public delete(callback: (error?: IError) => void) {
+	public delete(callback: (error?: IError) => void): void {
 		ProjectAPI.delete(this._id, callback);
 	}
 
-	private init(projectData: IProjectData) {
+	private init(projectData: IProjectData): void {
 		this._id = projectData.id;
 		this._name = projectData.title;
 		this._bundleID = projectData.package;

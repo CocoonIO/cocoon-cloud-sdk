@@ -51,7 +51,7 @@ describe("A spec for the Cocoon SDK", () => {
 		let oAuth;
 		beforeAll((done) => {
 			oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
-			if (!cocoonSDK.CocoonAPI.isLoggedIn()) {
+			if (!cocoonSDK.CocoonAPI.checkAPIAccess()) {
 				oAuth.tokenExchangePassword(USERNAME, PASSWORD)
 				.then((response) => {
 					cocoonSDK.CocoonAPI.setupAPIAccess(response.body.access_token, response.body.refresh_token,
