@@ -1,0 +1,24 @@
+{
+	"name": "cocoon-cloud-sdk-sample-cli",
+	"version": "0.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [
+		"cli",
+		"cloud",
+		"cocoon",
+		"gulp",
+		"ludei",
+		"sdk"
+	],
+	"author": "Ludei Developers <devs@ludei.com>",
+	"license": "MIT",
+	"dependencies": {
+		"cocoon-cloud-sdk": "^2.0.0",
+		"gulp": "^3.9.1",
+		"yargs": "^7.0.2"
+	}
+}
