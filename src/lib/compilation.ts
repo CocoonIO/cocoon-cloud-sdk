@@ -1,14 +1,14 @@
 "use strict";
 
-import APIClient from "./api-client";
 import APIURL from "./api-url";
+import CocoonAPI from "./cocoon-api";
 import {Status} from "./enums/e-status";
 import {IProjectData} from "./interfaces/i-project-data";
 
 export default class Compilation {
 	public get downloadLink(): string {
 		return this._downloadLink ?
-			this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + APIClient.credentials.getAccessToken()
+			this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + CocoonAPI.credentials.getAccessToken()
 			: null;
 	}
 

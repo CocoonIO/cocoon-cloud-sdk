@@ -1,6 +1,7 @@
 "use strict";
 
 const cocoonSDK = require("../../out");
+const grantType = require("../../out/lib/enums/e-grant-type").GrantType;
 const fs = require("fs");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -9,46 +10,56 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 // const USERNAME = "USERNAME";
 // const PASSWORD = "PASSWORD";
 // const CLIENT_ID = "CLIENT_ID";
+// const CLIENT_SECRET = "CLIENT_SECRET";
 
 // To test with Travis
 const USERNAME = process.env.COCOON_TEST_USERNAME;
 const PASSWORD = process.env.COCOON_TEST_PASSWORD;
 const CLIENT_ID = process.env.COCOON_SDK_CLIENT_ID;
+const CLIENT_SECRET = process.env.COCOON_SDK_CLIENT_SECRET;
 
 describe("A spec for the Cocoon SDK", () => {
+	let oAuth;
+	beforeAll(() => {
+		oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+	});
+
 	it("should allow a user to log in", (done) => {
-		cocoonSDK.APIClient.logIn(USERNAME, PASSWORD, {
-			clientId: CLIENT_ID,
-		}, (error) => {
-			if (!error) {
-				done();
-			} else {
-				done.fail(error);
-			}
+		oAuth.tokenExchangePassword(USERNAME, PASSWORD)
+		.then((response) => {
+			cocoonSDK.CocoonAPI.setupAPIAccess(response.body.access_token, response.body.refresh_token,
+				response.body.expires_in);
+			done();
+		})
+		.catch((error) => {
+			done.fail(error);
 		});
 	});
 
 	it("should allow a user to log out", (done) => {
-		cocoonSDK.APIClient.logout((error) => {
-			if (!error) {
-				done();
-			} else {
-				done.fail(error);
-			}
+		oAuth.logout()
+		.then(() => {
+			cocoonSDK.CocoonAPI.closeAPIAccess();
+			done();
+		})
+		.catch((error) => {
+			done.fail(error);
 		});
 	});
 
 	describe("when the user is authenticated", () => {
+		let oAuth;
 		beforeAll((done) => {
-			if (!cocoonSDK.APIClient.isLoggedIn()) {
-				cocoonSDK.APIClient.logIn(USERNAME, PASSWORD, {
-					clientId: CLIENT_ID,
-				}, (error) => {
-					if (!error) {
-						done();
-					} else {
-						done.fail(error);
-					}
+			oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+			if (!cocoonSDK.CocoonAPI.isLoggedIn()) {
+				oAuth.tokenExchangePassword(USERNAME, PASSWORD)
+				.then((response) => {
+					cocoonSDK.CocoonAPI.setupAPIAccess(response.body.access_token, response.body.refresh_token,
+						response.body.expires_in);
+					done();
+				})
+				.catch((error) => {
+					done.fail(error);
 				});
 			} else {
 				done();
@@ -56,12 +67,13 @@ describe("A spec for the Cocoon SDK", () => {
 		});
 
 		afterAll((done) => {
-			cocoonSDK.APIClient.logout((error) => {
-				if (!error) {
-					done();
-				} else {
-					done.fail(error);
-				}
+			oAuth.logout()
+			.then(() => {
+				cocoonSDK.CocoonAPI.closeAPIAccess();
+				done();
+			})
+			.catch((error) => {
+				done.fail(error);
 			});
 		});
 
@@ -138,7 +150,7 @@ describe("A spec for the Cocoon SDK", () => {
 		});
 
 		it("should be able to get the project templates", (done) => {
-			cocoonSDK.APIClient.getCocoonTemplates((templates, error) => {
+			cocoonSDK.CocoonAPI.getCocoonTemplates((templates, error) => {
 				if (!error) {
 					expect(templates.length).toBeGreaterThan(0);
 					for (let template of templates) {
@@ -157,7 +169,7 @@ describe("A spec for the Cocoon SDK", () => {
 		});
 
 		it("should be able to get the cocoon versions", (done) => {
-			cocoonSDK.APIClient.getCocoonVersions((versions, error) => {
+			cocoonSDK.CocoonAPI.getCocoonVersions((versions, error) => {
 				if (!error) {
 					expect(versions.length).toBeGreaterThan(0);
 					for (let version of versions) {

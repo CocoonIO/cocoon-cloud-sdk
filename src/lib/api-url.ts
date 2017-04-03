@@ -11,24 +11,16 @@ export default class APIURL {
 		APIURL._BASE = value;
 	}
 
-	public static get OAUTH(): string {
-		return this._OAUTH;
-	}
-
-	public static set OAUTH(value: string) {
-		this._OAUTH = value;
-	}
-
 	public static get BASE_PROJECT(): string {
-		return APIURL._BASE + APIURL._BASE_PROJECT;
+		return APIURL.BASE + APIURL._BASE_PROJECT;
 	}
 
 	public static get COCOON_VERSIONS(): string {
-		return APIURL._BASE + APIURL._COCOON_VERSIONS;
+		return APIURL.BASE + APIURL._COCOON_VERSIONS;
 	}
 
 	public static get COCOON_TEMPLATES(): string {
-		return APIURL._BASE + APIURL._COCOON_TEMPLATES;
+		return APIURL.BASE + APIURL._COCOON_TEMPLATES;
 	}
 
 	public static get CREATE_PROJECT_GITHUB(): string {
@@ -43,24 +35,12 @@ export default class APIURL {
 		return APIURL.BASE_PROJECT + APIURL._CREATE_PROJECT_ZIP;
 	}
 
-	public static get ACCESS_TOKEN(): string {
-		return APIURL._OAUTH + APIURL._ACCESS_TOKEN;
-	}
-
-	public static get AUTHORIZATION(): string {
-		return APIURL._OAUTH + APIURL._AUTHORIZATION;
-	}
-
-	public static get LOGOUT(): string {
-		return APIURL._OAUTH.replace("oauth", APIURL._LOGOUT);
-	}
-
 	public static get SIGNING_KEYS(): string {
-		return APIURL._BASE + APIURL._SIGNING_KEYS;
+		return APIURL.BASE + APIURL._SIGNING_KEYS;
 	}
 
 	public static get USER_PROFILE(): string {
-		return APIURL._BASE + APIURL._USER_PROFILE;
+		return APIURL.BASE + APIURL._USER_PROFILE;
 	}
 
 	public static PROJECT(projectId: string): string {
@@ -116,9 +96,9 @@ export default class APIURL {
 	}
 
 	private static _BASE = "https://api.cocoon.io/v1/";
-	private static _OAUTH = "https://cloud.cocoon.io/oauth/";
 	private static readonly _BASE_PROJECT = "project/";
 
+	// Endpoints
 	private static readonly _COCOON_TEMPLATES = "cocoon/templates/";
 	private static readonly _COCOON_VERSIONS = "cocoon/versions/";
 	private static readonly _COMPILE = "/compile/";
@@ -132,11 +112,9 @@ export default class APIURL {
 	private static readonly _SIGNING_KEYS = "signkey/";
 	private static readonly _SYNC_GITHUB = "/github/";
 	private static readonly _SYNC_URL = "/url/";
-	private static readonly _ACCESS_TOKEN = "access_token";
-	private static readonly _AUTHORIZATION = "authorization";
-	private static readonly _LOGOUT = "logout";
 	private static readonly _USER_PROFILE = "me/";
 
+	// Parameters
 	private static readonly _ACCESS_TOKEN_PARAMETER = "access_token=";
 	private static readonly _REFRESH_TOKEN_PARAMETER = "refresh_token=";
 }
