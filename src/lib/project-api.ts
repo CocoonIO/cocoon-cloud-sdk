@@ -2,8 +2,8 @@
 
 import {form, plugins} from "popsicle/dist/common";
 
-import APIClient from "./api-client";
 import APIURL from "./api-url";
+import CocoonAPI from "./cocoon-api";
 import {Platform} from "./enums/e-platform";
 import {IError} from "./interfaces/i-error";
 import {IProjectData} from "./interfaces/i-project-data";
@@ -19,7 +19,7 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_ZIP,
@@ -38,7 +38,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static createFromURL(pUrl: string, callback: (projectData: IProjectData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			body: {url: pUrl},
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_URL,
@@ -59,7 +59,7 @@ export default class ProjectAPI {
 	 */
 	public static createFromRepository(repo: IRepositoryData,
 	                                   callback: (projectData: IProjectData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			body: repo,
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_GITHUB,
@@ -78,7 +78,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static get(projectId: string, callback: (projectData: IProjectData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.PROJECT(projectId),
 		})
@@ -96,7 +96,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static delete(projectId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT(projectId),
 		})
@@ -112,7 +112,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static list(callback: (projectsData: IProjectData[], error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.BASE_PROJECT,
 		})
@@ -131,7 +131,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static getIconBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.ICON(projectId, platform),
 		}, false)
@@ -153,7 +153,7 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", icon, "icon.png");
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "PUT",
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
@@ -172,7 +172,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static getSplashBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SPLASH(projectId, platform),
 		}, false)
@@ -194,7 +194,7 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", splash, "splash.png");
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "PUT",
 			url: APIURL.SPLASH(projectId, platform),
@@ -216,7 +216,7 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "PUT",
 			url: APIURL.PROJECT(projectId),
@@ -236,7 +236,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static updateURL(projectId: string, pUrl: string, callback: (data: IProjectData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			body: {url: pUrl},
 			method: "PUT",
 			url: APIURL.SYNC_URL(projectId),
@@ -258,7 +258,7 @@ export default class ProjectAPI {
 	 */
 	public static updateRepository(projectId: string, repo: {url: string, branch?: string},
 	                               callback: (data: IProjectData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			body: repo,
 			method: "PUT",
 			url: APIURL.SYNC_GITHUB(projectId),
@@ -276,7 +276,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static getConfigXml(projectId: string, callback: (xml: string, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.CONFIG(projectId),
 		})
@@ -298,7 +298,7 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", xml, "config.xml");
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "PUT",
 			url: APIURL.CONFIG(projectId),
@@ -316,7 +316,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static compile(projectId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE(projectId),
 		})
@@ -333,7 +333,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static compileDevApp(projectId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE_DEVAPP(projectId),
 		})
@@ -352,7 +352,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static assignSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "POST",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
@@ -370,7 +370,7 @@ export default class ProjectAPI {
 	 * @param callback
 	 */
 	public static removeSigningKey(projectId: string, signingKeyId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})

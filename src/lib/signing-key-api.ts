@@ -2,8 +2,8 @@
 
 import {form, plugins} from "popsicle/dist/common";
 
-import APIClient from "./api-client";
 import APIURL from "./api-url";
+import CocoonAPI from "./cocoon-api";
 import {Platform} from "./enums/e-platform";
 import {IError} from "./interfaces/i-error";
 import {ISigningKeyData} from "./interfaces/i-signing-key-data";
@@ -31,7 +31,7 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("keystore", keystore);
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
@@ -97,7 +97,7 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("packageCertificateKeyFile", keystore);
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
@@ -116,7 +116,7 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static get(signingKeyId: string, callback: (signingKeyData: ISigningKeyData, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
@@ -134,7 +134,7 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static delete(signingKeyId: string, callback: (error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
@@ -150,7 +150,7 @@ export default class SigningKeyAPI {
 	 * @param callback
 	 */
 	public static list(callback: (signingKeysData: {[platform: string]: ISigningKeyData[]}, error?: IError) => void) {
-		APIClient.request({
+		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,
 		})
@@ -173,7 +173,7 @@ export default class SigningKeyAPI {
 		formData.append("p12", certificate);
 		formData.append("provisioning", provisioningProfile);
 
-		APIClient.request({
+		CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(platform),

@@ -93,7 +93,7 @@ npm install cocoon-cloud-sdk
 And import it in your NodeJS or Web project.
 
 ```js
-import cocoonSDK from "cocoon-cloud-sdk";
+import * as cocoonSDK from "cocoon-cloud-sdk";
 ```
 
 ```html
@@ -109,38 +109,36 @@ You can see an example of the usage in [sample](sample).
 Log In into Cocoon.
 
 ```js
-cocoonSDK.APIClient.logIn("john.smith@example.com", "12345678", {clientId: "MY_CLIENT_ID"}, (error) => {
-	if (!error) {
-		loginSucceeded();
-	} else {
-		alert(JSON.stringify(error));
-	}
+const oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+oAuth.tokenExchangePassword("john.smith@example.com", "12345678")
+.then((response) => {
+	cocoonSDK.CocoonAPI.setupAPIAccess(response.body.access_token, response.body.refresh_token, response.body.expires_in);
 });
 ```
 
-Some API Examples. The APIClient object mimics the Cocoon.io REST API.
+Some API Examples. The SDK mimics the Cocoon.io REST API.
 
 The Project API:
 
 ```js
 //List all projects
 cocoonSDK.ProjectAPI.list((projectsData, error) => {
-
+	doSomething();
 });
 
 //Create a new project by uploading a zip file
 cocoonSDK.ProjectAPI.createFromZipUpload(file, (projectData, error) => {
-
+	doSomething();
 });
 
 //Create a new project from a url
 cocoonSDK.ProjectAPI.createFromURL("MY_URL", (projectData, error) => {
-
+	doSomething();
 });
 
 //Create a new project from a repository
 cocoonSDK.ProjectAPI.createFromRepository({url:"MY_GITHUB_URL"}, (projectData, error) => {
-
+	doSomething();
 });
 ```
 
@@ -149,12 +147,12 @@ For Signing Keys:
 ```js
 //List all signing keys
 cocoonSDK.SigningKeyAPI.list((signingKeysData, error) => {
-
+	doSomething();
 });
 
 //Create a new Android signing key
 cocoonSDK.SigningKeyAPI.createAndroid(name, alias, keystore, keystorePassword, certificatePassword, (signingKeyData, error) => {
-
+	doSomething();
 });
 ```
 
