@@ -4,10 +4,6 @@
 [![bitHound Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/dependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
 [![bitHound Dev Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/devDependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
 [![bitHound Code](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/code.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
-
-[![Code Climate](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/gpa.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk)
-[![Test Coverage](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/coverage.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/coverage)
-[![Issue Count](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/badges/issue_count.svg)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk)
 ---
 
 The Cocoon Cloud SDK is the easiest way to integrate the Cocoon.io cloud compiler in any service or app.
