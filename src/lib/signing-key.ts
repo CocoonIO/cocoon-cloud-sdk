@@ -29,9 +29,8 @@ export default class SigningKey {
 
 	/**
 	 * Delete the signing key.
-	 * @param callback
 	 */
-	public delete(callback: (error?: IError) => void): void {
-		SigningKeyAPI.delete(this._id, callback);
+	public delete(): Promise<void> {
+		return SigningKeyAPI.delete(this._id);
 	}
 }

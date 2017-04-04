@@ -9,7 +9,6 @@ import CookieCredentialStorage from "./cookie-credential-storage";
 import {ICocoonTemplate} from "./interfaces/i-cocoon-template";
 import {ICocoonVersion} from "./interfaces/i-cocoon-version";
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
-import {IError} from "./interfaces/i-error";
 import MemoryCredentialStorage from "./memory-credential-storage";
 
 export default class CocoonAPI {
@@ -41,7 +40,7 @@ export default class CocoonAPI {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
 		}
-		CocoonAPI._credentials = (detectNode) ? new MemoryCredentialStorage(): new CookieCredentialStorage();
+		CocoonAPI._credentials = (detectNode) ? new MemoryCredentialStorage() : new CookieCredentialStorage();
 		CocoonAPI._credentials.setAccessToken(accessToken, expiration);
 		CocoonAPI._credentials.setRefreshToken(refreshToken);
 	}
@@ -55,36 +54,36 @@ export default class CocoonAPI {
 
 	/**
 	 * Get a list of the available templates for Cocoon.io projects from the API.
-	 * @param callback
 	 */
-	public static getCocoonTemplates(callback: (templates: ICocoonTemplate[], error?: IError) => void): void {
-		CocoonAPI.request({
+	public static getCocoonTemplates(): Promise<ICocoonTemplate[]> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_TEMPLATES,
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body as Promise<ICocoonTemplate[]>;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
 	 * Get a list of the available Cocoon.io versions.
-	 * @param callback
 	 */
-	public static getCocoonVersions(callback: (versions: ICocoonVersion[], error?: IError) => void): void {
-		CocoonAPI.request({
+	public static getCocoonVersions(): Promise<ICocoonVersion[]> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_VERSIONS,
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body as Promise<ICocoonVersion[]>;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
@@ -101,7 +100,7 @@ export default class CocoonAPI {
 			options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
 		}
 		return popsicle(options)
-			.use(status());
+		.use(status());
 	}
 
 	private static _credentials: ICredentialStorage;

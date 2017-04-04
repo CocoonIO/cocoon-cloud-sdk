@@ -1,6 +1,6 @@
 "use strict";
 
-import {plugins, Request} from "popsicle/dist/common";
+import {plugins} from "popsicle/dist/common";
 
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
@@ -75,9 +75,8 @@ export default class OAuth {
 	 * @param state Random string present in the redirect URL, as a parameter, after the user authorizes the application.
 	 * The SDK created it when generating the authorization URL.
 	 * The server should have returned the same string and will be tested now.
-	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
 	 */
-	public tokenExchangeAuthorizationCode(pCode: string, state: string): Request {
+	public tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<{}> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret,
@@ -102,7 +101,16 @@ export default class OAuth {
 			}
 			request.abort();
 		}
-		return request;
+
+		return new Promise((resolve, reject) => {
+			request
+			.then((response) => {
+				resolve(response.body);
+			})
+			.catch((error) => {
+				reject(error);
+			});
+		});
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -145,9 +153,8 @@ export default class OAuth {
 	 * Exchange a username and password for the access token following the Password OAuth flow.
 	 * @param pUsername Username of a user.
 	 * @param pPassword Password of a user.
-	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
 	 */
-	public tokenExchangePassword(pUsername: string, pPassword: string): Request {
+	public tokenExchangePassword(pUsername: string, pPassword: string): Promise<{}> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret, // FIXME: Password flow should't need clientSecret
@@ -167,16 +174,33 @@ export default class OAuth {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
 			request.abort();
 		}
-		return request;
+
+		return new Promise((resolve, reject) => {
+			request
+			.then((response) => {
+				resolve(response.body);
+			})
+			.catch((error) => {
+				reject(error);
+			});
+		});
 	}
 
 	/**
 	 * Log out of the API.
 	 */
-	public logout(): Request {
-		return CocoonAPI.request({
-			method: "GET",
-			url: this.logoutURL,
+	public logout(): Promise<{}> {
+		return new Promise((resolve, reject) => {
+			CocoonAPI.request({
+				method: "GET",
+				url: this.logoutURL,
+			})
+			.then(() => {
+				resolve();
+			})
+			.catch((error) => {
+				reject(error);
+			});
 		});
 	}
 
