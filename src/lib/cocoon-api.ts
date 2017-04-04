@@ -41,11 +41,7 @@ export default class CocoonAPI {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
 		}
-		if (detectNode) {
-			CocoonAPI._credentials = new MemoryCredentialStorage();
-		} else {
-			CocoonAPI._credentials = new CookieCredentialStorage();
-		}
+		CocoonAPI._credentials = (detectNode) ? new MemoryCredentialStorage(): new CookieCredentialStorage();
 		CocoonAPI._credentials.setAccessToken(accessToken, expiration);
 		CocoonAPI._credentials.setRefreshToken(refreshToken);
 	}
