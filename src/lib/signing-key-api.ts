@@ -5,7 +5,6 @@ import {form, plugins} from "popsicle/dist/common";
 import APIURL from "./api-url";
 import CocoonAPI from "./cocoon-api";
 import {Platform} from "./enums/e-platform";
-import {IError} from "./interfaces/i-error";
 import {ISigningKeyData} from "./interfaces/i-signing-key-data";
 
 export default class SigningKeyAPI {
@@ -16,11 +15,9 @@ export default class SigningKeyAPI {
 	 * @param keystore A binary file that contains a set of private keys.
 	 * @param keystorePassword Password of the keystore.
 	 * @param certificatePassword Password of the certificate used to create the keystore.
-	 * @param callback
 	 */
 	public static createAndroid(name: string, pAlias: string, keystore: File,
-	                            keystorePassword: string, certificatePassword: string,
-	                            callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
+	                            keystorePassword: string, certificatePassword: string): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			alias: pAlias,
@@ -31,17 +28,18 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("keystore", keystore);
 
-		CocoonAPI.request({
+		return CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
@@ -53,11 +51,10 @@ export default class SigningKeyAPI {
 	 * profile for uploading the final app to the Apple App Store.
 	 * @param certificate The p12 signing certificate must be a production one, either you are creating an “Ad Hoc” IPA or
 	 * an IPA to upload to the Apple App Store.
-	 * @param callback
 	 */
-	public static createIOS(name: string, password: string, provisioningProfile: File, certificate: File,
-	                        callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
-		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.IOS, callback);
+	public static createIOS(name: string, password: string,
+	                        provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
+		return SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.IOS);
 	}
 
 	/**
@@ -69,11 +66,10 @@ export default class SigningKeyAPI {
 	 * profile for uploading the final app to the Apple App Store.
 	 * @param certificate The p12 signing certificate must be a production one, either you are creating an “Ad Hoc” IPA or
 	 * an IPA to upload to the Apple App Store.
-	 * @param callback
 	 */
-	public static createMacOS(name: string, password: string, provisioningProfile: File, certificate: File,
-	                          callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
-		SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.MacOS, callback);
+	public static createMacOS(name: string, password: string,
+	                          provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
+		return SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.MacOS);
 	}
 
 	/**
@@ -83,11 +79,9 @@ export default class SigningKeyAPI {
 	 * @param pPackageThumbprint
 	 * @param pPublisherId
 	 * @param keystore
-	 * @param callback
 	 */
 	public static createWindows(name: string, pPassword: string, pPackageThumbprint: string, pPublisherId: string,
-	                            keystore: File,
-	                            callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
+	                            keystore: File): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			packageThumbprint: pPackageThumbprint,
@@ -98,75 +92,74 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("packageCertificateKeyFile", keystore);
 
-		CocoonAPI.request({
+		return CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
 	 * Fetch the information of a signing key.
 	 * @param signingKeyId ID of the signing key to fetch.
-	 * @param callback
 	 */
-	public static get(signingKeyId: string, callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
-		CocoonAPI.request({
+	public static get(signingKeyId: string): Promise<ISigningKeyData> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
 	 * Delete a signing key.
 	 * @param signingKeyId ID of the signing key to delete.
-	 * @param callback
 	 */
-	public static delete(signingKeyId: string, callback: (error?: IError) => void): void {
-		CocoonAPI.request({
+	public static delete(signingKeyId: string): Promise<void> {
+		return CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
-			.then(() => {
-				callback();
-			}, (error) => {
-				callback(error);
-			});
+		.then(() => {
+			return;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	/**
 	 * Fetch a list containing the information of all the signing keys.
-	 * @param callback
 	 */
-	public static list(callback: (signingKeysData: {[platform: string]: ISigningKeyData[]}, error?: IError)
-		                   => void): void {
-		CocoonAPI.request({
+	public static list(): Promise<{ [platform: string]: ISigningKeyData[] }> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body.keys);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body.keys;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 	private static createApple(name: string, password: string, provisioningProfile: File, certificate: File,
-	                           platform: Platform,
-	                           callback: (signingKeyData: ISigningKeyData, error?: IError) => void): void {
+	                           platform: Platform): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			pass: password,
@@ -176,17 +169,18 @@ export default class SigningKeyAPI {
 		formData.append("p12", certificate);
 		formData.append("provisioning", provisioningProfile);
 
-		CocoonAPI.request({
+		return CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(platform),
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return error;
+		});
 	}
 
 }

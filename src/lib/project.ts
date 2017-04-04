@@ -21,7 +21,8 @@ export default class Project {
 	}
 
 	public set name(value: string) {
-		this.getConfigXML((xmlSugar) => {
+		this.getConfigXML()
+		.then((xmlSugar) => {
 			xmlSugar.setName(value);
 		});
 		this._name = value;
@@ -32,7 +33,8 @@ export default class Project {
 	}
 
 	public set bundleID(value: string) {
-		this.getConfigXML((xmlSugar) => {
+		this.getConfigXML()
+		.then((xmlSugar) => {
 			xmlSugar.setBundleId(value);
 		});
 		this._bundleID = value;
@@ -43,13 +45,14 @@ export default class Project {
 	}
 
 	public set version(value: string) {
-		this.getConfigXML((xmlSugar) => {
+		this.getConfigXML()
+		.then((xmlSugar) => {
 			xmlSugar.setVersion(value);
 		});
 		this._version = value;
 	}
 
-	get origin(): {[p: string]: string} {
+	get origin(): { [p: string]: string } {
 		return this._origin;
 	}
 
@@ -65,15 +68,15 @@ export default class Project {
 		return this._dateUpdated;
 	}
 
-	public get compilations(): {[platform: string]: Compilation} {
+	public get compilations(): { [platform: string]: Compilation } {
 		return this._compilations;
 	}
 
-	public get errors(): {[p: string]: string} {
+	public get errors(): { [p: string]: string } {
 		return this._errors;
 	}
 
-	public get keys(): {[platform: string]: SigningKey} {
+	public get keys(): { [platform: string]: SigningKey } {
 		return this._keys;
 	}
 
@@ -92,16 +95,16 @@ export default class Project {
 	private _name: string;
 	private _bundleID: string;
 	private _version: string;
-	private _origin: {[key: string]: string};
+	private _origin: { [key: string]: string };
 	private _dateCompiled: Date;
 	private _dateCreated: Date;
 	private _dateUpdated: Date;
 	private icon: string;
-	private icons: {[platform: string]: string};
-	private splashes: {[platform: string]: string};
-	private _compilations: {[platform: string]: Compilation};
-	private _errors: {[key: string]: string};
-	private _keys: {[platform: string]: SigningKey};
+	private icons: { [platform: string]: string };
+	private splashes: { [platform: string]: string };
+	private _compilations: { [platform: string]: Compilation };
+	private _errors: { [key: string]: string };
+	private _keys: { [platform: string]: SigningKey };
 	private _sourceURL: string;
 	private configXML: XMLSugar;
 
@@ -137,19 +140,20 @@ export default class Project {
 
 	/**
 	 * Get a sugar for the XML configuration of the project.
-	 * @param callback
 	 */
-	public getConfigXML(callback: (xmlSugar: XMLSugar, error?: IError) => void): void {
+	public getConfigXML(): Promise<XMLSugar> {
 		if (this.configXML) {
-			callback(this.configXML);
+			return new Promise((resolve) => {
+				resolve(this.configXML);
+			});
 		} else {
-			ProjectAPI.getConfigXml(this._id, (xml, error) => {
-				if (!error) {
-					this.configXML = new XMLSugar(xml);
-					callback(this.configXML);
-				} else {
-					callback(null, error);
-				}
+			return ProjectAPI.getConfigXml(this._id)
+			.then((xml) => {
+				this.configXML = new XMLSugar(xml);
+				return this.configXML;
+			})
+			.catch((error) => {
+				return error;
 			});
 		}
 	}
@@ -157,149 +161,138 @@ export default class Project {
 	/**
 	 * Get the icon of the project.
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
-	 * @param callback
 	 */
-	public getIconBlob(platform: Platform, callback: (data: Blob, error?: IError) => void): void {
-		ProjectAPI.getIconBlob(this._id, platform, callback);
+	public getIconBlob(platform: Platform): Promise<Blob> {
+		return ProjectAPI.getIconBlob(this._id, platform);
 	}
 
 	/**
 	 * Set the icon of the project.
 	 * @param icon Image to use as new icon. Recommended 2048x2048 PNG.
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
-	 * @param callback
 	 */
-	public setIconBlob(icon: File, platform: Platform, callback: (error?: IError) => void): void {
-		ProjectAPI.setIconBlob(icon, this._id, platform, callback);
+	public setIconBlob(icon: File, platform: Platform): Promise<void> {
+		return ProjectAPI.setIconBlob(icon, this._id, platform);
 	}
 
 	/**
 	 * Get the splash of the project.
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
-	 * @param callback
 	 */
-	public getSplashBlob(platform: Platform, callback: (data: Blob, error?: IError) => void): void {
-		ProjectAPI.getSplashBlob(this._id, platform, callback);
+	public getSplashBlob(platform: Platform): Promise<Blob> {
+		return ProjectAPI.getSplashBlob(this._id, platform);
 	}
 
 	/**
 	 * Set the splash of the project.
 	 * @param splash Image to use as new splash. Recommended 2048x2048 PNG.
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
-	 * @param callback
 	 */
-	public setSplashBlob(splash: File, platform: Platform, callback: (error?: IError) => void): void {
-		ProjectAPI.setSplashBlob(splash, this._id, platform, callback);
+	public setSplashBlob(splash: File, platform: Platform): Promise<void> {
+		return ProjectAPI.setSplashBlob(splash, this._id, platform);
 	}
 
 	/**
 	 * Update the project uploading a zip file.
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
-	 * @param callback
 	 */
-	public updateZip(file: File, callback: (error?: IError) => void): void {
-		ProjectAPI.updateZip(this._id, file, (data: IProjectData, error?: IError) => {
-			if (error) {
-				callback(error);
-			} else {
-				this.init(data);
-				callback(null);
-			}
+	public updateZip(file: File): Promise<void> {
+		return ProjectAPI.updateZip(this._id, file)
+		.then((projectData) => {
+			this.init(projectData);
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
 	/**
 	 * Update the project providing a URL.
 	 * @param url URL to fetch the source code. Can contain a config.xml file too.
-	 * @param callback
 	 */
-	public updateURL(url: string, callback: (error?: IError) => void): void {
-		ProjectAPI.updateURL(this._id, url, (data: IProjectData, error?: IError) => {
-			if (error) {
-				callback(error);
-			} else {
-				this.init(data);
-				callback(null);
-			}
+	public updateURL(url: string): Promise<void> {
+		return ProjectAPI.updateURL(this._id, url)
+		.then((projectData) => {
+			this.init(projectData);
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
+
 	}
 
 	/**
 	 * Update the project providing a git repository to clone.
 	 * @param repo Object containing a URL of the git repo and the name of the branch to checkout
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
-	 * @param callback
 	 */
-	public updateRepository(repo: {url: string, branch?: string}, callback: (error?: IError) => void): void {
-		ProjectAPI.updateRepository(this._id, repo, (data: IProjectData, error?: IError) => {
-			if (error) {
-				callback(error);
-			} else {
-				this.init(data);
-				callback(null);
-			}
+	public updateRepository(repo: { url: string, branch?: string }): Promise<void> {
+		return ProjectAPI.updateRepository(this._id, repo)
+		.then((projectData) => {
+			this.init(projectData);
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
 	/**
 	 * Update the config.xml file of the project.
 	 * @param xml New config.xml for the project.
-	 * @param callback
 	 */
-	public updateConfigXml(xml: string, callback: (error?: IError) => void): void {
-		ProjectAPI.updateConfigXml(this._id, xml, (projectData: IProjectData, error?: IError) => {
-			if (!error) {
-				this.init(projectData);
-				this.configXML = new XMLSugar(xml);
-				callback();
-			} else {
-				callback(error);
-			}
+	public updateConfigXml(xml: string): Promise<void> {
+		return ProjectAPI.updateConfigXml(this._id, xml)
+		.then((projectData) => {
+			this.init(projectData);
+			this.configXML = new XMLSugar(xml);
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
 	/**
 	 * Places the project in the compilation queue.
-	 * @param callback
 	 */
-	public compile(callback: (error?: IError) => void): void {
-		ProjectAPI.compile(this._id, callback);
+	public compile(): Promise<void> {
+		return ProjectAPI.compile(this._id);
 	}
 
 	/**
 	 * Places a DevApp of the project in the compilation queue.
-	 * @param callback
 	 */
-	public compileDevApp(callback: (error?: IError) => void): void {
-		ProjectAPI.compileDevApp(this._id, callback);
+	public compileDevApp(): Promise<void> {
+		return ProjectAPI.compileDevApp(this._id);
 	}
 
 	/**
 	 * Fetches the project from Cocoon.io.
-	 * @param callback
 	 */
-	public refresh(callback: (error?: IError) => void): void {
-		ProjectAPI.get(this._id, (projectData: IProjectData, error?: IError) => {
-			if (!error) {
-				this.init(projectData);
-				callback();
-			} else {
-				callback(error);
-			}
+	public refresh(): Promise<void> {
+		return ProjectAPI.get(this._id)
+		.then((projectData) => {
+			this.init(projectData);
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
 	/**
 	 * Uploads the current config.xml extracted from the sugar.
-	 * @param callback
 	 */
-	public refreshCocoon(callback: (error?: IError) => void): void {
-		this.getConfigXML((xmlSugar, error) => {
-			if (!error) {
-				this.updateConfigXml(xmlSugar.xml(), callback);
-			} else {
-				callback(error);
-			}
+	public refreshCocoon(): Promise<void> {
+		return this.getConfigXML()
+		.then((xmlSugar) => {
+			return this.updateConfigXml(xmlSugar.xml());
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
@@ -313,21 +306,21 @@ export default class Project {
 	                             interval: number = this.DEFAULT_WAIT_TIME,
 	                             maxWaitTime: number = this.MAX_WAIT_TIME): void {
 		const limitTime = Date.now() + maxWaitTime;
-		this.refresh((error?: IError) => {
-			if (!error) {
-				if (this.isCompiling()) {
-					if (Date.now() < limitTime) {
-						setTimeout(this.refreshUntilCompleted(callback, interval, maxWaitTime), interval);
-						callback(false);
-					} else {
-						callback(false, {message: "It wasn't possible to compile the project in the time limit frame.", code: "0"});
-					}
+		this.refresh()
+		.then(() => {
+			if (this.isCompiling()) {
+				if (Date.now() < limitTime) {
+					setTimeout(this.refreshUntilCompleted(callback, interval, maxWaitTime), interval);
+					callback(false);
 				} else {
-					callback(true);
+					callback(false, {message: "It wasn't possible to compile the project in the time limit frame.", code: "0"});
 				}
 			} else {
-				callback(false, error);
+				callback(true);
 			}
+		})
+		.catch((error?: IError) => {
+			callback(false, error);
 		});
 	}
 
@@ -335,46 +328,45 @@ export default class Project {
 	 * Assigns a singing key to the correspondent platform of the project. Next compilations will try to use the key.
 	 * If there was another key assigned to the platform the new key overwrites it.
 	 * @param signingKey
-	 * @param callback
 	 */
-	public assignSigningKey(signingKey: SigningKey, callback: (error?: IError) => void): void {
-		ProjectAPI.assignSigningKey(this._id, signingKey.id, (error) => {
-			if (!error) {
-				this._keys[signingKey.platform] = signingKey;
-				callback();
-			} else {
-				callback(error);
-			}
+	public assignSigningKey(signingKey: SigningKey): Promise<void> {
+		return ProjectAPI.assignSigningKey(this._id, signingKey.id)
+		.then(() => {
+			this._keys[signingKey.platform] = signingKey;
+			return;
+		})
+		.catch((error) => {
+			return error;
 		});
 	}
 
 	/**
 	 * Removes the signing key assigned to the indicated project platform.
 	 * @param platform
-	 * @param callback
 	 */
-	public removeSigningKey(platform: string, callback: (error?: IError) => void): void {
+	public removeSigningKey(platform: string): Promise<void> {
 		if (this._keys[platform]) {
-			ProjectAPI.removeSigningKey(this._id, this._keys[platform].id, (error) => {
-				if (!error) {
-					this._keys[platform] = undefined;
-					callback();
-				} else {
-					callback(error);
-				}
+			return ProjectAPI.removeSigningKey(this._id, this._keys[platform].id)
+			.then(() => {
+				this._keys[platform] = undefined;
+				return;
+			})
+			.catch((error) => {
+				return error;
 			});
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
-			callback();
+			return new Promise<void>((resolve, reject) => {
+				reject(new Error("There is no signing key for the " + platform + " platform in the project " + this._id));
+			});
 		}
 	}
 
 	/**
 	 * Deletes the project.
-	 * @param callback
 	 */
-	public delete(callback: (error?: IError) => void): void {
-		ProjectAPI.delete(this._id, callback);
+	public delete(): Promise<void> {
+		return ProjectAPI.delete(this._id);
 	}
 
 	private init(projectData: IProjectData): void {
