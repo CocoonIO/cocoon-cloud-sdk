@@ -130,7 +130,8 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @param callback
 	 */
-	public static getIconBlob(projectId: string, platform: Platform, callback: (data: Blob, error?: IError) => void): void {
+	public static getIconBlob(projectId: string, platform: Platform,
+	                          callback: (data: Blob, error?: IError) => void): void {
 		CocoonAPI.request({
 			method: "GET",
 			url: APIURL.ICON(projectId, platform),
@@ -149,7 +150,8 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @param callback
 	 */
-	public static setIconBlob(icon: File, projectId: string, platform: Platform, callback: (error?: IError) => void): void {
+	public static setIconBlob(icon: File, projectId: string, platform: Platform,
+	                          callback: (error?: IError) => void): void {
 		const formData = form({});
 		formData.append("file", icon, "icon.png");
 
@@ -237,7 +239,8 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @param callback
 	 */
-	public static updateURL(projectId: string, pUrl: string, callback: (data: IProjectData, error?: IError) => void): void {
+	public static updateURL(projectId: string, pUrl: string,
+	                        callback: (data: IProjectData, error?: IError) => void): void {
 		CocoonAPI.request({
 			body: {url: pUrl},
 			method: "PUT",

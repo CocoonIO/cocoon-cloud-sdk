@@ -393,7 +393,7 @@ export default class Project {
 		this.splashes = projectData.splashes;
 		this.configXML = null;
 		this._compilations = {};
-		for (let platform of projectData.platforms) {
+		for (const platform of projectData.platforms) {
 			this._compilations[platform] = new Compilation(projectData, platform);
 		}
 		this._keys = {};

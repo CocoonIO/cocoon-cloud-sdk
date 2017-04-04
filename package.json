@@ -47,11 +47,11 @@
     "popsicle-status": "^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^7.0.8",
-    "eslint": "^3.18.0",
+    "@types/node": "^7.0.12",
+    "eslint": "^3.19.0",
     "jasmine": "^2.5.3",
     "jshint": "^2.9.4",
-    "tslint": "^4.5.1",
-    "typescript": "^2.2.1"
+    "tslint": "^5.0.0",
+    "typescript": "^2.2.2"
   }
 }

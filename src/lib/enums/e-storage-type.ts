@@ -1,6 +1,6 @@
 "use strict";
 
 export enum StorageType {
-	Cookies = <any> "cookies",
-	Memory = <any> "memory",
+	Cookies = "cookies" as any,
+	Memory = "memory" as any,
 }
