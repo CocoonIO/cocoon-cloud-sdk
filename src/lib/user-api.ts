@@ -9,6 +9,7 @@ import {IUserData} from "./interfaces/i-user-data";
 export default class UserAPI {
 	/**
 	 * Fetch the information of the user.
+	 * @returns {Promise<IUserData>} Promise of the user.
 	 */
 	public static get(): Promise<IUserData> {
 		return CocoonAPI.request({
@@ -20,7 +21,7 @@ export default class UserAPI {
 			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 }
