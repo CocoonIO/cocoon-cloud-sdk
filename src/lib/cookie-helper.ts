@@ -6,12 +6,13 @@ export default class CookieHelper {
 	}
 
 	public static getItem(key: string): string {
-		let result = document.cookie.replace(new RegExp("(?:(?:^|.*;\\\s*)"
+		const result = document.cookie.replace(new RegExp("(?:(?:^|.*;\\\s*)"
 			+ encodeURIComponent(key) + "\\\s*\\\=\\\s*([^;]*).*$)|^.*$"), "$1");
 		return result ? result[1] : null;
 	}
 
-	public static setItem(key: string, value: string, expires: Date, path?: string, domain?: string, secure?: boolean): void {
+	public static setItem(key: string, value: string, expires: Date,
+	                      path?: string, domain?: string, secure?: boolean): void {
 		document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value)
 			+ "; expires=" + expires.toUTCString()
 			+ (domain ? "; domain=" + domain : "")
