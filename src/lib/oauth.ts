@@ -1,9 +1,11 @@
 "use strict";
 
-import {plugins, Request} from "popsicle/dist/common";
+import {plugins} from "popsicle/dist/common";
 
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
+import {IAccessToken} from "./interfaces/i-access-token";
+import {error} from "util";
 
 export default class OAuth {
 
@@ -73,11 +75,11 @@ export default class OAuth {
 	 * the Authorization Code OAuth flow.
 	 * @param pCode Code found in the redirect URL, as a parameter, after the user authorizes the application.
 	 * @param state Random string present in the redirect URL, as a parameter, after the user authorizes the application.
-	 * The SDK created it when generating the authorization URL.
+	 * This object created it when generating the authorization URL.
 	 * The server should have returned the same string and will be tested now.
-	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
+	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public tokenExchangeAuthorizationCode(pCode: string, state: string): Request {
+	public tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret,
@@ -102,7 +104,14 @@ export default class OAuth {
 			}
 			request.abort();
 		}
-		return request;
+
+		return request
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return Promise.reject(error);
+		});
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -126,7 +135,7 @@ export default class OAuth {
 	/**
 	 * Generate the URL where the user can authorize the application following the Implicit OAuth flow.
 	 * @param scope Scope of the access the application requests.
-	 * @returns {string}
+	 * @returns {string} The URL where the user can authorize the application.
 	 */
 	public authorizeImplicit(scope?: string): string {
 		if (this.grantType === GrantType.Implicit) {
@@ -145,9 +154,9 @@ export default class OAuth {
 	 * Exchange a username and password for the access token following the Password OAuth flow.
 	 * @param pUsername Username of a user.
 	 * @param pPassword Password of a user.
-	 * @returns {Request} Promise of the interchange. The token is in 'response.body.access_token'.
+	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public tokenExchangePassword(pUsername: string, pPassword: string): Request {
+	public tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret, // FIXME: Password flow should't need clientSecret
@@ -167,16 +176,30 @@ export default class OAuth {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
 			request.abort();
 		}
-		return request;
+
+		return request
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return Promise.reject(error);
+		});
 	}
 
 	/**
 	 * Log out of the API.
+	 * @returns {Promise<void>} Promise of a successful logout.
 	 */
-	public logout(): Request {
+	public logout(): Promise<void> {
 		return CocoonAPI.request({
 			method: "GET",
 			url: this.logoutURL,
+		})
+		.then(() => {
+			return;
+		})
+		.catch((error) => {
+			return Promise.reject(error);
 		});
 	}
 

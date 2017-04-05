@@ -9,7 +9,6 @@ import CookieCredentialStorage from "./cookie-credential-storage";
 import {ICocoonTemplate} from "./interfaces/i-cocoon-template";
 import {ICocoonVersion} from "./interfaces/i-cocoon-version";
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
-import {IError} from "./interfaces/i-error";
 import MemoryCredentialStorage from "./memory-credential-storage";
 
 export default class CocoonAPI {
@@ -20,7 +19,7 @@ export default class CocoonAPI {
 
 	/**
 	 * Checks if the API access works.
-	 * @returns {boolean}
+	 * @returns {boolean} If the API access works.
 	 */
 	public static checkAPIAccess(): boolean {
 		if (CocoonAPI.credentials) {
@@ -31,7 +30,7 @@ export default class CocoonAPI {
 	}
 
 	/**
-	 * Prepares the API to be used. After successfully setting up the API access you can use the whole SDK.
+	 * Prepares the API to be used. After successfully setting up the API access, you can use the whole SDK.
 	 * @param accessToken Access token provided by the Cocoon.io server.
 	 * @param refreshToken Refresh token provided by the Cocoon.io server.
 	 * @param expiration Time, in seconds, the access token is valid.
@@ -41,11 +40,7 @@ export default class CocoonAPI {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
 		}
-		if (detectNode) {
-			CocoonAPI._credentials = new MemoryCredentialStorage();
-		} else {
-			CocoonAPI._credentials = new CookieCredentialStorage();
-		}
+		CocoonAPI._credentials = (detectNode) ? new MemoryCredentialStorage() : new CookieCredentialStorage();
 		CocoonAPI._credentials.setAccessToken(accessToken, expiration);
 		CocoonAPI._credentials.setRefreshToken(refreshToken);
 	}
@@ -59,36 +54,38 @@ export default class CocoonAPI {
 
 	/**
 	 * Get a list of the available templates for Cocoon.io projects from the API.
-	 * @param callback
+	 * @returns {Promise<ICocoonTemplate[]>} Promise of the list of the available templates for Cocoon.io projects.
 	 */
-	public static getCocoonTemplates(callback: (templates: ICocoonTemplate[], error?: IError) => void): void {
-		CocoonAPI.request({
+	public static getCocoonTemplates(): Promise<ICocoonTemplate[]> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_TEMPLATES,
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return Promise.reject(error);
+		});
 	}
 
 	/**
 	 * Get a list of the available Cocoon.io versions.
-	 * @param callback
+	 * @returns {Promise<ICocoonVersion[]>} Promise of the list of the available Cocoon.io versions.
 	 */
-	public static getCocoonVersions(callback: (versions: ICocoonVersion[], error?: IError) => void): void {
-		CocoonAPI.request({
+	public static getCocoonVersions(): Promise<ICocoonVersion[]> {
+		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_VERSIONS,
 		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				callback(response.body);
-			}, (error) => {
-				callback(null, error);
-			});
+		.use(plugins.parse("json"))
+		.then((response) => {
+			return response.body;
+		})
+		.catch((error) => {
+			return Promise.reject(error);
+		});
 	}
 
 	/**
@@ -102,10 +99,15 @@ export default class CocoonAPI {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
+			if (CocoonAPI._credentials) {
+				options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
+			} else {
+				console.error("API access has not been set up");
+				return popsicle(options).abort();
+			}
 		}
 		return popsicle(options)
-			.use(status());
+		.use(status());
 	}
 
 	private static _credentials: ICredentialStorage;
