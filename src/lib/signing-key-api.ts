@@ -15,6 +15,7 @@ export default class SigningKeyAPI {
 	 * @param keystore A binary file that contains a set of private keys.
 	 * @param keystorePassword Password of the keystore.
 	 * @param certificatePassword Password of the certificate used to create the keystore.
+	 * @returns {Promise<ISigningKeyData>} Promise of the signing key created.
 	 */
 	public static createAndroid(name: string, pAlias: string, keystore: File,
 	                            keystorePassword: string, certificatePassword: string): Promise<ISigningKeyData> {
@@ -38,7 +39,7 @@ export default class SigningKeyAPI {
 			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
@@ -51,6 +52,7 @@ export default class SigningKeyAPI {
 	 * profile for uploading the final app to the Apple App Store.
 	 * @param certificate The p12 signing certificate must be a production one, either you are creating an “Ad Hoc” IPA or
 	 * an IPA to upload to the Apple App Store.
+	 * @returns {Promise<ISigningKeyData>} Promise of the signing key created.
 	 */
 	public static createIOS(name: string, password: string,
 	                        provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
@@ -66,6 +68,7 @@ export default class SigningKeyAPI {
 	 * profile for uploading the final app to the Apple App Store.
 	 * @param certificate The p12 signing certificate must be a production one, either you are creating an “Ad Hoc” IPA or
 	 * an IPA to upload to the Apple App Store.
+	 * @returns {Promise<ISigningKeyData>} Promise of the signing key created.
 	 */
 	public static createMacOS(name: string, password: string,
 	                          provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
@@ -79,6 +82,7 @@ export default class SigningKeyAPI {
 	 * @param pPackageThumbprint
 	 * @param pPublisherId
 	 * @param keystore
+	 * @returns {Promise<ISigningKeyData>} Promise of the signing key created.
 	 */
 	public static createWindows(name: string, pPassword: string, pPackageThumbprint: string, pPublisherId: string,
 	                            keystore: File): Promise<ISigningKeyData> {
@@ -102,13 +106,14 @@ export default class SigningKeyAPI {
 			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
 	/**
 	 * Fetch the information of a signing key.
 	 * @param signingKeyId ID of the signing key to fetch.
+	 * @returns {Promise<ISigningKeyData>} Promise of the signing key fetched.
 	 */
 	public static get(signingKeyId: string): Promise<ISigningKeyData> {
 		return CocoonAPI.request({
@@ -120,13 +125,14 @@ export default class SigningKeyAPI {
 			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
 	/**
 	 * Delete a signing key.
 	 * @param signingKeyId ID of the signing key to delete.
+	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public static delete(signingKeyId: string): Promise<void> {
 		return CocoonAPI.request({
@@ -137,12 +143,13 @@ export default class SigningKeyAPI {
 			return;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
 	/**
 	 * Fetch a list containing the information of all the signing keys.
+	 * @returns {Promise<ISigningKeyData[]>} Promise of the list of all signing keys.
 	 */
 	public static list(): Promise<{ [platform: string]: ISigningKeyData[] }> {
 		return CocoonAPI.request({
@@ -154,7 +161,7 @@ export default class SigningKeyAPI {
 			return response.body.keys;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
@@ -179,7 +186,7 @@ export default class SigningKeyAPI {
 			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 

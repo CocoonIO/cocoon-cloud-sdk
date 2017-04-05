@@ -19,7 +19,7 @@ export default class CocoonAPI {
 
 	/**
 	 * Checks if the API access works.
-	 * @returns {boolean}
+	 * @returns {boolean} If the API access works.
 	 */
 	public static checkAPIAccess(): boolean {
 		if (CocoonAPI.credentials) {
@@ -30,7 +30,7 @@ export default class CocoonAPI {
 	}
 
 	/**
-	 * Prepares the API to be used. After successfully setting up the API access you can use the whole SDK.
+	 * Prepares the API to be used. After successfully setting up the API access, you can use the whole SDK.
 	 * @param accessToken Access token provided by the Cocoon.io server.
 	 * @param refreshToken Refresh token provided by the Cocoon.io server.
 	 * @param expiration Time, in seconds, the access token is valid.
@@ -54,6 +54,7 @@ export default class CocoonAPI {
 
 	/**
 	 * Get a list of the available templates for Cocoon.io projects from the API.
+	 * @returns {Promise<ICocoonTemplate[]>} Promise of the list of the available templates for Cocoon.io projects.
 	 */
 	public static getCocoonTemplates(): Promise<ICocoonTemplate[]> {
 		return CocoonAPI.request({
@@ -62,15 +63,16 @@ export default class CocoonAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body as Promise<ICocoonTemplate[]>;
+			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
 	/**
 	 * Get a list of the available Cocoon.io versions.
+	 * @returns {Promise<ICocoonVersion[]>} Promise of the list of the available Cocoon.io versions.
 	 */
 	public static getCocoonVersions(): Promise<ICocoonVersion[]> {
 		return CocoonAPI.request({
@@ -79,10 +81,10 @@ export default class CocoonAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body as Promise<ICocoonVersion[]>;
+			return response.body;
 		})
 		.catch((error) => {
-			return error;
+			return Promise.reject(error);
 		});
 	}
 
@@ -97,7 +99,12 @@ export default class CocoonAPI {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
+			if (CocoonAPI._credentials) {
+				options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
+			} else {
+				console.error("API access has not been set up");
+				return popsicle(options).abort();
+			}
 		}
 		return popsicle(options)
 		.use(status());

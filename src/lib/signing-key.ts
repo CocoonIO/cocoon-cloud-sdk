@@ -1,6 +1,5 @@
 "use strict";
 
-import {IError} from "./interfaces/i-error";
 import {ISigningKeyData} from "./interfaces/i-signing-key-data";
 import SigningKeyAPI from "./signing-key-api";
 
@@ -29,6 +28,7 @@ export default class SigningKey {
 
 	/**
 	 * Delete the signing key.
+	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public delete(): Promise<void> {
 		return SigningKeyAPI.delete(this._id);
