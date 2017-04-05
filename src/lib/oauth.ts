@@ -20,7 +20,7 @@ export default class OAuth {
 
 	private clientId: string;
 	private clientSecret: string;
-	private grantType: GrantType;
+	private grantType: GrantType | string;
 	private oAuthURL: string;
 	private redirectURI: string;
 	private readonly ACCESS_TOKEN = "access_token";
@@ -29,7 +29,7 @@ export default class OAuth {
 
 	private state: string;
 
-	public constructor(grantType: GrantType, clientId: string, clientSecret?: string,
+	public constructor(grantType: GrantType | string, clientId: string, clientSecret?: string,
 	                   redirectURI?: string, oAuthURL: string = "https://cloud.cocoon.io/oauth/") {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;

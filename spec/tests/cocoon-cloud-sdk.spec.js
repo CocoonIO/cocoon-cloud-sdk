@@ -1,7 +1,6 @@
 "use strict";
 
 const cocoonSDK = require("../../out");
-const grantType = require("../../out/lib/enums/e-grant-type").GrantType;
 const fs = require("fs");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -21,7 +20,7 @@ const CLIENT_SECRET = process.env.COCOON_SDK_CLIENT_SECRET;
 describe("A spec for the Cocoon SDK", () => {
 	let oAuth;
 	beforeAll(() => {
-		oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+		oAuth = new cocoonSDK.OAuth("password", CLIENT_ID, CLIENT_SECRET);
 	});
 
 	it("should allow a user to log in", (done) => {
