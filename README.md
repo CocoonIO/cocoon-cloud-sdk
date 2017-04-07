@@ -17,8 +17,8 @@ purposes. See deployment for notes on how to deploy the project on a live system
 
 ### Prerequisites
 
-First things first. In order to access the Cocoon.io API you will need a ClientID credential. You can contact us at
-[support@cocoon.io](support@cocoon.io) to request it.
+First things first. In order to access the Cocoon.io API you will need a ClientID credential (a ClientSecret too
+if your code runs in a server). You can contact us at [support@cocoon.io](support@cocoon.io) to request it.
 
 Other than that, you only need to have [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) installed in
 your system.
@@ -70,8 +70,8 @@ npm run inspect-spec
 
 To use this repo as a NPM module in your project follow these instructions.
 
-As mentioned previously: to access the Cocoon.io API you will need a ClientID credential. You can contact us at
-[support@cocoon.io](support@cocoon.io) to request it.
+As mentioned previously: to access the Cocoon.io API you will need a ClientID credential (a ClientSecret too
+if your code runs in a server). You can contact us at [support@cocoon.io](support@cocoon.io) to request it.
 
 Install [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) in your system.
 
