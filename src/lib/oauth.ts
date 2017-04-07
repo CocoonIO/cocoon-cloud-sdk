@@ -5,7 +5,6 @@ import {plugins} from "popsicle/dist/common";
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
-import {error} from "util";
 
 export default class OAuth {
 
@@ -109,9 +108,7 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -181,9 +178,7 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -195,12 +190,10 @@ export default class OAuth {
 			method: "GET",
 			url: this.logoutURL,
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	private isStateValid(state: string): boolean {
