@@ -20,5 +20,9 @@
 		"cocoon-cloud-sdk": "^2.0.0",
 		"gulp": "^3.9.1",
 		"yargs": "^7.0.2"
+	},
+	"devDependencies": {
+		"eslint": "^3.19.0",
+		"jshint": "^2.9.4"
 	}
 }

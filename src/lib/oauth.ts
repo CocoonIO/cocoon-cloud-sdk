@@ -5,7 +5,6 @@ import {plugins} from "popsicle/dist/common";
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
-import {error} from "util";
 
 export default class OAuth {
 
@@ -20,7 +19,7 @@ export default class OAuth {
 
 	private clientId: string;
 	private clientSecret: string;
-	private grantType: GrantType;
+	private grantType: GrantType | string;
 	private oAuthURL: string;
 	private redirectURI: string;
 	private readonly ACCESS_TOKEN = "access_token";
@@ -29,7 +28,7 @@ export default class OAuth {
 
 	private state: string;
 
-	public constructor(grantType: GrantType, clientId: string, clientSecret?: string,
+	public constructor(grantType: GrantType | string, clientId: string, clientSecret?: string,
 	                   redirectURI?: string, oAuthURL: string = "https://cloud.cocoon.io/oauth/") {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
@@ -109,9 +108,7 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -181,9 +178,7 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -195,12 +190,10 @@ export default class OAuth {
 			method: "GET",
 			url: this.logoutURL,
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	private isStateValid(state: string): boolean {
