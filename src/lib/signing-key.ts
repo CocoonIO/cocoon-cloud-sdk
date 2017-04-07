@@ -1,5 +1,6 @@
 "use strict";
 
+import {Platform} from "./enums/e-platform";
 import {ISigningKeyData} from "./interfaces/i-signing-key-data";
 import SigningKeyAPI from "./signing-key-api";
 
@@ -12,15 +13,15 @@ export default class SigningKey {
 		return this._name;
 	}
 
-	public get platform(): string {
+	public get platform(): Platform {
 		return this._platform;
 	}
 
 	private _id: string;
 	private _name: string;
-	private _platform: string;
+	private _platform: Platform;
 
-	public constructor(signingKeyData: ISigningKeyData, platform: string) {
+	public constructor(signingKeyData: ISigningKeyData, platform: Platform) {
 		this._id = signingKeyData.id;
 		this._name = signingKeyData.title;
 		this._platform = platform;

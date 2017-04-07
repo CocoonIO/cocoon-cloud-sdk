@@ -1,5 +1,6 @@
 "use strict";
 
+import {Platform} from "../enums/e-platform";
 import {Status} from "../enums/e-status";
 import {ISigningKeyData} from "./i-signing-key-data";
 
@@ -23,5 +24,5 @@ export interface IProjectData {
 	error: {[key: string]: string};
 	icons: {[key: string]: string};
 	splashes: {[key: string]: string};
-	platforms: string[];
+	platforms: Platform[];
 }

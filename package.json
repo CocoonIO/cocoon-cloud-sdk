@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/CocoonIO/cocoon-cloud-sdk",
   "dependencies": {
-    "cocoon-xml-sugar": "^2.0.0-alpha.3",
+    "cocoon-xml-sugar": "^2.0.0-alpha.4",
     "detect-node": "^2.0.3",
     "popsicle": "^9.1.0",
     "popsicle-status": "^2.0.0"
