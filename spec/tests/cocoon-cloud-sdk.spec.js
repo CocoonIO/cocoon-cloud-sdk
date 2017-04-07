@@ -1,7 +1,6 @@
 "use strict";
 
 const cocoonSDK = require("../../out");
-const grantType = require("../../out/lib/enums/e-grant-type").GrantType;
 const fs = require("fs");
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
@@ -21,7 +20,7 @@ const CLIENT_SECRET = process.env.COCOON_SDK_CLIENT_SECRET;
 describe("A spec for the Cocoon SDK", () => {
 	let oAuth;
 	beforeAll(() => {
-		oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+		oAuth = new cocoonSDK.OAuth("password", CLIENT_ID, CLIENT_SECRET);
 	});
 
 	it("should allow a user to log in", (done) => {
@@ -49,7 +48,7 @@ describe("A spec for the Cocoon SDK", () => {
 	describe("when the user is authenticated", () => {
 		let oAuth;
 		beforeAll((done) => {
-			oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
+			oAuth = new cocoonSDK.OAuth("password", CLIENT_ID, CLIENT_SECRET);
 			if (!cocoonSDK.CocoonAPI.checkAPIAccess()) {
 				oAuth.tokenExchangePassword(USERNAME, PASSWORD)
 				.then((result) => {
@@ -77,12 +76,7 @@ describe("A spec for the Cocoon SDK", () => {
 
 		it("should be able to fetch the projects list", (done) => {
 			cocoonSDK.ProjectAPI.list()
-			.then((projectDataList) => {
-				expect(projectDataList).toBeDefined();
-				const projectList = [];
-				for (let projectData of projectDataList) {
-					projectList.push(new cocoonSDK.Project(projectData));
-				}
+			.then((projectList) => {
 				for (let project of projectList) {
 					expect(project.id).toBeDefined();
 					expect(project.name).toBeDefined();
@@ -94,10 +88,13 @@ describe("A spec for the Cocoon SDK", () => {
 					expect(project.dateUpdated).toBeDefined();
 					expect(project.sourceURL).toBeDefined();
 					expect(project.configURL).toBeDefined();
-					Object.keys(project.compilations).forEach((platform) => {
+					for (let platform in project.compilations) {
+						if (!project.compilations.hasOwnProperty(platform)) {
+							continue;
+						}
 						expect(project.compilations[platform].platform).toBe(platform);
 						expect(project.compilations[platform].status).toBeDefined();
-					});
+					}
 				}
 				done();
 			})
@@ -108,18 +105,16 @@ describe("A spec for the Cocoon SDK", () => {
 
 		it("should be able to fetch the signing keys list", (done) => {
 			cocoonSDK.SigningKeyAPI.list()
-			.then((signingKeyDataObj) => {
-				expect(signingKeyDataObj).toBeDefined();
-				const signingKeyList = [];
-				Object.keys(signingKeyDataObj).forEach((platform) => {
-					for (let signingKeyData of signingKeyDataObj[platform]) {
-						signingKeyList.push(new cocoonSDK.SigningKey(signingKeyData, platform));
+			.then((signingKeysObj) => {
+				for (let platform in signingKeysObj) {
+					if (!signingKeysObj.hasOwnProperty(platform)) {
+						continue;
 					}
-				});
-				for (let signingKey of signingKeyList) {
-					expect(signingKey.id).toBeDefined();
-					expect(signingKey.name).toBeDefined();
-					expect(signingKey.platform).toBeDefined();
+					for (let signingKey of signingKeysObj[platform]) {
+						expect(signingKey.id).toBeDefined();
+						expect(signingKey.name).toBeDefined();
+						expect(signingKey.platform).toBe(platform);
+					}
 				}
 				done();
 			})
@@ -130,9 +125,7 @@ describe("A spec for the Cocoon SDK", () => {
 
 		it("should be able to get the user information", (done) => {
 			cocoonSDK.UserAPI.get()
-			.then((userData) => {
-				expect(userData).toBeDefined();
-				const user = new cocoonSDK.User(userData);
+			.then((user) => {
 				expect(user.userName).toBeDefined();
 				expect(user.name).toBeDefined();
 				expect(user.lastName).toBeDefined();
@@ -187,8 +180,8 @@ describe("A spec for the Cocoon SDK", () => {
 			beforeAll((done) => {
 				let zipFile = fs.createReadStream(__dirname.replace("tests", "assets/example/source.zip"));
 				cocoonSDK.ProjectAPI.createFromZipUpload(zipFile)
-				.then((projectData) => {
-					project = new cocoonSDK.Project(projectData);
+				.then((pProject) => {
+					project = pProject;
 					done();
 				})
 				.catch((error) => {
@@ -298,8 +291,8 @@ describe("A spec for the Cocoon SDK", () => {
 				let keystoreFile = fs.createReadStream(__dirname.replace("tests", "assets/example.keystore"));
 				cocoonSDK.SigningKeyAPI.createAndroid("Test Name", "Test Alias", keystoreFile,
 					"testKeystorePassword", "testCertificatePassword")
-				.then((signingKeyData) => {
-					signingKey = new cocoonSDK.SigningKey(signingKeyData, "android");
+				.then((pSigningKey) => {
+					signingKey = pSigningKey;
 					done();
 				})
 				.catch((error) => {
@@ -331,13 +324,13 @@ describe("A spec for the Cocoon SDK", () => {
 			beforeAll((done) => {
 				let zipFile = fs.createReadStream(__dirname.replace("tests", "assets/example/source.zip"));
 				cocoonSDK.ProjectAPI.createFromZipUpload(zipFile)
-				.then((projectData) => {
-					project = new cocoonSDK.Project(projectData);
+				.then((pProject) => {
+					project = pProject;
 					let keystoreFile = fs.createReadStream(__dirname.replace("tests", "assets/example.keystore"));
 					cocoonSDK.SigningKeyAPI.createAndroid("Test Name", "Test Alias", keystoreFile,
 						"testKeystorePassword", "testCertificatePassword")
-					.then((signingKeyData) => {
-						signingKey = new cocoonSDK.SigningKey(signingKeyData, "android");
+					.then((pSigningKey) => {
+						signingKey = pSigningKey;
 						done();
 					})
 					.catch((error) => {

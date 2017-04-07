@@ -63,11 +63,9 @@ export default class CocoonAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -81,11 +79,9 @@ export default class CocoonAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**

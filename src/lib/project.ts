@@ -150,9 +150,7 @@ export default class Project {
 				this.configXML = new XMLSugar(xml);
 				return this.configXML;
 			})
-			.catch((error) => {
-				return Promise.reject(error);
-			});
+			.catch(Promise.reject);
 		}
 	}
 
@@ -200,14 +198,12 @@ export default class Project {
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public updateZip(file: File): Promise<void> {
-		return ProjectAPI.updateZip(this._id, file)
+		return ProjectAPI.updateZipUnprocessed(this._id, file)
 		.then((projectData) => {
 			this.init(projectData);
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -216,14 +212,12 @@ export default class Project {
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public updateURL(url: string): Promise<void> {
-		return ProjectAPI.updateURL(this._id, url)
+		return ProjectAPI.updateURLUnprocessed(this._id, url)
 		.then((projectData) => {
 			this.init(projectData);
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -233,14 +227,12 @@ export default class Project {
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public updateRepository(repo: { url: string, branch?: string }): Promise<void> {
-		return ProjectAPI.updateRepository(this._id, repo)
+		return ProjectAPI.updateRepositoryUnprocessed(this._id, repo)
 		.then((projectData) => {
 			this.init(projectData);
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -249,15 +241,13 @@ export default class Project {
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public updateConfigXml(xml: string): Promise<void> {
-		return ProjectAPI.updateConfigXml(this._id, xml)
+		return ProjectAPI.updateConfigXmlUnprocessed(this._id, xml)
 		.then((projectData) => {
 			this.init(projectData);
 			this.configXML = new XMLSugar(xml);
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -281,14 +271,12 @@ export default class Project {
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
 	public refresh(): Promise<void> {
-		return ProjectAPI.get(this._id)
+		return ProjectAPI.getUnprocessed(this._id)
 		.then((projectData) => {
 			this.init(projectData);
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -300,9 +288,7 @@ export default class Project {
 		.then((xmlSugar) => {
 			return this.updateConfigXml(xmlSugar.xml());
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -343,11 +329,9 @@ export default class Project {
 		return ProjectAPI.assignSigningKey(this._id, signingKey.id)
 		.then(() => {
 			this._keys[signingKey.platform] = signingKey;
-			return;
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -355,16 +339,14 @@ export default class Project {
 	 * @param platform Platform to remove the signing key from.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public removeSigningKey(platform: string): Promise<void> {
+	public removeSigningKey(platform: Platform): Promise<void> {
 		if (this._keys[platform]) {
 			return ProjectAPI.removeSigningKey(this._id, this._keys[platform].id)
 			.then(() => {
 				this._keys[platform] = undefined;
-				return;
+				return Promise.resolve();
 			})
-			.catch((error) => {
-				return Promise.reject(error);
-			});
+			.catch(Promise.reject);
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
 			return Promise.reject(new Error("There is no signing key for the " + platform
@@ -401,7 +383,7 @@ export default class Project {
 		}
 		this._keys = {};
 		Object.keys(projectData.keys).forEach((platform) => {
-			this._keys[platform] = new SigningKey(projectData.keys[platform], platform);
+			this._keys[platform] = new SigningKey(projectData.keys[platform], platform as any);
 		});
 	}
 }

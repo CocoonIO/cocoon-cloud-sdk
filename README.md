@@ -17,8 +17,8 @@ purposes. See deployment for notes on how to deploy the project on a live system
 
 ### Prerequisites
 
-First things first. In order to access the Cocoon.io API you will need a ClientID credential. You can contact us at
-[support@cocoon.io](support@cocoon.io) to request it.
+First things first. In order to access the Cocoon.io API you will need a ClientID credential (a ClientSecret too
+if your code runs in a server). You can contact us at [support@cocoon.io](support@cocoon.io) to request it.
 
 Other than that, you only need to have [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) installed in
 your system.
@@ -70,8 +70,8 @@ npm run inspect-spec
 
 To use this repo as a NPM module in your project follow these instructions.
 
-As mentioned previously: to access the Cocoon.io API you will need a ClientID credential. You can contact us at
-[support@cocoon.io](support@cocoon.io) to request it.
+As mentioned previously: to access the Cocoon.io API you will need a ClientID credential (a ClientSecret too
+if your code runs in a server). You can contact us at [support@cocoon.io](support@cocoon.io) to request it.
 
 Install [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) in your system.
 
@@ -118,23 +118,39 @@ The Project API:
 
 ```js
 //List all projects
-cocoonSDK.ProjectAPI.list((projectsData, error) => {
+cocoonSDK.ProjectAPI.list()
+.then((projects) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 
 //Create a new project by uploading a zip file
-cocoonSDK.ProjectAPI.createFromZipUpload(file, (projectData, error) => {
+cocoonSDK.ProjectAPI.createFromZipUpload(file)
+.then((project) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 
 //Create a new project from a url
-cocoonSDK.ProjectAPI.createFromURL("MY_URL", (projectData, error) => {
+cocoonSDK.ProjectAPI.createFromURL("MY_URL")
+.then((project) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 
 //Create a new project from a repository
-cocoonSDK.ProjectAPI.createFromRepository({url:"MY_GITHUB_URL"}, (projectData, error) => {
+cocoonSDK.ProjectAPI.createFromRepository({url:"MY_GITHUB_URL", branch:"MY_BRANCH"})
+.then((project) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 ```
 
@@ -142,35 +158,50 @@ For Signing Keys:
 
 ```js
 //List all signing keys
-cocoonSDK.SigningKeyAPI.list((signingKeysData, error) => {
+cocoonSDK.SigningKeyAPI.list()
+.then((signingKeys) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 
 //Create a new Android signing key
-cocoonSDK.SigningKeyAPI.createAndroid(name, alias, keystore, keystorePassword, certificatePassword, (signingKeyData, error) => {
+cocoonSDK.SigningKeyAPI.createAndroid(name, alias, keystore, keystorePassword, certificatePassword)
+.then((signingKey) => {
 	doSomething();
+})
+.catch((error) => {
+	fixSomething();
 });
 ```
 
-The data objects returned by the API can be used to create objects with their own methods to ease commonly performed tasks.
+The objects returned by the API have their own methods to ease commonly performed tasks.
 
 ```js
 let project
 let signingKey
 
-//Creating a Project object
-cocoonSDK.ProjectAPI.get("PROJECT_ID", (projectData, error) => {
-	project = new cocoonSDK.Project(projectData);
+//Working with a Project object
+cocoonSDK.ProjectAPI.get("PROJECT_ID")
+.then((project) => {
 	//project.isCompiling();
 	//project.updateZip(zipFile, callback);
 	//project.delete(callback);
 	//project.assignSigningKey(signingKey, callback);
 	//...
+})
+.catch((error) => {
+	fixSomething();
 });
 
-cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID", (signingKeyData, error) => {
-	signingKey = new cocoonSDK.SigningKey(signingKeyData);
+//Working with a Signing Key object
+cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID")
+.then((signingKey) => {
 	//signingKey.delete(callback);
+})
+.catch((error) => {
+	fixSomething();
 });
 ```
 

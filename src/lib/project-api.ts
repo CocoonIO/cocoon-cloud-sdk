@@ -7,14 +7,28 @@ import CocoonAPI from "./cocoon-api";
 import {Platform} from "./enums/e-platform";
 import {IProjectData} from "./interfaces/i-project-data";
 import {IRepositoryData} from "./interfaces/i-repository-data";
+import Project from "./project";
 
 export default class ProjectAPI {
 	/**
 	 * Create a project from a Zip file.
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
-	 * @returns {Promise<IProjectData>} Promise of the project created.
+	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromZipUpload(file: File): Promise<IProjectData> {
+	public static createFromZipUpload(file: File): Promise<Project> {
+		return ProjectAPI.createFromZipUploadUnprocessed(file)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Create a project from a Zip file.
+	 * @param file Zip file containing the source code. Can contain a config.xml file too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
+	 */
+	public static createFromZipUploadUnprocessed(file: File): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
@@ -25,19 +39,30 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Create a project from an URL .
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
-	 * @returns {Promise<IProjectData>} Promise of the project created.
+	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromURL(pUrl: string): Promise<IProjectData> {
+	public static createFromURL(pUrl: string): Promise<Project> {
+		return ProjectAPI.createFromURLUnprocessed(pUrl)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Create a project from an URL .
+	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
+	 */
+	public static createFromURLUnprocessed(pUrl: string): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: {url: pUrl},
 			method: "POST",
@@ -45,20 +70,32 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Create a project from a git repository to clone.
 	 * @param repo Object containing a URL of the git repo and the name of the branch to checkout
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
-	 * @returns {Promise<IProjectData>} Promise of the project created.
+	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromRepository(repo: IRepositoryData): Promise<IProjectData> {
+	public static createFromRepository(repo: IRepositoryData): Promise<Project> {
+		return ProjectAPI.createFromRepositoryUnprocessed(repo)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Create a project from a git repository to clone.
+	 * @param repo Object containing a URL of the git repo and the name of the branch to checkout
+	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
+	 */
+	public static createFromRepositoryUnprocessed(repo: IRepositoryData): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: repo,
 			method: "POST",
@@ -66,30 +103,39 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Fetch the information of a project.
 	 * @param projectId ID of the project to fetch.
-	 * @returns {Promise<IProjectData>} Promise of the project fetched.
+	 * @returns {Promise<Project>} Promise of the project fetched.
 	 */
-	public static get(projectId: string): Promise<IProjectData> {
+	public static get(projectId: string): Promise<Project> {
+		return ProjectAPI.getUnprocessed(projectId)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Fetch the information of a project.
+	 * @param projectId ID of the project to fetch.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project fetched.
+	 */
+	public static getUnprocessed(projectId: string): Promise<IProjectData> {
 		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.PROJECT(projectId),
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -102,30 +148,40 @@ export default class ProjectAPI {
 			method: "DELETE",
 			url: APIURL.PROJECT(projectId),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Fetch a list containing the information of all the project.
-	 * @returns {Promise<IProjectData[]>} Promise of the list of all projects.
+	 * @returns {Promise<Project[]>} Promise of the list of all the projects.
 	 */
-	public static list(): Promise<IProjectData[]> {
+	public static list(): Promise<Project[]> {
+		return ProjectAPI.listUnprocessed()
+		.then((projectsData) => {
+			return Promise.resolve(projectsData.map((projectData) => {
+				return new Project(projectData);
+			}));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Fetch a list containing the information of all the project.
+	 * @returns {Promise<IProjectData[]>} Promise of the list of data of all the projects.
+	 */
+	public static listUnprocessed(): Promise<IProjectData[]> {
 		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.BASE_PROJECT,
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -140,11 +196,9 @@ export default class ProjectAPI {
 			url: APIURL.ICON(projectId, platform),
 		}, false)
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -163,12 +217,10 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -183,11 +235,9 @@ export default class ProjectAPI {
 			url: APIURL.SPLASH(projectId, platform),
 		}, false)
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -206,21 +256,33 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.SPLASH(projectId, platform),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Update the source code of a project uploading a zip file.
 	 * @param projectId ID of the project to update.
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
-	 * @returns {Promise<IProjectData>} Promise of the project updated.
+	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateZip(projectId: string, file: File): Promise<IProjectData> {
+	public static updateZip(projectId: string, file: File): Promise<Project> {
+		return ProjectAPI.updateZipUnprocessed(projectId, file)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Update the source code of a project uploading a zip file.
+	 * @param projectId ID of the project to update.
+	 * @param file Zip file containing the source code. Can contain a config.xml file too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
+	 */
+	public static updateZipUnprocessed(projectId: string, file: File): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
@@ -231,20 +293,32 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Update the source code of a project providing a URL to fetch it from.
 	 * @param projectId ID of the project to update.
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
-	 * @returns {Promise<IProjectData>} Promise of the project updated.
+	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateURL(projectId: string, pUrl: string): Promise<IProjectData> {
+	public static updateURL(projectId: string, pUrl: string): Promise<Project> {
+		return ProjectAPI.updateURLUnprocessed(projectId, pUrl)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Update the source code of a project providing a URL to fetch it from.
+	 * @param projectId ID of the project to update.
+	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
+	 */
+	public static updateURLUnprocessed(projectId: string, pUrl: string): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: {url: pUrl},
 			method: "PUT",
@@ -252,11 +326,9 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -264,20 +336,34 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to update.
 	 * @param repo Object containing a URL of the git repo and the name of the branch to checkout
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
-	 * @returns {Promise<IProjectData>} Promise of the project updated.
+	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateRepository(projectId: string, repo: { url: string, branch?: string }): Promise<IProjectData> {
+	public static updateRepository(projectId: string, repo: { url: string, branch?: string }): Promise<Project> {
+		return ProjectAPI.updateRepositoryUnprocessed(projectId, repo)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Update the source code of a project providing a git repository to clone.
+	 * @param projectId ID of the project to update.
+	 * @param repo Object containing a URL of the git repo and the name of the branch to checkout
+	 * (defaults to 'master' if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
+	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
+	 */
+	public static updateRepositoryUnprocessed(projectId: string,
+	                                          repo: { url: string, branch?: string }): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: repo,
 			method: "PUT",
 			url: APIURL.SYNC_GITHUB(projectId),
 		})
 		.then(() => {
-			return ProjectAPI.get(projectId);
+			return ProjectAPI.getUnprocessed(projectId);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -291,20 +377,32 @@ export default class ProjectAPI {
 			url: APIURL.CONFIG(projectId),
 		})
 		.then((response) => {
-			return response.body;
+			return Promise.resolve(response.body);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
 	 * Updates the config.xml file of a project.
 	 * @param projectId ID of the project to update the config.xml.
 	 * @param xml New config.xml for the project.
-	 * @returns {Promise<IProjectData>} Promise of the project whose config.xml was updated.
+	 * @returns {Promise<Project>} Promise of the project whose config.xml was updated.
 	 */
-	public static updateConfigXml(projectId: string, xml: string): Promise<IProjectData> {
+	public static updateConfigXml(projectId: string, xml: string): Promise<Project> {
+		return ProjectAPI.updateConfigXmlUnprocessed(projectId, xml)
+		.then((projectData) => {
+			return Promise.resolve(new Project(projectData));
+		})
+		.catch(Promise.reject);
+	}
+
+	/**
+	 * Updates the config.xml file of a project.
+	 * @param projectId ID of the project to update the config.xml.
+	 * @param xml New config.xml for the project.
+	 * @returns {Promise<IProjectData>} Promise of the date of the project whose config.xml was updated.
+	 */
+	public static updateConfigXmlUnprocessed(projectId: string, xml: string): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", xml, "config.xml");
 
@@ -314,11 +412,9 @@ export default class ProjectAPI {
 			url: APIURL.CONFIG(projectId),
 		})
 		.then(() => {
-			return ProjectAPI.get(projectId);
+			return ProjectAPI.getUnprocessed(projectId);
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -331,12 +427,10 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.COMPILE(projectId),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -349,12 +443,10 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.COMPILE_DEVAPP(projectId),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -369,12 +461,10 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 
 	/**
@@ -388,11 +478,9 @@ export default class ProjectAPI {
 			method: "DELETE",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
-		.then(() => {
-			return;
+		.then(() => { // returns response but we don't want it
+			return Promise.resolve();
 		})
-		.catch((error) => {
-			return Promise.reject(error);
-		});
+		.catch(Promise.reject);
 	}
 }
