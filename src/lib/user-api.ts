@@ -15,9 +15,12 @@ export default class UserAPI {
 	public static get(): Promise<User> {
 		return UserAPI.getUnprocessed()
 		.then((userData) => {
-			return Promise.resolve(new User(userData));
+			return new User(userData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -31,8 +34,11 @@ export default class UserAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 }
