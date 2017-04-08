@@ -179,16 +179,13 @@ cocoonSDK.SigningKeyAPI.createAndroid(name, alias, keystore, keystorePassword, c
 The objects returned by the API have their own methods to ease commonly performed tasks.
 
 ```js
-let project
-let signingKey
-
 //Working with a Project object
 cocoonSDK.ProjectAPI.get("PROJECT_ID")
 .then((project) => {
 	//project.isCompiling();
-	//project.updateZip(zipFile, callback);
-	//project.delete(callback);
-	//project.assignSigningKey(signingKey, callback);
+	//project.updateZip(zipFile);
+	//project.delete();
+	//project.assignSigningKey(signingKey);
 	//...
 })
 .catch((error) => {
@@ -198,7 +195,7 @@ cocoonSDK.ProjectAPI.get("PROJECT_ID")
 //Working with a Signing Key object
 cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID")
 .then((signingKey) => {
-	//signingKey.delete(callback);
+	//signingKey.delete();
 })
 .catch((error) => {
 	fixSomething();
