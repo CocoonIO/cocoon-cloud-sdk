@@ -18,9 +18,12 @@ export default class ProjectAPI {
 	public static createFromZipUpload(file: File): Promise<Project> {
 		return ProjectAPI.createFromZipUploadUnprocessed(file)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -39,9 +42,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -52,9 +58,12 @@ export default class ProjectAPI {
 	public static createFromURL(pUrl: string): Promise<Project> {
 		return ProjectAPI.createFromURLUnprocessed(pUrl)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -70,9 +79,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -84,9 +96,12 @@ export default class ProjectAPI {
 	public static createFromRepository(repo: IRepositoryData): Promise<Project> {
 		return ProjectAPI.createFromRepositoryUnprocessed(repo)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -103,9 +118,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -116,9 +134,12 @@ export default class ProjectAPI {
 	public static get(projectId: string): Promise<Project> {
 		return ProjectAPI.getUnprocessed(projectId)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -133,9 +154,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -151,7 +175,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -161,11 +188,14 @@ export default class ProjectAPI {
 	public static list(): Promise<Project[]> {
 		return ProjectAPI.listUnprocessed()
 		.then((projectsData) => {
-			return Promise.resolve(projectsData.map((projectData) => {
+			return projectsData.map((projectData) => {
 				return new Project(projectData);
-			}));
+			});
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -179,9 +209,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -196,9 +229,12 @@ export default class ProjectAPI {
 			url: APIURL.ICON(projectId, platform),
 		}, false)
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -220,7 +256,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -235,9 +274,12 @@ export default class ProjectAPI {
 			url: APIURL.SPLASH(projectId, platform),
 		}, false)
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -259,7 +301,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -273,7 +318,10 @@ export default class ProjectAPI {
 		.then((projectData) => {
 			return Promise.resolve(new Project(projectData));
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -293,9 +341,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -307,9 +358,12 @@ export default class ProjectAPI {
 	public static updateURL(projectId: string, pUrl: string): Promise<Project> {
 		return ProjectAPI.updateURLUnprocessed(projectId, pUrl)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -326,9 +380,12 @@ export default class ProjectAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -341,9 +398,12 @@ export default class ProjectAPI {
 	public static updateRepository(projectId: string, repo: { url: string, branch?: string }): Promise<Project> {
 		return ProjectAPI.updateRepositoryUnprocessed(projectId, repo)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -360,10 +420,13 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.SYNC_GITHUB(projectId),
 		})
-		.then(() => {
+		.then(() => { // returns response but we don't want it
 			return ProjectAPI.getUnprocessed(projectId);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -377,9 +440,12 @@ export default class ProjectAPI {
 			url: APIURL.CONFIG(projectId),
 		})
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -391,9 +457,12 @@ export default class ProjectAPI {
 	public static updateConfigXml(projectId: string, xml: string): Promise<Project> {
 		return ProjectAPI.updateConfigXmlUnprocessed(projectId, xml)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -411,10 +480,13 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.CONFIG(projectId),
 		})
-		.then(() => {
+		.then(() => { // returns response but we don't want it
 			return ProjectAPI.getUnprocessed(projectId);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -430,7 +502,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -446,7 +521,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -464,7 +542,10 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -481,6 +562,9 @@ export default class ProjectAPI {
 		.then(() => { // returns response but we don't want it
 			return Promise.resolve();
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 }

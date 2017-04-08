@@ -23,6 +23,10 @@ export default class Project {
 		this.getConfigXML()
 		.then((xmlSugar) => {
 			xmlSugar.setName(value);
+		})
+		.catch((error) => {
+			console.trace(error);
+			throw error;
 		});
 		this._name = value;
 	}
@@ -35,6 +39,10 @@ export default class Project {
 		this.getConfigXML()
 		.then((xmlSugar) => {
 			xmlSugar.setBundleId(value);
+		})
+		.catch((error) => {
+			console.trace(error);
+			throw error;
 		});
 		this._bundleID = value;
 	}
@@ -47,6 +55,10 @@ export default class Project {
 		this.getConfigXML()
 		.then((xmlSugar) => {
 			xmlSugar.setVersion(value);
+		})
+		.catch((error) => {
+			console.trace(error);
+			throw error;
 		});
 		this._version = value;
 	}
@@ -128,12 +140,15 @@ export default class Project {
 	 * @returns {boolean} If there is at least an ongoing compilation.
 	 */
 	public isCompiling(): boolean {
-		Object.keys(this._compilations).forEach((platform) => {
+		for (const platform in this._compilations) {
+			if (!this._compilations.hasOwnProperty(platform)) {
+				continue;
+			}
 			const status = this._compilations[platform].status;
 			if (status === Status.Compiling || status === Status.Waiting) {
 				return true;
 			}
-		});
+		}
 		return false;
 	}
 
@@ -150,7 +165,10 @@ export default class Project {
 				this.configXML = new XMLSugar(xml);
 				return this.configXML;
 			})
-			.catch(Promise.reject);
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 		}
 	}
 
@@ -201,9 +219,12 @@ export default class Project {
 		return ProjectAPI.updateZipUnprocessed(this._id, file)
 		.then((projectData) => {
 			this.init(projectData);
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -215,9 +236,12 @@ export default class Project {
 		return ProjectAPI.updateURLUnprocessed(this._id, url)
 		.then((projectData) => {
 			this.init(projectData);
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -230,9 +254,12 @@ export default class Project {
 		return ProjectAPI.updateRepositoryUnprocessed(this._id, repo)
 		.then((projectData) => {
 			this.init(projectData);
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -245,9 +272,12 @@ export default class Project {
 		.then((projectData) => {
 			this.init(projectData);
 			this.configXML = new XMLSugar(xml);
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -274,9 +304,12 @@ export default class Project {
 		return ProjectAPI.getUnprocessed(this._id)
 		.then((projectData) => {
 			this.init(projectData);
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -288,7 +321,10 @@ export default class Project {
 		.then((xmlSugar) => {
 			return this.updateConfigXml(xmlSugar.xml());
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -305,10 +341,12 @@ export default class Project {
 		.then(() => {
 			if (this.isCompiling()) {
 				if (Date.now() < limitTime) {
-					setTimeout(this.refreshUntilCompleted(callback, interval, maxWaitTime), interval);
+					setTimeout(() => {
+						this.refreshUntilCompleted(callback, interval, maxWaitTime);
+					}, interval);
 					callback(false);
 				} else {
-					callback(false, new Error("It wasn't possible to compile the project in the time limit frame."));
+					throw new Error("It wasn't possible to compile the project in the time limit frame.");
 				}
 			} else {
 				callback(true);
@@ -329,9 +367,12 @@ export default class Project {
 		return ProjectAPI.assignSigningKey(this._id, signingKey.id)
 		.then(() => {
 			this._keys[signingKey.platform] = signingKey;
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -344,9 +385,12 @@ export default class Project {
 			return ProjectAPI.removeSigningKey(this._id, this._keys[platform].id)
 			.then(() => {
 				this._keys[platform] = undefined;
-				return Promise.resolve();
+				return;
 			})
-			.catch(Promise.reject);
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
 			return Promise.reject(new Error("There is no signing key for the " + platform

@@ -10,7 +10,7 @@ export default class Compilation {
 	public get downloadLink(): string {
 		return this._downloadLink ?
 			this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + CocoonAPI.credentials.getAccessToken()
-			: null;
+			: "";
 	}
 
 	public get error(): string {

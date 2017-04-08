@@ -22,9 +22,12 @@ export default class SigningKeyAPI {
 	                            keystorePassword: string, certificatePassword: string): Promise<SigningKey> {
 		return SigningKeyAPI.createAndroidUnprocessed(name, pAlias, keystore, keystorePassword, certificatePassword)
 		.then((signingKeyData) => {
-			return Promise.resolve(new SigningKey(signingKeyData, Platform.Android));
+			return new SigningKey(signingKeyData, Platform.Android);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -55,9 +58,12 @@ export default class SigningKeyAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -75,9 +81,12 @@ export default class SigningKeyAPI {
 	                        provisioningProfile: File, certificate: File): Promise<SigningKey> {
 		return SigningKeyAPI.createIOSUnprocessed(name, password, provisioningProfile, certificate)
 		.then((signingKeyData) => {
-			return Promise.resolve(new SigningKey(signingKeyData, Platform.IOS));
+			return new SigningKey(signingKeyData, Platform.IOS);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -111,9 +120,12 @@ export default class SigningKeyAPI {
 	                          provisioningProfile: File, certificate: File): Promise<SigningKey> {
 		return SigningKeyAPI.createMacOSUnprocessed(name, password, provisioningProfile, certificate)
 		.then((signingKeyData) => {
-			return Promise.resolve(new SigningKey(signingKeyData, Platform.MacOS));
+			return new SigningKey(signingKeyData, Platform.MacOS);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -145,9 +157,12 @@ export default class SigningKeyAPI {
 	                            keystore: File): Promise<SigningKey> {
 		return SigningKeyAPI.createWindowsUnprocessed(name, pPassword, pPackageThumbprint, pPublisherId, keystore)
 		.then((signingKeyData) => {
-			return Promise.resolve(new SigningKey(signingKeyData, Platform.Windows));
+			return new SigningKey(signingKeyData, Platform.Windows);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -178,9 +193,12 @@ export default class SigningKeyAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -191,9 +209,12 @@ export default class SigningKeyAPI {
 	public static get(signingKeyId: string): Promise<SigningKey> {
 		return SigningKeyAPI.getUnprocessed(signingKeyId)
 		.then((signingKeyData) => {
-			return Promise.resolve(new SigningKey(signingKeyData, Platform.Windows));
+			return new SigningKey(signingKeyData, Platform.Windows);
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -208,9 +229,12 @@ export default class SigningKeyAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -224,9 +248,12 @@ export default class SigningKeyAPI {
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -245,9 +272,12 @@ export default class SigningKeyAPI {
 					return new SigningKey(signingKeyData, platform as any);
 				});
 			}
-			return Promise.resolve(signingKeys);
+			return signingKeys;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -261,9 +291,12 @@ export default class SigningKeyAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body.keys);
+			return response.body.keys;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	private static createApple(name: string, password: string, provisioningProfile: File, certificate: File,
@@ -284,9 +317,12 @@ export default class SigningKeyAPI {
 		})
 		.use(plugins.parse("json"))
 		.then((response) => {
-			return Promise.resolve(response.body);
+			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 }
