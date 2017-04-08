@@ -1,6 +1,6 @@
 {
   "name": "cocoon-cloud-sdk",
-  "version": "2.0.0-rc.0",
+  "version": "2.0.0",
   "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
   "files": [
     "out"
@@ -41,7 +41,7 @@
   },
   "homepage": "https://github.com/CocoonIO/cocoon-cloud-sdk",
   "dependencies": {
-    "cocoon-xml-sugar": "^2.0.0-alpha.4",
+    "cocoon-xml-sugar": "^2.0.0",
     "detect-node": "^2.0.3",
     "popsicle": "^9.1.0",
     "popsicle-status": "^2.0.0"
