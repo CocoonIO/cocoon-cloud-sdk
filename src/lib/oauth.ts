@@ -108,7 +108,10 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -178,7 +181,10 @@ export default class OAuth {
 		.then((response) => {
 			return response.body;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	/**
@@ -191,9 +197,12 @@ export default class OAuth {
 			url: this.logoutURL,
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return;
 		})
-		.catch(Promise.reject);
+		.catch((error) => {
+			console.trace(error);
+			throw error;
+		});
 	}
 
 	private isStateValid(state: string): boolean {

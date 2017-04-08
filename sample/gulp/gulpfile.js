@@ -3,9 +3,9 @@
 const cocoonSDK = require("cocoon-cloud-sdk");
 const fs = require("fs");
 const gulp = require("gulp");
-const https = require("https");
 const path = require("path");
 const readLine = require("readline");
+const request = require("request");
 const argv = require("yargs").argv;
 
 const CLIENT_ID = "CLIENT_ID";
@@ -27,11 +27,12 @@ function login(username, password) {
 		return oAuth.tokenExchangePassword(username, password)
 		.then((result) => {
 			cocoonSDK.CocoonAPI.setupAPIAccess(result.access_token, result.refresh_token, result.expires_in);
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.error("Login not successful.");
-			return Promise.reject(error);
+			console.trace(error);
+			throw error;
 		});
 	} else {
 		return Promise.resolve();
@@ -49,13 +50,35 @@ function downloadFile(url, outputPath) {
 	if (!fs.existsSync(dir)) {
 		fs.mkdirSync(dir);
 	}
-	const file = fs.createWriteStream(outputPath);
 	return new Promise((resolve, reject) => {
-		https.get(url, (response) => {
-			response.pipe(file).on("finish", () => {
+		const file = fs.createWriteStream(outputPath);
+		const sendReq = request.get(url);
+		sendReq.pipe(file);
+
+		sendReq
+		.on("response", (response) => {
+			if (response.statusCode !== 200) {
+				fs.unlink(outputPath);
+				const error = new Error("Response status code was " + response.statusCode + ".");
+				console.trace(error);
+				reject(error);
+			}
+		})
+		.on("error", function (error) {
+			fs.unlink(outputPath);
+			console.trace(error);
+			reject(error);
+		});
+
+		file
+		.on("finish", function() {
+			file.close(() => {
 				resolve();
 			});
-		}).on("error", (error) => {
+		})
+		.on("error", function(error) {
+			fs.unlink(outputPath);
+			console.trace(error);
 			reject(error);
 		});
 	});
@@ -64,7 +87,7 @@ function downloadFile(url, outputPath) {
 /**
  * Gets the list of directories in a path
  * @param {string} dir
- * @returns {Array.<string>}
+ * @returns {string[]}
  */
 function getFolders(dir) {
 	return fs.readdirSync(dir)
@@ -81,10 +104,10 @@ function getFolders(dir) {
  */
 function fetchProject(projectId) {
 	return cocoonSDK.ProjectAPI.get(projectId)
-	.then(Promise.resolve)
 	.catch((error) => {
 		console.error("Project with ID: " + projectId + " couldn't be fetched.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -95,10 +118,10 @@ function fetchProject(projectId) {
  */
 function createProject(zipFile) {
 	return cocoonSDK.ProjectAPI.createFromZipUpload(zipFile)
-	.then(Promise.resolve)
 	.catch((error) => {
 		console.error("Project couldn't be created.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -110,10 +133,10 @@ function createProject(zipFile) {
  */
 function updateConfig(configXml, project) {
 	return project.updateConfigXml(configXml)
-	.then(Promise.resolve)
 	.catch((error) => {
 		console.error("Project config with ID: " + project.id + " couldn't be updated.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -128,7 +151,10 @@ function updateConfigWithId(configXml, projectId) {
 	.then((project) => {
 		return updateConfig(configXml, project);
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -138,13 +164,10 @@ function updateConfigWithId(configXml, projectId) {
  */
 function deleteProject(project) {
 	return project.delete()
-	.then(() => {
-		console.log(1);
-		return Promise.resolve();
-	})
 	.catch((error) => {
 		console.error("Project with ID: " + project.id + " couldn't be deleted.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -156,7 +179,10 @@ function deleteProject(project) {
 function deleteProjectWithId(projectId) {
 	return fetchProject(projectId)
 	.then(deleteProject)
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -170,16 +196,25 @@ function createProjectWithConfig(zipFile, configXml) {
 	.then((project) => {
 		return updateConfig(configXml, project)
 		.then(() => {
-			return deleteProject(project)
-			.then(Promise.resolve)
-			.catch((error) => {
-				console.error("The project with ID: " + project.id + " was created but it wasn't possible to upload the custom XML.");
-				return Promise.reject(error);
-			});
+			return project;
 		})
-		.catch(Promise.reject);
+		.catch((errorFromUpdate) => {
+			deleteProject(project)
+			.then(() => {
+				console.error("The project with ID: " + project.id + " was not created because it wasn't possible to upload the custom XML.");
+				throw errorFromUpdate;
+			})
+			.catch((errorFromDelete) => {
+				console.error("The project with ID: " + project.id + " was created but it wasn't possible to upload the custom XML.");
+				console.trace(errorFromDelete);
+				throw errorFromDelete;
+			});
+		});
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -190,10 +225,10 @@ function createProjectWithConfig(zipFile, configXml) {
  */
 function updateSource(zipFile, project) {
 	return project.updateZip(zipFile)
-	.then(Promise.resolve)
 	.catch((error) => {
 		console.error("Project source with ID: " + project.id + " couldn't be updated.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -208,7 +243,10 @@ function updateSourceWithId(zipFile, projectId) {
 	.then((project) => {
 		return updateSource(zipFile, project);
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -218,10 +256,10 @@ function updateSourceWithId(zipFile, projectId) {
  */
 function compileProject(project) {
 	return project.compile()
-	.then(Promise.resolve)
 	.catch((error) => {
 		console.error("Project " + project.name + " with ID: " + project.id + " couldn't be compiled.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -233,7 +271,10 @@ function compileProject(project) {
 function compileProjectWithId(projectId) {
 	return fetchProject(projectId)
 	.then(compileProject)
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -242,21 +283,27 @@ function compileProjectWithId(projectId) {
  * @return {Promise<void>}
  */
 function waitForCompletion(project) {
-	let warned = false;
-	project.refreshUntilCompleted((completed) => {
-		if (completed) {
-			if (warned) {
-				readLine.clearLine(process.stdout);  // clear "Waiting" line
-				readLine.cursorTo(process.stdout, 0);  // move cursor to beginning of line
+	return new Promise((resolve, reject) => {
+		let warned = false;
+		project.refreshUntilCompleted((completed, error) => {
+			if (!error) {
+				if (completed) {
+					if (warned) {
+						readLine.clearLine(process.stdout);  // clear "Waiting" line
+						readLine.cursorTo(process.stdout, 0);  // move cursor to beginning of line
+					}
+					resolve();
+				} else {
+					if (!warned) {
+						process.stdout.write("Waiting for " + project.name + " compilation to end ");
+						warned = true;
+					}
+					process.stdout.write(".");
+				}
+			} else {
+				reject(error);
 			}
-			return Promise.resolve();
-		} else {
-			if (!warned) {
-				process.stdout.write("Waiting for " + project.name + " compilation to end ");
-				warned = true;
-			}
-			process.stdout.write(".");
-		}
+		});
 	});
 }
 
@@ -274,27 +321,30 @@ function downloadProjectCompilation(project, platform, outputDir) {
 			if (project.compilations[platform].isReady()) {
 				return downloadFile(project.compilations[platform].downloadLink,
 					outputDir + "/" + project.name + "-" + platform + ".zip")
-				.then(Promise.resolve)
 				.catch((error) => {
 					console.error("Couldn't download " + platform + " compilation from project " + project.id + ".");
-					return Promise.reject(error);
+					console.trace(error);
+					throw error;
 				});
 			} else if (project.compilations[platform].isErred()) {
 				console.error("Couldn't download " + platform + " compilation from " + project.name + " project: " + project.id +
 					". The compilation failed.");
-				return Promise.reject(new Error("Compilation failed"));
+				throw new Error("Compilation failed");
 			} else {
 				console.error("Couldn't download " + platform + " compilation from " + project.name + " project: " + project.id +
 					". Status: " + project.compilations[platform].status + ".");
-				return Promise.reject(new Error("Platform ignored"));
+				throw new Error("Platform ignored");
 			}
 		} else {
 			console.error("Couldn't download " + platform + " compilation from " + project.name + " project: " + project.id +
 				". There was not a compilation issued for the platform.");
-			return Promise.reject(new Error("No compilation available"));
+			throw new Error("No compilation available");
 		}
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -309,7 +359,10 @@ function downloadProjectCompilationWithId(projectId, platform, outputDir) {
 	.then((project) => {
 		return downloadProjectCompilation(project, platform, outputDir);
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -320,8 +373,13 @@ function downloadProjectCompilationWithId(projectId, platform, outputDir) {
  */
 function downloadProjectCompilations(project, outputDir) {
 	const promises = [];
-	for (const compilation of project.compilations) {
-		promises.push(downloadProjectCompilation(project, compilation.platform, outputDir).catch(Promise.resolve));
+	for (const platform in project.compilations) {
+		if (!project.compilations.hasOwnProperty(platform)) {
+			continue;
+		}
+		promises.push(downloadProjectCompilation(project, platform, outputDir).catch(() => {
+			return undefined;
+		}));
 	}
 	return Promise.all(promises);
 }
@@ -337,7 +395,10 @@ function downloadProjectCompilationsWithId(projectId, outputDir) {
 	.then((project) => {
 		return downloadProjectCompilations(project, outputDir);
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -351,24 +412,25 @@ function checkProjectCompilation(project, platform) {
 	.then(() => {
 		if (project.compilations[platform]) {
 			if (project.compilations[platform].isReady()) {
-				console.log(platform + " compilation from " + project.name + " project: " + project.id + " is completed");
-				return Promise.resolve();
+				console.info(platform + " compilation from " + project.name + " project: " + project.id + " is completed");
+				return undefined;
 			} else if (project.compilations[platform].isErred()) {
 				console.error(platform + " compilation from " + project.name + " project: " + project.id + " is erred");
-				//endWithError = true;
-				return Promise.resolve();
+				return undefined;
 			} else {
 				console.error(platform + " compilation from " + project.name + " project: " + project.id +
 					" was ignored. Status: " + project.compilations[platform].status + ".");
-				//endWithError = true;
-				return Promise.resolve();
+				return undefined;
 			}
 		} else {
 			console.error("There is no " + platform + " compilation from " + project.name + " project: " + project.id + ".");
-			return Promise.resolve();
+			return undefined;
 		}
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -382,7 +444,10 @@ function checkProjectCompilationWithId(projectId, platform) {
 	.then((project) => {
 		return checkProjectCompilation(project, platform);
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -393,9 +458,13 @@ function checkProjectCompilationWithId(projectId, platform) {
 function checkProjectCompilations(project) {
 	return waitForCompletion(project)
 	.then(() => {
-		for (const compilation of project.compilations) {
+		for (const platform in project.compilations) {
+			if (!project.compilations.hasOwnProperty(platform)) {
+				continue;
+			}
+			const compilation = project.compilations[platform];
 			if (compilation.isReady()) {
-				console.log(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is completed");
+				console.info(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is completed");
 			} else if (compilation.isErred()) {
 				console.error(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is erred");
 			} else {
@@ -403,9 +472,12 @@ function checkProjectCompilations(project) {
 					" was ignored. Status: " + compilation.status + ".");
 			}
 		}
-		return Promise.resolve();
+		return undefined;
 	})
-	.catch(Promise.reject);
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 /**
@@ -415,22 +487,30 @@ function checkProjectCompilations(project) {
  */
 function checkProjectCompilationsWithId(projectId) {
 	return fetchProject(projectId)
-	.then(checkProjectCompilations)
-	.catch(Promise.reject);
+	.then((project) => {
+		return checkProjectCompilations(project);
+	})
+	.catch((error) => {
+		console.trace(error);
+		throw error;
+	});
 }
 
 
 // ====== Multiple Projects ====== \\
 /**
  * Gets the whole list of projects of the logged user
- * @return {Promise<Array.<Project>>}
+ * @return {Promise<Project[]>}
  */
 function fetchProjects() {
 	return cocoonSDK.ProjectAPI.list()
-	.then(Promise.resolve)
+	.then((projectList) => {
+		return projectList;
+	})
 	.catch((error) => {
 		console.error("Project list couldn't be fetched.");
-		return Promise.reject(error);
+		console.trace(error);
+		throw error;
 	});
 }
 
@@ -462,7 +542,7 @@ gulp.task("createProject", ["login"], (done) => {
 		const file = fs.createReadStream(argv.zipPath);
 		createProject(file)
 		.then((project) => {
-			console.log("Project " + project.name + " was created with ID: " + project.id + ".");
+			console.info("Project " + project.name + " was created with ID: " + project.id + ".");
 			done();
 		})
 		.catch((error) => {
@@ -480,7 +560,7 @@ gulp.task("createProjectWithConfig", ["login"], (done) => {
 		const configXml = fs.readFileSync(argv.configPath, "utf8");
 		createProjectWithConfig(zipFile, configXml)
 		.then((project) => {
-			console.log("Project " + project.name + " was created with ID: " + project.id + ".");
+			console.info("Project " + project.name + " was created with ID: " + project.id + ".");
 			done();
 		})
 		.catch(done);
@@ -500,7 +580,7 @@ gulp.task("updateSource", ["login"], (done) => {
 		const file = fs.createReadStream(argv.zipPath);
 		updateSourceWithId(file, argv.projectId)
 		.then(() => {
-			console.log("Project source with ID: " + argv.projectId + " was updated.");
+			console.info("Project source with ID: " + argv.projectId + " was updated.");
 			done();
 		})
 		.catch((error) => {
@@ -522,7 +602,7 @@ gulp.task("updateConfig", ["login"], (done) => {
 		const configXml = fs.readFileSync(argv.configPath, "utf8");
 		updateConfigWithId(configXml, argv.projectId)
 		.then(() => {
-			console.log("Project config with ID: " + argv.projectId + " was updated.");
+			console.info("Project config with ID: " + argv.projectId + " was updated.");
 			done();
 		})
 		.catch((error) => {
@@ -543,7 +623,7 @@ gulp.task("delete", ["login"], (done) => {
 	if (argv.projectId) {
 		deleteProjectWithId(argv.projectId)
 		.then(() => {
-			console.log("Project with ID: " + argv.projectId + " was deleted.");
+			console.info("Project with ID: " + argv.projectId + " was deleted.");
 			done();
 		})
 		.catch((error) => {
@@ -559,7 +639,7 @@ gulp.task("compile", ["login"], (done) => {
 	if (argv.projectId) {
 		compileProjectWithId(argv.projectId)
 		.then(() => {
-			console.log("Project with ID: " + argv.projectId + " will be compiled.");
+			console.info("Project with ID: " + argv.projectId + " will be compiled.");
 			done();
 		})
 		.catch((error) => {
@@ -577,7 +657,7 @@ gulp.task("downloadCompilation", ["login"], (done) => {
 		if (argv.platform) {
 			downloadProjectCompilationWithId(argv.projectId, argv.platform, outputDir)
 			.then(() => {
-				console.log("Downloaded " + argv.platform + " compilation from project with ID: " + argv.projectId + ".");
+				console.info("Downloaded " + argv.platform + " compilation from project with ID: " + argv.projectId + ".");
 				done();
 			})
 			.catch((error) => {
@@ -586,7 +666,7 @@ gulp.task("downloadCompilation", ["login"], (done) => {
 		} else {
 			downloadProjectCompilationsWithId(argv.projectId, outputDir)
 			.then(() => {
-				console.log("Compilations for the project with ID: " + argv.projectId + " were downloaded.");
+				console.info("Compilations for the project with ID: " + argv.projectId + " were downloaded.");
 				done();
 			})
 			.catch((error) => {
@@ -629,10 +709,12 @@ gulp.task("deleteAll", ["login"], (done) => {
 		Promise.all(projectList.map((project) => {
 			return deleteProject(project)
 			.then(() => {
-				console.log("The project " + project.name + " with ID: " + project.id + " was deleted.");
-				return Promise.resolve();
+				console.info("The project " + project.name + " with ID: " + project.id + " was deleted.");
+				return undefined;
 			})
-			.catch(Promise.resolve);
+			.catch(() => {
+				return undefined;
+			});
 		}))
 		.then(() => {
 			done();
@@ -647,20 +729,19 @@ gulp.task("deleteAll", ["login"], (done) => {
 gulp.task("compileAll", ["login"], (done) => {
 	fetchProjects()
 	.then((projectList) => {
-		Promise.all(projectList.map((project) => {
+		return Promise.all(projectList.map((project) => {
 			return compileProject(project)
 			.then(() => {
-				console.log("The project " + project.name + " with ID: " + project.id + " was placed in the compilation queue.");
-				return Promise.resolve();
+				console.info("The project " + project.name + " with ID: " + project.id + " was placed in the compilation queue.");
+				return undefined;
 			})
-			.catch(Promise.resolve);
-		}))
-		.then(() => {
-			done();
-		})
-		.catch((error) => {
-			done(error);
-		});
+			.catch(() => {
+				return undefined;
+			});
+		}));
+	})
+	.then(() => {
+		done();
 	})
 	.catch((error) => {
 		done(error);
@@ -673,8 +754,13 @@ gulp.task("checkAll", ["login"], (done) => {
 		projectList.reduce((previousPromise, currentProject) => {
 			return previousPromise.then(() => {
 				return checkProjectCompilations(currentProject)
-				.then(Promise.resolve)
-				.catch(Promise.resolve);
+				.then(() => {
+					console.log();
+					return undefined;
+				})
+				.catch(() => {
+					return undefined;
+				});
 			});
 		}, Promise.resolve());
 	})
@@ -698,14 +784,16 @@ gulp.task("uploadTests", ["deleteAll"], (done) => {
 		const configXml = fs.readFileSync(folder + "/config.xml");
 		return createProjectWithConfig(zipFile, configXml)
 		.then((project) => {
-			console.log("Project " + project.name + " was created with ID: " + project.id + ".");
-			return Promise.resolve();
+			console.info("Project " + project.name + " was created with ID: " + project.id + ".");
+			return undefined;
 		})
 		.catch(() => {
 			console.error("It was not possible to create a project from the path: '" + folder + "'.");
-			return Promise.resolve();
+			return undefined;
 		})
-		.catch(Promise.resolve);
+		.catch(() => {
+			return undefined;
+		});
 	}))
 	.then(() => {
 		done();
