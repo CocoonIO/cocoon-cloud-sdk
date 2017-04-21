@@ -108,7 +108,7 @@ Log In into Cocoon.
 const oAuth = new cocoonSDK.OAuth(grantType.Password, CLIENT_ID, CLIENT_SECRET);
 oAuth.tokenExchangePassword("john.smith@example.com", "12345678")
 .then((response) => {
-	cocoonSDK.CocoonAPI.setupAPIAccess(response.body.access_token, response.body.refresh_token, response.body.expires_in);
+	cocoonSDK.CocoonAPI.setupAPIAccess(response.access_token, response.refresh_token, response.expires_in);
 });
 ```
 
