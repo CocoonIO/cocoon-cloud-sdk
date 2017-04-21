@@ -250,7 +250,7 @@ export default class ProjectAPI {
 
 		return CocoonAPI.request({
 			body: formData,
-			method: "PUT",
+			method: "POST",
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
 		})
 		.then(() => { // returns response but we don't want it
@@ -295,7 +295,7 @@ export default class ProjectAPI {
 
 		return CocoonAPI.request({
 			body: formData,
-			method: "PUT",
+			method: "POST",
 			url: APIURL.SPLASH(projectId, platform),
 		})
 		.then(() => { // returns response but we don't want it
