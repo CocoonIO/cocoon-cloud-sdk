@@ -207,9 +207,19 @@ export default class SigningKeyAPI {
 	 * @returns {Promise<SigningKey>} Promise of the signing key fetched.
 	 */
 	public static get(signingKeyId: string): Promise<SigningKey> {
-		return SigningKeyAPI.getUnprocessed(signingKeyId)
-		.then((signingKeyData) => {
-			return new SigningKey(signingKeyData, Platform.Windows);
+		return SigningKeyAPI.listUnprocessed()
+		.then((signingKeysData) => {
+			for (const platform in signingKeysData) {
+				if (!signingKeysData.hasOwnProperty(platform)) {
+					continue;
+				}
+				for (const signingKeyData of signingKeysData[platform]) {
+					if (signingKeyData.id === signingKeyId) {
+						return new SigningKey(signingKeyData, platform as any);
+					}
+				}
+			}
+			throw new Error("There is no Signing Key with the ID: " + signingKeyId);
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -223,13 +233,19 @@ export default class SigningKeyAPI {
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key fetched.
 	 */
 	public static getUnprocessed(signingKeyId: string): Promise<ISigningKeyData> {
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.SIGNING_KEY(signingKeyId),
-		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
+		return SigningKeyAPI.listUnprocessed()
+		.then((signingKeysData) => {
+			for (const platform in signingKeysData) {
+				if (!signingKeysData.hasOwnProperty(platform)) {
+					continue;
+				}
+				for (const signingKeyData of signingKeysData[platform]) {
+					if (signingKeyData.id === signingKeyId) {
+						return signingKeyData;
+					}
+				}
+			}
+			throw new Error("There is no Signing Key with the ID: " + signingKeyId);
 		})
 		.catch((error) => {
 			console.trace(error);
