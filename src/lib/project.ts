@@ -393,8 +393,8 @@ export default class Project {
 			});
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
-			return Promise.reject(new Error("There is no signing key for the " + platform
-				+ " platform in the project " + this._id));
+			throw new Error("There is no signing key for the " + platform
+				+ " platform in the project " + this._id);
 		}
 	}
 
