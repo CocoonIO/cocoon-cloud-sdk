@@ -245,16 +245,13 @@ describe("A spec for the Cocoon SDK", () => {
 					expect(project.name).toBe("HelloCocoon");
 					expect(project.bundleID).toBe("io.cocoon.hellococoon");
 					expect(project.version).toBe("2.0.0");
-					project.getConfigXML()
-					.then((xmlSugar) => {
-						expect(project.name).toBe(xmlSugar.getName());
-						expect(project.bundleID).toBe(xmlSugar.getBundleId());
-						expect(project.version).toBe(xmlSugar.getVersion());
-						done();
-					})
-					.catch((error) => {
-						done.fail(error);
-					});
+					return project.getConfigXML();
+				})
+				.then((xmlSugar) => {
+					expect(project.name).toBe(xmlSugar.getName());
+					expect(project.bundleID).toBe(xmlSugar.getBundleId());
+					expect(project.version).toBe(xmlSugar.getVersion());
+					done();
 				})
 				.catch((error) => {
 					done.fail(error);
@@ -268,16 +265,13 @@ describe("A spec for the Cocoon SDK", () => {
 					expect(project.name).toBe("HelloCocoon");
 					expect(project.bundleID).toBe("io.cocoon.hellococoon");
 					expect(project.version).toBe("2.0.0");
-					project.getConfigXML()
-					.then((xmlSugar) => {
-						expect(project.name).toBe(xmlSugar.getName());
-						expect(project.bundleID).toBe(xmlSugar.getBundleId());
-						expect(project.version).toBe(xmlSugar.getVersion());
-						done();
-					})
-					.catch((error) => {
-						done.fail(error);
-					});
+					return project.getConfigXML();
+				})
+				.then((xmlSugar) => {
+					expect(project.name).toBe(xmlSugar.getName());
+					expect(project.bundleID).toBe(xmlSugar.getBundleId());
+					expect(project.version).toBe(xmlSugar.getVersion());
+					done();
 				})
 				.catch((error) => {
 					done.fail(error);
@@ -287,9 +281,10 @@ describe("A spec for the Cocoon SDK", () => {
 
 		describe("and a signing key has been fetched", () => {
 			let signingKey;
+			const rndName = Math.random().toString(36).substr(2, 10);
 			beforeAll((done) => {
 				let keystoreFile = fs.createReadStream(__dirname.replace("tests", "assets/example.keystore"));
-				cocoonSDK.SigningKeyAPI.createAndroid("Test Name", "Test Alias", keystoreFile,
+				cocoonSDK.SigningKeyAPI.createAndroid(rndName, "Test Alias", keystoreFile,
 					"testKeystorePassword", "testCertificatePassword")
 				.then((pSigningKey) => {
 					signingKey = pSigningKey;
@@ -313,7 +308,7 @@ describe("A spec for the Cocoon SDK", () => {
 
 			it("should be able to upload a signing key", () => {
 				expect(signingKey.id).toBeDefined();
-				expect(signingKey.name).toBe("Test Name");
+				expect(signingKey.name).toBe(rndName);
 				expect(signingKey.platform).toBe("android");
 			});
 		});
@@ -321,21 +316,19 @@ describe("A spec for the Cocoon SDK", () => {
 		describe("and a project & signing key have been fetched", () => {
 			let project;
 			let signingKey;
+			const rndName = Math.random().toString(36).substr(2, 10);
 			beforeAll((done) => {
 				let zipFile = fs.createReadStream(__dirname.replace("tests", "assets/example/source.zip"));
 				cocoonSDK.ProjectAPI.createFromZipUpload(zipFile)
 				.then((pProject) => {
 					project = pProject;
 					let keystoreFile = fs.createReadStream(__dirname.replace("tests", "assets/example.keystore"));
-					cocoonSDK.SigningKeyAPI.createAndroid("Test Name", "Test Alias", keystoreFile,
-						"testKeystorePassword", "testCertificatePassword")
-					.then((pSigningKey) => {
-						signingKey = pSigningKey;
-						done();
-					})
-					.catch((error) => {
-						done.fail(error);
-					});
+					return cocoonSDK.SigningKeyAPI.createAndroid(rndName, "Test Alias", keystoreFile,
+						"testKeystorePassword", "testCertificatePassword");
+				})
+				.then((pSigningKey) => {
+					signingKey = pSigningKey;
+					done();
 				})
 				.catch((error) => {
 					done.fail(error);
@@ -346,14 +339,11 @@ describe("A spec for the Cocoon SDK", () => {
 				project.delete()
 				.then(() => {
 					project = null;
-					signingKey.delete()
-					.then(() => {
-						signingKey = null;
-						done();
-					})
-					.catch((error) => {
-						done.fail(error);
-					});
+					return signingKey.delete();
+				})
+				.then(() => {
+					signingKey = null;
+					done();
 				})
 				.catch((error) => {
 					done.fail(error);
