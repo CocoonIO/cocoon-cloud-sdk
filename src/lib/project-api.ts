@@ -173,7 +173,7 @@ export default class ProjectAPI {
 			url: APIURL.PROJECT(projectId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -254,7 +254,7 @@ export default class ProjectAPI {
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -299,7 +299,7 @@ export default class ProjectAPI {
 			url: APIURL.SPLASH(projectId, platform),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -316,7 +316,7 @@ export default class ProjectAPI {
 	public static updateZip(projectId: string, file: File): Promise<Project> {
 		return ProjectAPI.updateZipUnprocessed(projectId, file)
 		.then((projectData) => {
-			return Promise.resolve(new Project(projectData));
+			return new Project(projectData);
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -500,7 +500,7 @@ export default class ProjectAPI {
 			url: APIURL.COMPILE(projectId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -519,7 +519,7 @@ export default class ProjectAPI {
 			url: APIURL.COMPILE_DEVAPP(projectId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -540,7 +540,7 @@ export default class ProjectAPI {
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
@@ -560,7 +560,7 @@ export default class ProjectAPI {
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
 		.then(() => { // returns response but we don't want it
-			return Promise.resolve();
+			return undefined;
 		})
 		.catch((error) => {
 			console.trace(error);
