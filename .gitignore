@@ -56,5 +56,13 @@ jspm_packages
 .yarn-integrity
 
 ### Custom
-declarations
-docs
+*
+!assets/**/*
+!classes/**/*
+!enums/**/*
+!interfaces/**/*
+!modules/**/*
+!globals.html
+!index.html
+!project.json
+!.gitignore
