@@ -3,10 +3,11 @@
   "version": "2.0.1",
   "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
   "files": [
-    "out"
+    "out",
+	  "declaration"
   ],
   "main": "out/index.js",
-  "types": "out/index.d.ts",
+  "types": "declaration/index.d.ts",
   "scripts": {
     "inspect-spec": "node_modules/.bin/eslint spec/tests && node_modules/.bin/jshint spec/tests; exit 0",
     "inspect-src": "node_modules/.bin/tslint --project tsconfig.json; exit 0",
@@ -49,9 +50,12 @@
   "devDependencies": {
     "@types/node": "^7.0.12",
     "eslint": "^3.19.0",
+    "gulp": "^3.9.1",
+    "gulp-typedoc": "^2.0.2",
     "jasmine": "^2.5.3",
     "jshint": "^2.9.4",
     "tslint": "^5.0.0",
+    "typedoc": "^0.5.10",
     "typescript": "^2.2.2"
   }
 }
