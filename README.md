@@ -95,6 +95,9 @@ import * as cocoonSDK from "cocoon-cloud-sdk";
 ```html
 <script src="cocoon-cloud-sdk/index.js"></script>
 ```
+### Documentation
+
+You can read the documentation at [CocoonIO.github.io/cocoon-cloud-sdk](https://cocoonio.github.io/cocoon-cloud-sdk/).
 
 ### Example
 
