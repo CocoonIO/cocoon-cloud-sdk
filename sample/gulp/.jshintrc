@@ -5,6 +5,7 @@
 	"esversion": 6,
 	"expr": true,
 	"latedef": true,
+	"loopfunc": true,
 	"onevar": true,
 	"noarg": true,
 	"node": true,

@@ -8,10 +8,11 @@ const readLine = require("readline");
 const request = require("request");
 const argv = require("yargs").argv;
 
-const CLIENT_ID = "CLIENT_ID";
-const CLIENT_SECRET = "CLIENT_SECRET";
+const CLIENT_ID = argv.clientId || process.env.COCOON_CLIENT_ID;
+const CLIENT_SECRET = argv.clientSecret || process.env.CLIENT_SECRET;
+const USERNAME = argv.username || process.env.COCOON_USERNAME;
+const PASSWORD = argv.password || process.env.COCOON_PASSWORD;
 const DEFAULT_OUTPUT_DIR = "./out";
-const DEFAULT_TEST_PROJECTS_PATH = "./tests";
 
 const oAuth = new cocoonSDK.OAuth("password", CLIENT_ID, CLIENT_SECRET);
 
@@ -64,35 +65,23 @@ function downloadFile(url, outputPath) {
 				reject(error);
 			}
 		})
-		.on("error", function (error) {
+		.on("error", (error) => {
 			fs.unlink(outputPath);
 			console.trace(error);
 			reject(error);
 		});
 
 		file
-		.on("finish", function() {
+		.on("finish", () => {
 			file.close(() => {
 				resolve();
 			});
 		})
-		.on("error", function(error) {
+		.on("error", (error) => {
 			fs.unlink(outputPath);
 			console.trace(error);
 			reject(error);
 		});
-	});
-}
-
-/**
- * Gets the list of directories in a path
- * @param {string} dir
- * @returns {string[]}
- */
-function getFolders(dir) {
-	return fs.readdirSync(dir)
-	.filter((file) => {
-		return fs.statSync(path.join(dir, file)).isDirectory();
 	});
 }
 
@@ -411,15 +400,16 @@ function checkProjectCompilation(project, platform) {
 	return waitForCompletion(project)
 	.then(() => {
 		if (project.compilations[platform]) {
-			if (project.compilations[platform].isReady()) {
-				console.info(platform + " compilation from " + project.name + " project: " + project.id + " is completed");
+			const compilation = project.compilations[platform];
+			if (compilation.isReady()) {
+				console.info(platform + " compilation from " + project.name + " project: " + project.id + " is completed.");
 				return undefined;
-			} else if (project.compilations[platform].isErred()) {
-				console.error(platform + " compilation from " + project.name + " project: " + project.id + " is erred");
+			} else if (compilation.isErred()) {
+				console.error(platform + " compilation from " + project.name + " project: " + project.id + " is erred.");
 				return undefined;
 			} else {
 				console.error(platform + " compilation from " + project.name + " project: " + project.id +
-					" was ignored. Status: " + project.compilations[platform].status + ".");
+					" was ignored. Status: " + compilation.status + ".");
 				return undefined;
 			}
 		} else {
@@ -464,9 +454,11 @@ function checkProjectCompilations(project) {
 			}
 			const compilation = project.compilations[platform];
 			if (compilation.isReady()) {
-				console.info(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is completed");
+				console.info(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is completed.");
 			} else if (compilation.isErred()) {
-				console.error(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is erred");
+				console.error(compilation.platform + " compilation from " + project.name + " project: " + project.id + " is erred.");
+				console.error("ERROR LOG of the " + compilation.platform + " platform:");
+				console.error(compilation.error);
 			} else {
 				console.error(compilation.platform + " compilation from " + project.name + " project: " + project.id +
 					" was ignored. Status: " + compilation.status + ".");
@@ -518,17 +510,17 @@ function fetchProjects() {
 // ================== GULP TASKS ================== \\
 
 gulp.task("login", (done) => {
-	if (argv.username && argv.password) {
-		login(argv.username, argv.password)
+	if (USERNAME && PASSWORD) {
+		login(USERNAME, PASSWORD)
 		.then(done)
 		.catch((error) => {
 			done(error);
 		});
 	} else {
-		if (!argv.username) {
+		if (!USERNAME) {
 			console.error("Missing 'username' parameter.");
 		}
-		if (!argv.password) {
+		if (!PASSWORD) {
 			console.error("Missing 'password' parameter.");
 		}
 		done(new Error("Missing parameters."));
@@ -763,40 +755,6 @@ gulp.task("checkAll", ["login"], (done) => {
 				});
 			});
 		}, Promise.resolve());
-	})
-	.catch((error) => {
-		done(error);
-	});
-});
-
-gulp.task("uploadTests", ["deleteAll"], (done) => {
-	const testProjectsPath = argv.testProjectsPath || DEFAULT_TEST_PROJECTS_PATH;
-	const folders = [];
-	const auxFolders = getFolders(testProjectsPath);
-	for (let i = auxFolders.length - 1; i >= 0; i--) {
-		const auxFolders2 = getFolders(testProjectsPath + "/" + auxFolders[i]);
-		for (let j = auxFolders2.length - 1; j >= 0; j--) {
-			folders.push(testProjectsPath + "/" + auxFolders[i] + "/" + auxFolders2[j]);
-		}
-	}
-	Promise.all(folders.map((folder) => {
-		const zipFile = fs.createReadStream(folder + "/source.zip");
-		const configXml = fs.readFileSync(folder + "/config.xml");
-		return createProjectWithConfig(zipFile, configXml)
-		.then((project) => {
-			console.info("Project " + project.name + " was created with ID: " + project.id + ".");
-			return undefined;
-		})
-		.catch(() => {
-			console.error("It was not possible to create a project from the path: '" + folder + "'.");
-			return undefined;
-		})
-		.catch(() => {
-			return undefined;
-		});
-	}))
-	.then(() => {
-		done();
 	})
 	.catch((error) => {
 		done(error);

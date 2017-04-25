@@ -17,7 +17,7 @@
 	"author": "Ludei Developers <devs@ludei.com>",
 	"license": "MIT",
 	"dependencies": {
-		"cocoon-cloud-sdk": "^2.0.0",
+		"cocoon-cloud-sdk": "^2.0.1",
 		"gulp": "^3.9.1",
 		"request": "^2.81.0",
 		"yargs": "^7.0.2"
