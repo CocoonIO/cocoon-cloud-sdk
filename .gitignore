@@ -62,6 +62,8 @@ jspm_packages
 !enums/**/*
 !interfaces/**/*
 !modules/**/*
+!.nojekyll
+!favicon.ico
 !globals.html
 !index.html
 !project.json
