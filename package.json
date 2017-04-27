@@ -8,7 +8,7 @@
 	  "out"
   ],
   "main": "out/index.js",
-  "types": "declaration/index.d.ts",
+  "types": "declarations/index.d.ts",
   "scripts": {
     "docs": "node_modules/.bin/typedoc --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors && cp -f assets/* docs/",
     "inspect-spec": "node_modules/.bin/eslint spec/tests && node_modules/.bin/jshint spec/tests; exit 0",
