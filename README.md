@@ -83,7 +83,13 @@ sudo apt install -y nodejs
 Install the module from [NPM](https://www.npmjs.com/package/cocoon-cloud-sdk).
 
 ```bash
-npm install cocoon-cloud-sdk
+npm install cocoon-cloud-sdk  --save
+```
+
+You must use a module bundler like Webpack and install @types/node to use it in a browser.
+
+```bash
+npm install @types/node --save
 ```
 
 And import it in your NodeJS or Web project.
@@ -92,9 +98,6 @@ And import it in your NodeJS or Web project.
 import * as cocoonSDK from "cocoon-cloud-sdk";
 ```
 
-```html
-<script src="cocoon-cloud-sdk/index.js"></script>
-```
 ### Documentation
 
 You can read the documentation at [CocoonIO.github.io/cocoon-cloud-sdk](https://cocoonio.github.io/cocoon-cloud-sdk/).
