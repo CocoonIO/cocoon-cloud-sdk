@@ -8,7 +8,7 @@ export default class CookieHelper {
 	public static getItem(key: string): string {
 		const result = document.cookie.replace(new RegExp("(?:(?:^|.*;\\\s*)"
 			+ encodeURIComponent(key) + "\\\s*\\\=\\\s*([^;]*).*$)|^.*$"), "$1");
-		return result ? result[1] : null;
+		return result ? result : null;
 	}
 
 	public static setItem(key: string, value: string, expires: Date,
