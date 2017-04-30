@@ -3,19 +3,19 @@
   "version": "2.0.1",
   "description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
   "files": [
-	  "examples",
-	  "declaration",
-	  "out"
+    "examples",
+    "declaration",
+    "out"
   ],
   "main": "out/index.js",
   "types": "declarations/index.d.ts",
   "scripts": {
-    "docs": "node_modules/.bin/typedoc --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors && cp -f assets/* docs/",
-    "inspect-spec": "node_modules/.bin/eslint spec/tests && node_modules/.bin/jshint spec/tests; exit 0",
-    "inspect-src": "node_modules/.bin/tslint --project tsconfig.json; exit 0",
-    "postinstall": "node_modules/.bin/tsc; exit 0",
-    "test": "node_modules/.bin/jasmine",
-    "transpile": "node_modules/.bin/tsc; exit 0"
+    "docs": "typedoc --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors && cp -f assets/* docs/",
+    "inspect-spec": "eslint spec/tests && jshint spec/tests; exit 0",
+    "inspect-src": "tslint --project tsconfig.json; exit 0",
+    "postinstall": "npm run transpile; exit 0",
+    "test": "jasmine",
+    "transpile": "tsc"
   },
   "repository": {
     "type": "git",
@@ -44,19 +44,19 @@
   },
   "homepage": "https://github.com/CocoonIO/cocoon-cloud-sdk",
   "dependencies": {
+    "@types/node": "^7.0.14",
     "cocoon-xml-sugar": "^2.0.0",
     "detect-node": "^2.0.3",
     "popsicle": "^9.1.0",
     "popsicle-status": "^2.0.0"
   },
   "devDependencies": {
-    "@types/node": "^7.0.12",
     "eslint": "^3.19.0",
     "jasmine": "^2.5.3",
     "jshint": "^2.9.4",
     "tslint": "^5.0.0",
-    "typedoc": "^0.5.10",
+    "typedoc": "^0.6.0",
     "typescript": "^2.2.2"
   },
-	"tonicExampleFilename": "examples/runkit.js"
+  "tonicExampleFilename": "examples/runkit.js"
 }
