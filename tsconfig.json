@@ -1,16 +1,26 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "noImplicitAny": true,
-        "removeComments": false,
-        "preserveConstEnums": true,
-        "sourceMap": true,
-        "declaration": true,
-        "declarationDir": "declarations",
-        "outDir": "out"
-    },
-    "files": [
-        "src/index.ts"
-    ]
+	"compilerOptions": {
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"target": "es6",
+
+		"preserveConstEnums": true,
+		"removeComments": false,
+
+		"sourceMap": true,
+		"outDir": "out",
+
+		"declaration": true,
+		"declarationDir": "declarations",
+
+		"noImplicitAny": true,
+		"noImplicitReturns": true,
+		"noImplicitThis": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	},
+	"include": [
+		"src/**/*",
+		"custom_typings/**/*"
+	]
 }
