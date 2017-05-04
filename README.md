@@ -86,10 +86,15 @@ Install the module from [NPM](https://www.npmjs.com/package/cocoon-cloud-sdk).
 npm install cocoon-cloud-sdk  --save
 ```
 
-You must use a module bundler like Webpack and install @types/node to use it in a browser.
+You must use a module bundler like Webpack to use it in a browser. Make sure the node definitions are included if you use typescript
 
-```bash
-npm install @types/node --save
+```json
+{
+   "compilerOptions": {
+       "typeRoots" : ["node_modules/@types"],
+       "types" : ["node"]
+   }
+}
 ```
 
 And import it in your NodeJS or Web project.
