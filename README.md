@@ -1,4 +1,4 @@
-# Cocoon Cloud SDK [![Travis Build Status](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg)](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk) [![NPM Version](https://img.shields.io/npm/v/cocoon-cloud-sdk.svg)](https://www.npmjs.com/package/cocoon-cloud-sdk)
+# Cocoon Cloud SDK [![Travis Build Status](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg)](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk) [![NPM Version](https://img.shields.io/npm/v/cocoon-cloud-sdk.svg)](https://www.npmjs.com/package/cocoon-cloud-sdk) [![Docs: API](https://img.shields.io/badge/Docs-API-lightgrey.svg)](https://cocoonio.github.io/cocoon-cloud-sdk/)
 
 [![bitHound Overall Score](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/score.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
 [![bitHound Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/dependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
@@ -24,7 +24,7 @@ Other than that, you only need to have [NodeJS and NPM](https://nodejs.org/en/do
 your system.
 
 ```bash
-curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
@@ -83,7 +83,18 @@ sudo apt install -y nodejs
 Install the module from [NPM](https://www.npmjs.com/package/cocoon-cloud-sdk).
 
 ```bash
-npm install cocoon-cloud-sdk
+npm install cocoon-cloud-sdk  --save
+```
+
+You must use a module bundler like Webpack to use it in a browser. Make sure the node definitions are included if you use typescript
+
+```json
+{
+   "compilerOptions": {
+       "typeRoots" : ["node_modules/@types"],
+       "types" : ["node"]
+   }
+}
 ```
 
 And import it in your NodeJS or Web project.
@@ -92,9 +103,9 @@ And import it in your NodeJS or Web project.
 import * as cocoonSDK from "cocoon-cloud-sdk";
 ```
 
-```html
-<script src="cocoon-cloud-sdk/index.js"></script>
-```
+### Documentation
+
+You can read the documentation at [CocoonIO.github.io/cocoon-cloud-sdk](https://cocoonio.github.io/cocoon-cloud-sdk/).
 
 ### Example
 
@@ -213,14 +224,14 @@ cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID")
 ## Versioning
 
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the
-[tags on this repository](https://github.com/your/project/tags). 
+[tags on this repository](https://github.com/CocoonIO/cocoon-cloud-sdk/tags). 
 
 ## Authors
 
 * **Imanol Fernandez** - *Version 1.0.0* - [MortimerGoro](https://github.com/MortimerGoro)
 * **Jorge Domínguez** - *Version 2.0.0* - [BlueSialia](https://github.com/BlueSialia)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/CocoonIO/cocoon-cloud-sdk/contributors) who participated in this project.
 
 ## License
 

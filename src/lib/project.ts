@@ -63,7 +63,7 @@ export default class Project {
 		this._version = value;
 	}
 
-	get origin(): { [p: string]: string } {
+	get origin(): {[p: string]: string} {
 		return this._origin;
 	}
 
@@ -79,15 +79,15 @@ export default class Project {
 		return this._dateUpdated;
 	}
 
-	public get compilations(): { [platform: string]: Compilation } {
+	public get compilations(): {[platform: string]: Compilation} {
 		return this._compilations;
 	}
 
-	public get errors(): { [p: string]: string } {
+	public get errors(): {[p: string]: string} {
 		return this._errors;
 	}
 
-	public get keys(): { [platform: string]: SigningKey } {
+	public get keys(): {[platform: string]: SigningKey} {
 		return this._keys;
 	}
 
@@ -106,16 +106,16 @@ export default class Project {
 	private _name: string;
 	private _bundleID: string;
 	private _version: string;
-	private _origin: { [key: string]: string };
+	private _origin: {[key: string]: string};
 	private _dateCompiled: Date;
 	private _dateCreated: Date;
 	private _dateUpdated: Date;
-	private icon: string;
-	private icons: { [platform: string]: string };
-	private splashes: { [platform: string]: string };
-	private _compilations: { [platform: string]: Compilation };
-	private _errors: { [key: string]: string };
-	private _keys: { [platform: string]: SigningKey };
+	// TODO: private icon: string;
+	// TODO: private icons: {[platform: string]: string};
+	// TODO: private splashes: {[platform: string]: string};
+	private _compilations: {[platform: string]: Compilation};
+	private _errors: {[key: string]: string};
+	private _keys: {[platform: string]: SigningKey};
 	private _sourceURL: string;
 	private configXML: XMLSugar;
 
@@ -250,7 +250,7 @@ export default class Project {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateRepository(repo: { url: string, branch?: string }): Promise<void> {
+	public updateRepository(repo: {url: string, branch?: string}): Promise<void> {
 		return ProjectAPI.updateRepositoryUnprocessed(this._id, repo)
 		.then((projectData) => {
 			this.init(projectData);
@@ -393,8 +393,8 @@ export default class Project {
 			});
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
-			return Promise.reject(new Error("There is no signing key for the " + platform
-				+ " platform in the project " + this._id));
+			throw new Error("There is no signing key for the " + platform
+				+ " platform in the project " + this._id);
 		}
 	}
 
@@ -416,10 +416,10 @@ export default class Project {
 		this._dateCreated = new Date(projectData.date_created);
 		this._dateUpdated = new Date(projectData.date_updated);
 		this._dateCompiled = new Date(projectData.date_compiled);
-		this.icon = projectData.icon;
-		this.icons = projectData.icons;
+		// TODO: this.icon = projectData.icon;
+		// TODO: this.icons = projectData.icons;
+		// TODO: this.splashes = projectData.splashes;
 		this._errors = projectData.error;
-		this.splashes = projectData.splashes;
 		this.configXML = null;
 		this._compilations = {};
 		for (const platform of projectData.platforms) {

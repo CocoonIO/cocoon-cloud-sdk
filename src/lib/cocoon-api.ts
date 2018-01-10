@@ -1,8 +1,8 @@
 "use strict";
 
 import * as detectNode from "detect-node";
-import {default as popsicle, plugins, Request, RequestOptions} from "popsicle/dist/common";
 import status = require("popsicle-status");
+import {default as popsicle, plugins, Request, RequestOptions} from "popsicle/dist/common";
 
 import APIURL from "./api-url";
 import CookieCredentialStorage from "./cookie-credential-storage";
