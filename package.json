@@ -42,7 +42,7 @@
 	},
 	"tonicExampleFilename": "examples/runkit.js",
 	"scripts": {
-		"docs": "typedoc --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors && cp -f assets/* docs/",
+		"docs": "typedoc --mode file --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors . && cp -f assets/* docs/",
 		"inspect-spec": "eslint spec/tests && jshint spec/tests",
 		"inspect-src": "tslint --project tsconfig.json",
 		"postinstall": "npm run transpile",
