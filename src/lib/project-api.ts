@@ -395,7 +395,7 @@ export default class ProjectAPI {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateRepository(projectId: string, repo: { url: string, branch?: string }): Promise<Project> {
+	public static updateRepository(projectId: string, repo: {url: string, branch?: string}): Promise<Project> {
 		return ProjectAPI.updateRepositoryUnprocessed(projectId, repo)
 		.then((projectData) => {
 			return new Project(projectData);
@@ -414,7 +414,7 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
 	public static updateRepositoryUnprocessed(projectId: string,
-	                                          repo: { url: string, branch?: string }): Promise<IProjectData> {
+	                                          repo: {url: string, branch?: string}): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: repo,
 			method: "PUT",

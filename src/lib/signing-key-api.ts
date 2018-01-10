@@ -276,10 +276,10 @@ export default class SigningKeyAPI {
 	 * Fetch a list containing the information of all the signing keys.
 	 * @returns {Promise<{ string: SigningKey[] }>} Promise of the list of all the signing keys.
 	 */
-	public static list(): Promise<{ [platform: string]: SigningKey[] }> {
+	public static list(): Promise<{[platform: string]: SigningKey[]}> {
 		return SigningKeyAPI.listUnprocessed()
 		.then((signingKeysData) => {
-			const signingKeys: { [platform: string]: SigningKey[] } = {};
+			const signingKeys: {[platform: string]: SigningKey[]} = {};
 			for (const platform in signingKeysData) {
 				if (!signingKeysData.hasOwnProperty(platform)) {
 					continue;
@@ -300,7 +300,7 @@ export default class SigningKeyAPI {
 	 * Fetch a list containing the information of all the signing keys.
 	 * @returns {Promise<{ string: ISigningKeyData[] }>} Promise of the list of all the data of the signing keys.
 	 */
-	public static listUnprocessed(): Promise<{ [platform: string]: ISigningKeyData[] }> {
+	public static listUnprocessed(): Promise<{[platform: string]: ISigningKeyData[]}> {
 		return CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,

@@ -10,7 +10,10 @@
 	"rules": {
 		"indent": [
 			"error",
-			"tab"
+			"tab",
+			{
+				"MemberExpression": "off"
+			}
 		],
 		"linebreak-style": [
 			"error",
