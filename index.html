@@ -64,7 +64,7 @@
 	<div class="row">
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
-				<h1 id="cocoon-cloud-sdk-travis-build-status-https-travis-ci-org-cocoonio-cocoon-cloud-sdk-svg-https-travis-ci-org-cocoonio-cocoon-cloud-sdk-npm-version-https-img-shields-io-npm-v-cocoon-cloud-sdk-svg-https-www-npmjs-com-package-cocoon-cloud-sdk-">Cocoon Cloud SDK <a href="https://travis-ci.org/CocoonIO/cocoon-cloud-sdk"><img src="https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg" alt="Travis Build Status"></a> <a href="https://www.npmjs.com/package/cocoon-cloud-sdk"><img src="https://img.shields.io/npm/v/cocoon-cloud-sdk.svg" alt="NPM Version"></a></h1>
+				<h1 id="cocoon-cloud-sdk-travis-build-status-https-travis-ci-org-cocoonio-cocoon-cloud-sdk-svg-https-travis-ci-org-cocoonio-cocoon-cloud-sdk-npm-version-https-img-shields-io-npm-v-cocoon-cloud-sdk-svg-https-www-npmjs-com-package-cocoon-cloud-sdk-docs-api-https-img-shields-io-badge-docs-api-lightgrey-svg-https-cocoonio-github-io-cocoon-cloud-sdk-">Cocoon Cloud SDK <a href="https://travis-ci.org/CocoonIO/cocoon-cloud-sdk"><img src="https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg" alt="Travis Build Status"></a> <a href="https://www.npmjs.com/package/cocoon-cloud-sdk"><img src="https://img.shields.io/npm/v/cocoon-cloud-sdk.svg" alt="NPM Version"></a> <a href="https://cocoonio.github.io/cocoon-cloud-sdk/"><img src="https://img.shields.io/badge/Docs-API-lightgrey.svg" alt="Docs: API"></a></h1>
 				<p><a href="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk"><img src="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/score.svg" alt="bitHound Overall Score"></a>
 					<a href="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm"><img src="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/dependencies.svg" alt="bitHound Dependencies"></a>
 				<a href="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm"><img src="https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/devDependencies.svg" alt="bitHound Dev Dependencies"></a></p>
@@ -80,7 +80,7 @@
 				if your code runs in a server). You can contact us at <a href="support@cocoon.io">support@cocoon.io</a> to request it.</p>
 				<p>Other than that, you only need to have <a href="https://nodejs.org/en/download/package-manager/">NodeJS and NPM</a> installed in
 				your system.</p>
-				<pre><code class="lang-bash">curl <span class="hljs-_">-s</span>L https://deb.nodesource.com/setup_7.x | sudo -E bash -
+				<pre><code class="lang-bash">curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
 sudo apt install -y nodejs
 </code></pre>
 				<h3 id="installing">Installing</h3>
@@ -107,17 +107,25 @@ sudo apt install -y nodejs
 				<p>As mentioned previously: to access the Cocoon.io API you will need a ClientID credential (a ClientSecret too
 				if your code runs in a server). You can contact us at <a href="support@cocoon.io">support@cocoon.io</a> to request it.</p>
 				<p>Install <a href="https://nodejs.org/en/download/package-manager/">NodeJS and NPM</a> in your system.</p>
-				<pre><code class="lang-bash">curl <span class="hljs-_">-s</span>L https://deb.nodesource.com/setup_7.x | sudo -E bash -
+				<pre><code class="lang-bash">curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
 sudo apt install -y nodejs
 </code></pre>
 				<p>Install the module from <a href="https://www.npmjs.com/package/cocoon-cloud-sdk">NPM</a>.</p>
-				<pre><code class="lang-bash">npm install cocoon-cloud-sdk
+				<pre><code class="lang-bash">npm install cocoon-cloud-sdk  --save
+</code></pre>
+				<p>You must use a module bundler like Webpack to use it in a browser. Make sure the node definitions are included if you use typescript</p>
+				<pre><code class="lang-json">{
+   <span class="hljs-attr">"compilerOptions"</span>: {
+       <span class="hljs-attr">"typeRoots"</span> : [<span class="hljs-string">"node_modules/@types"</span>],
+       <span class="hljs-attr">"types"</span> : [<span class="hljs-string">"node"</span>]
+   }
+}
 </code></pre>
 				<p>And import it in your NodeJS or Web project.</p>
 				<pre><code class="lang-js"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> cocoonSDK <span class="hljs-keyword">from</span> <span class="hljs-string">"cocoon-cloud-sdk"</span>;
 </code></pre>
-				<pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"cocoon-cloud-sdk/index.js"</span>&gt;</span><span class="undefined"></span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
-</code></pre>
+				<h3 id="documentation">Documentation</h3>
+				<p>You can read the documentation at <a href="https://cocoonio.github.io/cocoon-cloud-sdk/">CocoonIO.github.io/cocoon-cloud-sdk</a>.</p>
 				<h3 id="example">Example</h3>
 				<p>You can see an example of the usage in <a href="sample">sample</a>.</p>
 				<h3 id="usage">Usage</h3>
@@ -218,13 +226,13 @@ cocoonSDK.SigningKeyAPI.get(<span class="hljs-string">"SIGNING_KEY_ID"</span>)
 				</ul>
 				<h2 id="versioning">Versioning</h2>
 				<p>We use <a href="http://semver.org/">SemVer</a> for versioning. For the versions available, see the
-				<a href="https://github.com/your/project/tags">tags on this repository</a>. </p>
+				<a href="https://github.com/CocoonIO/cocoon-cloud-sdk/tags">tags on this repository</a>. </p>
 				<h2 id="authors">Authors</h2>
 				<ul>
 					<li><strong>Imanol Fernandez</strong> - <em>Version 1.0.0</em> - <a href="https://github.com/MortimerGoro">MortimerGoro</a></li>
 					<li><strong>Jorge Domínguez</strong> - <em>Version 2.0.0</em> - <a href="https://github.com/BlueSialia">BlueSialia</a></li>
 				</ul>
-				<p>See also the list of <a href="https://github.com/your/project/contributors">contributors</a> who participated in this project.</p>
+				<p>See also the list of <a href="https://github.com/CocoonIO/cocoon-cloud-sdk/contributors">contributors</a> who participated in this project.</p>
 				<h2 id="license">License</h2>
 				<p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details</p>
 			</div>
@@ -235,94 +243,88 @@ cocoonSDK.SigningKeyAPI.get(<span class="hljs-string">"SIGNING_KEY_ID"</span>)
 					<li class="globals  ">
 						<a href="globals.html"><em>Globals</em></a>
 					</li>
-					<li class="label tsd-is-external">
-						<span>Internals</span>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="modules/_index_.html">"index"</a>
-					</li>
-					<li class="label tsd-is-external">
-						<span>Externals</span>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_api_url_.html">"lib/api-<wbr>url"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_cocoon_api_.html">"lib/cocoon-<wbr>api"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_compilation_.html">"lib/compilation"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_cookie_credential_storage_.html">"lib/cookie-<wbr>credential-<wbr>storage"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_cookie_helper_.html">"lib/cookie-<wbr>helper"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_enums_e_grant_type_.html">"lib/enums/e-<wbr>grant-<wbr>type"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_enums_e_platform_.html">"lib/enums/e-<wbr>platform"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_enums_e_status_.html">"lib/enums/e-<wbr>status"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_access_token_.html">"lib/interfaces/i-<wbr>access-<wbr>token"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_cocoon_template_.html">"lib/interfaces/i-<wbr>cocoon-<wbr>template"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_cocoon_version_.html">"lib/interfaces/i-<wbr>cocoon-<wbr>version"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_credential_storage_.html">"lib/interfaces/i-<wbr>credential-<wbr>storage"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_payment_plan_.html">"lib/interfaces/i-<wbr>payment-<wbr>plan"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_project_data_.html">"lib/interfaces/i-<wbr>project-<wbr>data"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_repository_data_.html">"lib/interfaces/i-<wbr>repository-<wbr>data"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_signing_key_data_.html">"lib/interfaces/i-<wbr>signing-<wbr>key-<wbr>data"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_interfaces_i_user_data_.html">"lib/interfaces/i-<wbr>user-<wbr>data"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_memory_credential_storage_.html">"lib/memory-<wbr>credential-<wbr>storage"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_oauth_.html">"lib/oauth"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_project_.html">"lib/project"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_project_api_.html">"lib/project-<wbr>api"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_signing_key_.html">"lib/signing-<wbr>key"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_signing_key_api_.html">"lib/signing-<wbr>key-<wbr>api"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_user_.html">"lib/user"</a>
-					</li>
-					<li class=" tsd-kind-external-module tsd-is-external">
-						<a href="modules/_lib_user_api_.html">"lib/user-<wbr>api"</a>
-					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-enum">
+						<a href="enums/granttype.html" class="tsd-kind-icon">Grant<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/platform.html" class="tsd-kind-icon">Platform</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/status.html" class="tsd-kind-icon">Status</a>
+					</li>
+					<li class=" tsd-kind-enum">
+						<a href="enums/storagetype.html" class="tsd-kind-icon">Storage<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/apiurl.html" class="tsd-kind-icon">APIURL</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/cocoonapi.html" class="tsd-kind-icon">CocoonAPI</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/compilation.html" class="tsd-kind-icon">Compilation</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/cookiecredentialstorage.html" class="tsd-kind-icon">Cookie<wbr>Credential<wbr>Storage</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/cookiehelper.html" class="tsd-kind-icon">Cookie<wbr>Helper</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/memorycredentialstorage.html" class="tsd-kind-icon">Memory<wbr>Credential<wbr>Storage</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/oauth.html" class="tsd-kind-icon">OAuth</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/project.html" class="tsd-kind-icon">Project</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/projectapi.html" class="tsd-kind-icon">ProjectAPI</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/signingkey.html" class="tsd-kind-icon">Signing<wbr>Key</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/signingkeyapi.html" class="tsd-kind-icon">Signing<wbr>KeyAPI</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/user.html" class="tsd-kind-icon">User</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/userapi.html" class="tsd-kind-icon">UserAPI</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iaccesstoken.html" class="tsd-kind-icon">IAccess<wbr>Token</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icocoontemplate.html" class="tsd-kind-icon">ICocoon<wbr>Template</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icocoonversion.html" class="tsd-kind-icon">ICocoon<wbr>Version</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/icredentialstorage.html" class="tsd-kind-icon">ICredential<wbr>Storage</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ipaymentplan.html" class="tsd-kind-icon">IPayment<wbr>Plan</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iprojectdata.html" class="tsd-kind-icon">IProject<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/irepositorydata.html" class="tsd-kind-icon">IRepository<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/isigningkeydata.html" class="tsd-kind-icon">ISigning<wbr>Key<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/iuserdata.html" class="tsd-kind-icon">IUser<wbr>Data</a>
+					</li>
 				</ul>
 			</nav>
 		</div>

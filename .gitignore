@@ -58,10 +58,9 @@ jspm_packages
 ### Custom
 *
 !assets/**/*
-!classes/**/*
-!enums/**/*
-!interfaces/**/*
-!modules/**/*
+!classes/*
+!enums/*
+!interfaces/*
 !.nojekyll
 !favicon.ico
 !globals.html
