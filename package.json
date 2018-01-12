@@ -51,7 +51,7 @@
 	},
 	"dependencies": {
 		"@types/node": "^9.3.0",
-		"cocoon-xml-sugar": "^2.0.0",
+		"cocoon-xml-sugar": "^2.0.1",
 		"detect-node": "^2.0.3",
 		"popsicle": "^9.2.0",
 		"popsicle-status": "^2.0.1"
