@@ -6,6 +6,7 @@ deploy:
   email: apps@ludei.com
   api_key:
     secure: I2JIMEh0HEk5NGWv6GKm7Tc2Pe70TIOJws3Kk3aVyoebXS/Q9SBMLmRiyj45pP57wc18s/Nj4Z/N5eN42RZiQF/g/fzrtj/duLSUezgB9dnGgEd6CXDLOSRdaTAocgd5gBnY+ONUtGH8RPeIr4xfKfFB4POCAh/lf35v3g9gSfnWw5WENYRfy8oL0D7DCUwsEBr4v0EPpRmkBTtZ6m+vZTmYzb450pXLJ5auSCVSWTvXKivXn+TO6hx6Yi/GFK7yGmQxQrPWl+o1aHFeXBvMtzOQ7dE36DrKJSwIi1LTmtRWOqSdNrW61mV+0FQXQD9iGh0mTAtajWHun4m0xGAS8Ai6dah6ZlmWSjfH12DxThk2Rxm/0ELx2u1ZcK8g9Bu+Ay0bF2+NXeA3OJzBreJzjARqp2o3YOGvk93/uROKVKRL9peadRWTovp1F1z8OLLiEq7os+oXx+V1MZLEXHDHSgxvAA4zpwEdMmsG0ztjMtWXW3DDHp83xYGJVE4vHiBHUt2X5VdQHXZ22paiez7BQ6Ca6uZs0haMi/M/qYewCEa9U96L+t+8FwsubpBTnk0PYt5hCj7iyRI/0Xk+7cLKew5oXn+1UUnTpI/0txoYNTGp0J7nMRZZ5hWWFDNMR/Q1Rh8M766U1kzx6xUwgOfyiud2Oz5Lv8kt+JrW7X+EXws=
+  skip_cleanup: true
   on:
     tags: true
-    repo: CocoonIO/cocoon-cloud-sdk
+    branch: master

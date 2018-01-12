@@ -1,6 +1,6 @@
 {
 	"name": "cocoon-cloud-sdk",
-	"version": "2.0.2",
+	"version": "2.0.3",
 	"description": "Cocoon.io is a cloud service that allows any web developer to build performant mobile native apps/games based on their HTML5 content.",
 	"keywords": [
 		"apps",
@@ -30,7 +30,7 @@
 	},
 	"files": [
 		"examples",
-		"declaration",
+		"declarations",
 		"out"
 	],
 	"main": "out/index.js",
@@ -40,18 +40,18 @@
 		"lib": "./src",
 		"test": "./spec"
 	},
-	"tonicExampleFilename": "examples/runkit.js",
+	"runkitExampleFilename": "examples/runkit.js",
 	"scripts": {
-		"docs": "typedoc --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors && cp -f assets/* docs/",
+		"docs": "typedoc --mode file --name 'Cocoon Cloud SDK' --out docs --json docs/project.json --excludePrivate --ignoreCompilerErrors . && cp -f assets/* docs/",
 		"inspect-spec": "eslint spec/tests && jshint spec/tests",
 		"inspect-src": "tslint --project tsconfig.json",
-		"postinstall": "npm run transpile",
-		"test": "jasmine",
+		"prepare": "npm run transpile",
+		"test": "npm run prepare && jasmine",
 		"transpile": "tsc"
 	},
 	"dependencies": {
 		"@types/node": "^9.3.0",
-		"cocoon-xml-sugar": "^2.0.0",
+		"cocoon-xml-sugar": "^2.0.1",
 		"detect-node": "^2.0.3",
 		"popsicle": "^9.2.0",
 		"popsicle-status": "^2.0.1"
