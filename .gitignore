@@ -54,16 +54,3 @@ jspm_packages
 
 # Yarn Integrity file
 .yarn-integrity
-
-### Custom
-*
-!assets/**/*
-!classes/*
-!enums/*
-!interfaces/*
-!.nojekyll
-!favicon.ico
-!globals.html
-!index.html
-!project.json
-!.gitignore
