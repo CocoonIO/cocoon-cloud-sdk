@@ -14,13 +14,13 @@ export default class UserAPI {
 	 */
 	public static get(): Promise<User> {
 		return UserAPI.getUnprocessed()
-		.then((userData) => {
-			return new User(userData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((userData) => {
+				return new User(userData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -32,13 +32,13 @@ export default class UserAPI {
 			method: "GET",
 			url: APIURL.USER_PROFILE,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 }

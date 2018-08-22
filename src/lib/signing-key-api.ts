@@ -18,16 +18,21 @@ export default class SigningKeyAPI {
 	 * @param certificatePassword Password of the certificate used to create the keystore.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createAndroid(name: string, pAlias: string, keystore: File,
-	                            keystorePassword: string, certificatePassword: string): Promise<SigningKey> {
+	public static createAndroid(
+		name: string,
+		pAlias: string,
+		keystore: File,
+		keystorePassword: string,
+		certificatePassword: string,
+	): Promise<SigningKey> {
 		return SigningKeyAPI.createAndroidUnprocessed(name, pAlias, keystore, keystorePassword, certificatePassword)
-		.then((signingKeyData) => {
-			return new SigningKey(signingKeyData, Platform.Android);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((signingKeyData) => {
+				return new SigningKey(signingKeyData, Platform.Android);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -39,8 +44,13 @@ export default class SigningKeyAPI {
 	 * @param certificatePassword Password of the certificate used to create the keystore.
 	 * @returns {Promise<ISigningKeyData>} Promise of the date of the signing key created.
 	 */
-	public static createAndroidUnprocessed(name: string, pAlias: string, keystore: File, keystorePassword: string,
-	                                       certificatePassword: string): Promise<ISigningKeyData> {
+	public static createAndroidUnprocessed(
+		name: string,
+		pAlias: string,
+		keystore: File,
+		keystorePassword: string,
+		certificatePassword: string,
+	): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			alias: pAlias,
@@ -56,14 +66,14 @@ export default class SigningKeyAPI {
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -77,16 +87,20 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createIOS(name: string, password: string,
-	                        provisioningProfile: File, certificate: File): Promise<SigningKey> {
+	public static createIOS(
+		name: string,
+		password: string,
+		provisioningProfile: File,
+		certificate: File,
+	): Promise<SigningKey> {
 		return SigningKeyAPI.createIOSUnprocessed(name, password, provisioningProfile, certificate)
-		.then((signingKeyData) => {
-			return new SigningKey(signingKeyData, Platform.IOS);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((signingKeyData) => {
+				return new SigningKey(signingKeyData, Platform.IOS);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -100,8 +114,12 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<ISigningKeyData>} Promise of the date of the signing key created.
 	 */
-	public static createIOSUnprocessed(name: string, password: string,
-	                                   provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
+	public static createIOSUnprocessed(
+		name: string,
+		password: string,
+		provisioningProfile: File,
+		certificate: File,
+	): Promise<ISigningKeyData> {
 		return SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.IOS);
 	}
 
@@ -116,16 +134,20 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createMacOS(name: string, password: string,
-	                          provisioningProfile: File, certificate: File): Promise<SigningKey> {
+	public static createMacOS(
+		name: string,
+		password: string,
+		provisioningProfile: File,
+		certificate: File,
+	): Promise<SigningKey> {
 		return SigningKeyAPI.createMacOSUnprocessed(name, password, provisioningProfile, certificate)
-		.then((signingKeyData) => {
-			return new SigningKey(signingKeyData, Platform.MacOS);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((signingKeyData) => {
+				return new SigningKey(signingKeyData, Platform.MacOS);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -139,8 +161,12 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key created.
 	 */
-	public static createMacOSUnprocessed(name: string, password: string,
-	                                     provisioningProfile: File, certificate: File): Promise<ISigningKeyData> {
+	public static createMacOSUnprocessed(
+		name: string,
+		password: string,
+		provisioningProfile: File,
+		certificate: File,
+	): Promise<ISigningKeyData> {
 		return SigningKeyAPI.createApple(name, password, provisioningProfile, certificate, Platform.MacOS);
 	}
 
@@ -153,16 +179,21 @@ export default class SigningKeyAPI {
 	 * @param keystore
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createWindows(name: string, pPassword: string, pPackageThumbprint: string, pPublisherId: string,
-	                            keystore: File): Promise<SigningKey> {
+	public static createWindows(
+		name: string,
+		pPassword: string,
+		pPackageThumbprint: string,
+		pPublisherId: string,
+		keystore: File,
+	): Promise<SigningKey> {
 		return SigningKeyAPI.createWindowsUnprocessed(name, pPassword, pPackageThumbprint, pPublisherId, keystore)
-		.then((signingKeyData) => {
-			return new SigningKey(signingKeyData, Platform.Windows);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((signingKeyData) => {
+				return new SigningKey(signingKeyData, Platform.Windows);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -174,8 +205,13 @@ export default class SigningKeyAPI {
 	 * @param keystore
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key created.
 	 */
-	public static createWindowsUnprocessed(name: string, pPassword: string, pPackageThumbprint: string,
-	                                       pPublisherId: string, keystore: File): Promise<ISigningKeyData> {
+	public static createWindowsUnprocessed(
+		name: string,
+		pPassword: string,
+		pPackageThumbprint: string,
+		pPublisherId: string,
+		keystore: File,
+	): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			packageThumbprint: pPackageThumbprint,
@@ -191,14 +227,14 @@ export default class SigningKeyAPI {
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -208,23 +244,23 @@ export default class SigningKeyAPI {
 	 */
 	public static get(signingKeyId: string): Promise<SigningKey> {
 		return SigningKeyAPI.listUnprocessed()
-		.then((signingKeysData) => {
-			for (const platform in signingKeysData) {
-				if (!signingKeysData.hasOwnProperty(platform)) {
-					continue;
-				}
-				for (const signingKeyData of signingKeysData[platform]) {
-					if (signingKeyData.id === signingKeyId) {
-						return new SigningKey(signingKeyData, platform as any);
+			.then((signingKeysData) => {
+				for (const platform in signingKeysData) {
+					if (!signingKeysData.hasOwnProperty(platform)) {
+						continue;
+					}
+					for (const signingKeyData of signingKeysData[platform]) {
+						if (signingKeyData.id === signingKeyId) {
+							return new SigningKey(signingKeyData, platform as any);
+						}
 					}
 				}
-			}
-			throw new Error("There is no Signing Key with the ID: " + signingKeyId);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+				throw new Error("There is no Signing Key with the ID: " + signingKeyId);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -234,23 +270,23 @@ export default class SigningKeyAPI {
 	 */
 	public static getUnprocessed(signingKeyId: string): Promise<ISigningKeyData> {
 		return SigningKeyAPI.listUnprocessed()
-		.then((signingKeysData) => {
-			for (const platform in signingKeysData) {
-				if (!signingKeysData.hasOwnProperty(platform)) {
-					continue;
-				}
-				for (const signingKeyData of signingKeysData[platform]) {
-					if (signingKeyData.id === signingKeyId) {
-						return signingKeyData;
+			.then((signingKeysData) => {
+				for (const platform in signingKeysData) {
+					if (!signingKeysData.hasOwnProperty(platform)) {
+						continue;
+					}
+					for (const signingKeyData of signingKeysData[platform]) {
+						if (signingKeyData.id === signingKeyId) {
+							return signingKeyData;
+						}
 					}
 				}
-			}
-			throw new Error("There is no Signing Key with the ID: " + signingKeyId);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+				throw new Error("There is no Signing Key with the ID: " + signingKeyId);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -263,13 +299,14 @@ export default class SigningKeyAPI {
 			method: "DELETE",
 			url: APIURL.SIGNING_KEY(signingKeyId),
 		})
-		.then(() => { // returns response but we don't want it
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -278,22 +315,22 @@ export default class SigningKeyAPI {
 	 */
 	public static list(): Promise<{[platform: string]: SigningKey[]}> {
 		return SigningKeyAPI.listUnprocessed()
-		.then((signingKeysData) => {
-			const signingKeys: {[platform: string]: SigningKey[]} = {};
-			for (const platform in signingKeysData) {
-				if (!signingKeysData.hasOwnProperty(platform)) {
-					continue;
+			.then((signingKeysData) => {
+				const signingKeys: {[platform: string]: SigningKey[]} = {};
+				for (const platform in signingKeysData) {
+					if (!signingKeysData.hasOwnProperty(platform)) {
+						continue;
+					}
+					signingKeys[platform] = signingKeysData[platform].map((signingKeyData) => {
+						return new SigningKey(signingKeyData, platform as any);
+					});
 				}
-				signingKeys[platform] = signingKeysData[platform].map((signingKeyData) => {
-					return new SigningKey(signingKeyData, platform as any);
-				});
-			}
-			return signingKeys;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+				return signingKeys;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -305,18 +342,23 @@ export default class SigningKeyAPI {
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body.keys;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body.keys;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
-	private static createApple(name: string, password: string, provisioningProfile: File, certificate: File,
-	                           platform: Platform): Promise<ISigningKeyData> {
+	private static createApple(
+		name: string,
+		password: string,
+		provisioningProfile: File,
+		certificate: File,
+		platform: Platform,
+	): Promise<ISigningKeyData> {
 		const formData = form({});
 		const data = {
 			pass: password,
@@ -331,14 +373,13 @@ export default class SigningKeyAPI {
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(platform),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
-
 }

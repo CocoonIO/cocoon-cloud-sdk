@@ -3,5 +3,5 @@
 export interface ICocoonVersion {
 	name: string;
 	default: boolean;
-	platforms: [{name: string, version: string}];
+	platforms: [{name: string; version: string}];
 }

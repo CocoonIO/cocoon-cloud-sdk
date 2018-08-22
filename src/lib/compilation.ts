@@ -8,8 +8,8 @@ import {IProjectData} from "./interfaces/i-project-data";
 
 export default class Compilation {
 	public get downloadLink(): string {
-		return this._downloadLink ?
-			this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + CocoonAPI.credentials.getAccessToken()
+		return this._downloadLink
+			? this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + CocoonAPI.credentials.getAccessToken()
 			: "";
 	}
 
@@ -36,7 +36,7 @@ export default class Compilation {
 		this._downloadLink = data.download ? data.download[platform] : null;
 		this._error = data.error ? data.error[platform] : null;
 		this._platform = platform;
-		this._status = data.status ? data.status[platform] : (data.date_compiled ? Status.Disabled : Status.Created);
+		this._status = data.status ? data.status[platform] : data.date_compiled ? Status.Disabled : Status.Created;
 	}
 
 	/**
