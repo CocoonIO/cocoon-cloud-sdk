@@ -9,7 +9,7 @@ const request = require("request");
 const argv = require("yargs").argv;
 
 const CLIENT_ID = argv.clientId || process.env.COCOON_CLIENT_ID;
-const CLIENT_SECRET = argv.clientSecret || process.env.CLIENT_SECRET;
+const CLIENT_SECRET = argv.clientSecret || process.env.COCOON_CLIENT_SECRET;
 const USERNAME = argv.username || process.env.COCOON_USERNAME;
 const PASSWORD = argv.password || process.env.COCOON_PASSWORD;
 const DEFAULT_OUTPUT_DIR = "./out";

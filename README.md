@@ -1,9 +1,10 @@
 # Cocoon Cloud SDK [![Travis Build Status](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg)](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk) [![NPM Version](https://img.shields.io/npm/v/cocoon-cloud-sdk.svg)](https://www.npmjs.com/package/cocoon-cloud-sdk) [![Docs: API](https://img.shields.io/badge/Docs-API-lightgrey.svg)](https://cocoonio.github.io/cocoon-cloud-sdk/)
 
-[![bitHound Overall Score](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/score.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
-[![bitHound Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/dependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
-[![bitHound Dev Dependencies](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/devDependencies.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/master/dependencies/npm)
-[![bitHound Code](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk/badges/code.svg)](https://www.bithound.io/github/CocoonIO/cocoon-cloud-sdk)
+[![Dependencies](https://david-dm.org/cocoonio/cocoon-cloud-sdk/status.svg)](https://david-dm.org/cocoonio/cocoon-cloud-sdk)
+[![devDependencies](https://david-dm.org/cocoonio/cocoon-cloud-sdk/dev-status.svg)](https://david-dm.org/cocoonio/cocoon-cloud-sdk)
+[![Maintainability](https://api.codeclimate.com/v1/badges/0d56ac983d27eac4af1d/maintainability)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/0d56ac983d27eac4af1d/test_coverage)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/test_coverage)
+
 ---
 
 The Cocoon Cloud SDK is the easiest way to integrate the Cocoon.io cloud compiler in any service or app.
