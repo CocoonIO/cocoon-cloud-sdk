@@ -17,13 +17,13 @@ export default class ProjectAPI {
 	 */
 	public static createFromZipUpload(file: File): Promise<Project> {
 		return ProjectAPI.createFromZipUploadUnprocessed(file)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -40,14 +40,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_ZIP,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -57,13 +57,13 @@ export default class ProjectAPI {
 	 */
 	public static createFromURL(pUrl: string): Promise<Project> {
 		return ProjectAPI.createFromURLUnprocessed(pUrl)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -77,14 +77,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_URL,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -95,13 +95,13 @@ export default class ProjectAPI {
 	 */
 	public static createFromRepository(repo: IRepositoryData): Promise<Project> {
 		return ProjectAPI.createFromRepositoryUnprocessed(repo)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -116,14 +116,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.CREATE_PROJECT_GITHUB,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -133,13 +133,13 @@ export default class ProjectAPI {
 	 */
 	public static get(projectId: string): Promise<Project> {
 		return ProjectAPI.getUnprocessed(projectId)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -152,14 +152,14 @@ export default class ProjectAPI {
 			method: "GET",
 			url: APIURL.PROJECT(projectId),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -172,13 +172,14 @@ export default class ProjectAPI {
 			method: "DELETE",
 			url: APIURL.PROJECT(projectId),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -187,15 +188,15 @@ export default class ProjectAPI {
 	 */
 	public static list(): Promise<Project[]> {
 		return ProjectAPI.listUnprocessed()
-		.then((projectsData) => {
-			return projectsData.map((projectData) => {
-				return new Project(projectData);
+			.then((projectsData) => {
+				return projectsData.map((projectData) => {
+					return new Project(projectData);
+				});
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
 			});
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
 	}
 
 	/**
@@ -207,14 +208,14 @@ export default class ProjectAPI {
 			method: "GET",
 			url: APIURL.BASE_PROJECT,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -224,17 +225,20 @@ export default class ProjectAPI {
 	 * @returns {Promise<Blob>} Promise of the icon of the project.
 	 */
 	public static getIconBlob(projectId: string, platform: Platform): Promise<Blob> {
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.ICON(projectId, platform),
-		}, false)
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+		return CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.ICON(projectId, platform),
+			},
+			false,
+		)
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -253,13 +257,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -269,17 +274,20 @@ export default class ProjectAPI {
 	 * @returns {Promise<Blob>} Promise of the splash of the project.
 	 */
 	public static getSplashBlob(projectId: string, platform: Platform): Promise<Blob> {
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.SPLASH(projectId, platform),
-		}, false)
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+		return CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.SPLASH(projectId, platform),
+			},
+			false,
+		)
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -298,13 +306,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.SPLASH(projectId, platform),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -315,13 +324,13 @@ export default class ProjectAPI {
 	 */
 	public static updateZip(projectId: string, file: File): Promise<Project> {
 		return ProjectAPI.updateZipUnprocessed(projectId, file)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -339,14 +348,14 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.PROJECT(projectId),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -357,13 +366,13 @@ export default class ProjectAPI {
 	 */
 	public static updateURL(projectId: string, pUrl: string): Promise<Project> {
 		return ProjectAPI.updateURLUnprocessed(projectId, pUrl)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -378,14 +387,14 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.SYNC_URL(projectId),
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -395,15 +404,15 @@ export default class ProjectAPI {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateRepository(projectId: string, repo: {url: string, branch?: string}): Promise<Project> {
+	public static updateRepository(projectId: string, repo: {url: string; branch?: string}): Promise<Project> {
 		return ProjectAPI.updateRepositoryUnprocessed(projectId, repo)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -413,20 +422,23 @@ export default class ProjectAPI {
 	 * (defaults to 'master' if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
-	public static updateRepositoryUnprocessed(projectId: string,
-	                                          repo: {url: string, branch?: string}): Promise<IProjectData> {
+	public static updateRepositoryUnprocessed(
+		projectId: string,
+		repo: {url: string; branch?: string},
+	): Promise<IProjectData> {
 		return CocoonAPI.request({
 			body: repo,
 			method: "PUT",
 			url: APIURL.SYNC_GITHUB(projectId),
 		})
-		.then(() => { // returns response but we don't want it
-			return ProjectAPI.getUnprocessed(projectId);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return ProjectAPI.getUnprocessed(projectId);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -439,13 +451,13 @@ export default class ProjectAPI {
 			method: "GET",
 			url: APIURL.CONFIG(projectId),
 		})
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -456,13 +468,13 @@ export default class ProjectAPI {
 	 */
 	public static updateConfigXml(projectId: string, xml: string): Promise<Project> {
 		return ProjectAPI.updateConfigXmlUnprocessed(projectId, xml)
-		.then((projectData) => {
-			return new Project(projectData);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				return new Project(projectData);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -480,13 +492,14 @@ export default class ProjectAPI {
 			method: "PUT",
 			url: APIURL.CONFIG(projectId),
 		})
-		.then(() => { // returns response but we don't want it
-			return ProjectAPI.getUnprocessed(projectId);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return ProjectAPI.getUnprocessed(projectId);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -499,13 +512,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.COMPILE(projectId),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -518,13 +532,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.COMPILE_DEVAPP(projectId),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -539,13 +554,14 @@ export default class ProjectAPI {
 			method: "POST",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -559,12 +575,13 @@ export default class ProjectAPI {
 			method: "DELETE",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
 		})
-		.then(() => { // returns response but we don't want it
-			return undefined;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return undefined;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 }

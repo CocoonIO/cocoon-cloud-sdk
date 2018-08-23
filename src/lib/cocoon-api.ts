@@ -12,7 +12,6 @@ import {ICredentialStorage} from "./interfaces/i-credential-storage";
 import MemoryCredentialStorage from "./memory-credential-storage";
 
 export default class CocoonAPI {
-
 	public static get credentials(): ICredentialStorage {
 		return this._credentials;
 	}
@@ -40,7 +39,7 @@ export default class CocoonAPI {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
 		}
-		CocoonAPI._credentials = (detectNode) ? new MemoryCredentialStorage() : new CookieCredentialStorage();
+		CocoonAPI._credentials = detectNode ? new MemoryCredentialStorage() : new CookieCredentialStorage();
 		CocoonAPI._credentials.setAccessToken(accessToken, expiration);
 		CocoonAPI._credentials.setRefreshToken(refreshToken);
 	}
@@ -61,14 +60,14 @@ export default class CocoonAPI {
 			method: "GET",
 			url: APIURL.COCOON_TEMPLATES,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -80,14 +79,14 @@ export default class CocoonAPI {
 			method: "GET",
 			url: APIURL.COCOON_VERSIONS,
 		})
-		.use(plugins.parse("json"))
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.use(plugins.parse("json"))
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -108,8 +107,7 @@ export default class CocoonAPI {
 				return popsicle(options).abort();
 			}
 		}
-		return popsicle(options)
-		.use(status());
+		return popsicle(options).use(status());
 	}
 
 	private static _credentials: ICredentialStorage;

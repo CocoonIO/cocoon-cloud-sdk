@@ -21,13 +21,13 @@ export default class Project {
 
 	public set name(value: string) {
 		this.getConfigXML()
-		.then((xmlSugar) => {
-			xmlSugar.setName(value);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((xmlSugar) => {
+				xmlSugar.setName(value);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 		this._name = value;
 	}
 
@@ -37,13 +37,13 @@ export default class Project {
 
 	public set bundleID(value: string) {
 		this.getConfigXML()
-		.then((xmlSugar) => {
-			xmlSugar.setBundleId(value);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((xmlSugar) => {
+				xmlSugar.setBundleId(value);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 		this._bundleID = value;
 	}
 
@@ -53,13 +53,13 @@ export default class Project {
 
 	public set version(value: string) {
 		this.getConfigXML()
-		.then((xmlSugar) => {
-			xmlSugar.setVersion(value);
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((xmlSugar) => {
+				xmlSugar.setVersion(value);
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 		this._version = value;
 	}
 
@@ -161,14 +161,14 @@ export default class Project {
 			return Promise.resolve(this.configXML);
 		} else {
 			return ProjectAPI.getConfigXml(this._id)
-			.then((xml) => {
-				this.configXML = new XMLSugar(xml);
-				return this.configXML;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+				.then((xml) => {
+					this.configXML = new XMLSugar(xml);
+					return this.configXML;
+				})
+				.catch((error) => {
+					console.trace(error);
+					throw error;
+				});
 		}
 	}
 
@@ -217,14 +217,14 @@ export default class Project {
 	 */
 	public updateZip(file: File): Promise<void> {
 		return ProjectAPI.updateZipUnprocessed(this._id, file)
-		.then((projectData) => {
-			this.init(projectData);
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				this.init(projectData);
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -234,14 +234,14 @@ export default class Project {
 	 */
 	public updateURL(url: string): Promise<void> {
 		return ProjectAPI.updateURLUnprocessed(this._id, url)
-		.then((projectData) => {
-			this.init(projectData);
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				this.init(projectData);
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -250,16 +250,16 @@ export default class Project {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateRepository(repo: {url: string, branch?: string}): Promise<void> {
+	public updateRepository(repo: {url: string; branch?: string}): Promise<void> {
 		return ProjectAPI.updateRepositoryUnprocessed(this._id, repo)
-		.then((projectData) => {
-			this.init(projectData);
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				this.init(projectData);
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -269,15 +269,15 @@ export default class Project {
 	 */
 	public updateConfigXml(xml: string): Promise<void> {
 		return ProjectAPI.updateConfigXmlUnprocessed(this._id, xml)
-		.then((projectData) => {
-			this.init(projectData);
-			this.configXML = new XMLSugar(xml);
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				this.init(projectData);
+				this.configXML = new XMLSugar(xml);
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -302,14 +302,14 @@ export default class Project {
 	 */
 	public refresh(): Promise<void> {
 		return ProjectAPI.getUnprocessed(this._id)
-		.then((projectData) => {
-			this.init(projectData);
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((projectData) => {
+				this.init(projectData);
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -318,13 +318,13 @@ export default class Project {
 	 */
 	public refreshCocoon(): Promise<void> {
 		return this.getConfigXML()
-		.then((xmlSugar) => {
-			return this.updateConfigXml(xmlSugar.xml());
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((xmlSugar) => {
+				return this.updateConfigXml(xmlSugar.xml());
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -333,28 +333,30 @@ export default class Project {
 	 * @param interval Interval between fetches.
 	 * @param maxWaitTime Maximum time to wait.
 	 */
-	public refreshUntilCompleted(callback: (completed: boolean, error?: any) => void,
-	                             interval: number = this.DEFAULT_WAIT_TIME,
-	                             maxWaitTime: number = this.MAX_WAIT_TIME): void {
+	public refreshUntilCompleted(
+		callback: (completed: boolean, error?: any) => void,
+		interval: number = this.DEFAULT_WAIT_TIME,
+		maxWaitTime: number = this.MAX_WAIT_TIME,
+	): void {
 		const limitTime = Date.now() + maxWaitTime;
 		this.refresh()
-		.then(() => {
-			if (this.isCompiling()) {
-				if (Date.now() < limitTime) {
-					setTimeout(() => {
-						this.refreshUntilCompleted(callback, interval, maxWaitTime);
-					}, interval);
-					callback(false);
+			.then(() => {
+				if (this.isCompiling()) {
+					if (Date.now() < limitTime) {
+						setTimeout(() => {
+							this.refreshUntilCompleted(callback, interval, maxWaitTime);
+						}, interval);
+						callback(false);
+					} else {
+						throw new Error("It wasn't possible to compile the project in the time limit frame.");
+					}
 				} else {
-					throw new Error("It wasn't possible to compile the project in the time limit frame.");
+					callback(true);
 				}
-			} else {
-				callback(true);
-			}
-		})
-		.catch((error) => {
-			callback(false, error);
-		});
+			})
+			.catch((error) => {
+				callback(false, error);
+			});
 	}
 
 	/**
@@ -365,14 +367,14 @@ export default class Project {
 	 */
 	public assignSigningKey(signingKey: SigningKey): Promise<void> {
 		return ProjectAPI.assignSigningKey(this._id, signingKey.id)
-		.then(() => {
-			this._keys[signingKey.platform] = signingKey;
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				this._keys[signingKey.platform] = signingKey;
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -383,18 +385,17 @@ export default class Project {
 	public removeSigningKey(platform: Platform): Promise<void> {
 		if (this._keys[platform]) {
 			return ProjectAPI.removeSigningKey(this._id, this._keys[platform].id)
-			.then(() => {
-				this._keys[platform] = undefined;
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+				.then(() => {
+					this._keys[platform] = undefined;
+					return;
+				})
+				.catch((error) => {
+					console.trace(error);
+					throw error;
+				});
 		} else {
 			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
-			throw new Error("There is no signing key for the " + platform
-				+ " platform in the project " + this._id);
+			throw new Error("There is no signing key for the " + platform + " platform in the project " + this._id);
 		}
 	}
 

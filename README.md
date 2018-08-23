@@ -1,7 +1,7 @@
 # Cocoon Cloud SDK [![Travis Build Status](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk.svg)](https://travis-ci.org/CocoonIO/cocoon-cloud-sdk) [![NPM Version](https://img.shields.io/npm/v/cocoon-cloud-sdk.svg)](https://www.npmjs.com/package/cocoon-cloud-sdk) [![Docs: API](https://img.shields.io/badge/Docs-API-lightgrey.svg)](https://cocoonio.github.io/cocoon-cloud-sdk/)
 
 [![Dependencies](https://david-dm.org/cocoonio/cocoon-cloud-sdk/status.svg)](https://david-dm.org/cocoonio/cocoon-cloud-sdk)
-[![devDependencies](https://david-dm.org/cocoonio/cocoon-cloud-sdk/dev-status.svg)](https://david-dm.org/cocoonio/cocoon-cloud-sdk)
+[![devDependencies](https://david-dm.org/cocoonio/cocoon-cloud-sdk/dev-status.svg)](https://david-dm.org/cocoonio/cocoon-cloud-sdk?type=dev)
 [![Maintainability](https://api.codeclimate.com/v1/badges/0d56ac983d27eac4af1d/maintainability)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/0d56ac983d27eac4af1d/test_coverage)](https://codeclimate.com/github/CocoonIO/cocoon-cloud-sdk/test_coverage)
 
@@ -25,7 +25,7 @@ Other than that, you only need to have [NodeJS and NPM](https://nodejs.org/en/do
 your system.
 
 ```bash
-curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 
@@ -77,7 +77,7 @@ if your code runs in a server). You can contact us at [support@cocoon.io](suppor
 Install [NodeJS and NPM](https://nodejs.org/en/download/package-manager/) in your system.
 
 ```bash
-curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -
+curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 

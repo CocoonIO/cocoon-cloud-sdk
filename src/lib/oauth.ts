@@ -7,7 +7,6 @@ import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
 
 export default class OAuth {
-
 	private static generateRandomString(length: number = 16): string {
 		let text = "";
 		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -17,19 +16,24 @@ export default class OAuth {
 		return text;
 	}
 
-	private clientId: string;
-	private clientSecret: string;
-	private grantType: GrantType | string;
-	private oAuthURL: string;
-	private redirectURI: string;
+	private readonly clientId: string;
+	private readonly clientSecret: string;
+	private readonly grantType: GrantType | string;
+	private readonly oAuthURL: string;
+	private readonly redirectURI: string;
 	private readonly ACCESS_TOKEN = "access_token";
 	private readonly AUTHORIZATION = "login";
 	private readonly LOGOUT = "logout";
 
 	private state: string;
 
-	public constructor(grantType: GrantType | string, clientId: string, clientSecret?: string,
-	                   redirectURI?: string, oAuthURL: string = "https://cloud.cocoon.io/oauth/") {
+	public constructor(
+		grantType: GrantType | string,
+		clientId: string,
+		clientSecret?: string,
+		redirectURI?: string,
+		oAuthURL: string = "https://cloud.cocoon.io/oauth/",
+	) {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
 		this.grantType = grantType;
@@ -57,12 +61,18 @@ export default class OAuth {
 	public authorizeAuthorizationCode(scope?: string): string {
 		if (this.grantType === GrantType.AuthorizationCode) {
 			this.state = OAuth.generateRandomString(16);
-			return this.authorizationURL
-				+ "?response_type=" + "code"
-				+ "&client_id=" + this.clientId
-				+ "&redirect_uri=" + this.redirectURI
-				+ (scope ? "&scope=" + scope : "")
-				+ "&state=" + this.state;
+			return (
+				this.authorizationURL +
+				"?response_type=" +
+				"code" +
+				"&client_id=" +
+				this.clientId +
+				"&redirect_uri=" +
+				this.redirectURI +
+				(scope ? "&scope=" + scope : "") +
+				"&state=" +
+				this.state
+			);
 		} else {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
 			throw new Error("Invalid OAuth flow");
@@ -86,13 +96,15 @@ export default class OAuth {
 			grant_type: this.grantType,
 			redirect_uri: this.redirectURI,
 		};
-		const request = CocoonAPI.request({
-			body: parameters,
-			headers: {"Content-Type": "application/x-www-form-urlencoded"},
-			method: "POST",
-			url: this.accessTokenURL,
-		}, false)
-		.use(plugins.parse("json"));
+		const request = CocoonAPI.request(
+			{
+				body: parameters,
+				headers: {"Content-Type": "application/x-www-form-urlencoded"},
+				method: "POST",
+				url: this.accessTokenURL,
+			},
+			false,
+		).use(plugins.parse("json"));
 
 		if (this.grantType === GrantType.AuthorizationCode && this.isStateValid(state)) {
 			if (this.grantType !== GrantType.AuthorizationCode) {
@@ -105,13 +117,13 @@ export default class OAuth {
 		}
 
 		return request
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -139,11 +151,16 @@ export default class OAuth {
 	 */
 	public authorizeImplicit(scope?: string): string {
 		if (this.grantType === GrantType.Implicit) {
-			return this.authorizationURL
-				+ "?response_type=" + "token"
-				+ "&client_id=" + this.clientId
-				+ "&redirect_uri=" + this.redirectURI
-				+ (scope ? "&scope=" + scope : "");
+			return (
+				this.authorizationURL +
+				"?response_type=" +
+				"token" +
+				"&client_id=" +
+				this.clientId +
+				"&redirect_uri=" +
+				this.redirectURI +
+				(scope ? "&scope=" + scope : "")
+			);
 		} else {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Implicit);
 			throw new Error("Invalid OAuth flow");
@@ -164,13 +181,15 @@ export default class OAuth {
 			password: pPassword,
 			username: pUsername,
 		};
-		const request = CocoonAPI.request({
-			body: parameters,
-			headers: {"Content-Type": "application/x-www-form-urlencoded"},
-			method: "POST",
-			url: this.accessTokenURL,
-		}, false)
-		.use(plugins.parse("json"));
+		const request = CocoonAPI.request(
+			{
+				body: parameters,
+				headers: {"Content-Type": "application/x-www-form-urlencoded"},
+				method: "POST",
+				url: this.accessTokenURL,
+			},
+			false,
+		).use(plugins.parse("json"));
 
 		if (this.grantType !== GrantType.Password) {
 			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
@@ -178,13 +197,13 @@ export default class OAuth {
 		}
 
 		return request
-		.then((response) => {
-			return response.body;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then((response) => {
+				return response.body;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	/**
@@ -196,13 +215,14 @@ export default class OAuth {
 			method: "GET",
 			url: this.logoutURL,
 		})
-		.then(() => { // returns response but we don't want it
-			return;
-		})
-		.catch((error) => {
-			console.trace(error);
-			throw error;
-		});
+			.then(() => {
+				// returns response but we don't want it
+				return;
+			})
+			.catch((error) => {
+				console.trace(error);
+				throw error;
+			});
 	}
 
 	private isStateValid(state: string): boolean {
