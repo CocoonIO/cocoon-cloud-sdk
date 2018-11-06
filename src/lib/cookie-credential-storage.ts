@@ -23,7 +23,7 @@ export default class CookieCredentialStorage implements ICredentialStorage {
 	}
 
 	public setRefreshToken(value: string): void {
-		CookieHelper.setItem("access_token", value, this.MAX_DATE);
+		CookieHelper.setItem("refresh_token", value, this.MAX_DATE);
 	}
 
 	public logout(): void {
