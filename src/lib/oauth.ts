@@ -1,6 +1,6 @@
 "use strict";
 
-import {plugins} from "popsicle/dist/common";
+import {plugins, Response} from "popsicle";
 
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
@@ -60,7 +60,7 @@ export default class OAuth {
 	 */
 	public authorizeAuthorizationCode(scope?: string): string {
 		if (this.grantType === GrantType.AuthorizationCode) {
-			this.state = OAuth.generateRandomString(16);
+			this.state = OAuth.generateRandomString();
 			return (
 				this.authorizationURL +
 				"?response_type=" +
@@ -88,7 +88,7 @@ export default class OAuth {
 	 * The server should have returned the same string and will be tested now.
 	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
+	public async tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret,
@@ -96,34 +96,26 @@ export default class OAuth {
 			grant_type: this.grantType,
 			redirect_uri: this.redirectURI,
 		};
-		const request = CocoonAPI.request(
+
+		if (this.grantType === GrantType.AuthorizationCode && this.isStateValid(state)) {
+			if (this.grantType !== GrantType.AuthorizationCode) {
+				throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
+			}
+			if (!this.isStateValid(state)) {
+				throw new Error("State is " + state + " when it should be " + this.state);
+			}
+		}
+
+		return (await CocoonAPI.request(
 			{
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
 				url: this.accessTokenURL,
 			},
+			[plugins.parse("json")],
 			false,
-		).use(plugins.parse("json"));
-
-		if (this.grantType === GrantType.AuthorizationCode && this.isStateValid(state)) {
-			if (this.grantType !== GrantType.AuthorizationCode) {
-				console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
-			}
-			if (!this.isStateValid(state)) {
-				console.error("State is " + state + " when it should be " + this.state);
-			}
-			request.abort();
-		}
-
-		return request
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		)).body;
 	}
 
 	public tokenExchangeClientCredentials() {
@@ -173,7 +165,7 @@ export default class OAuth {
 	 * @param pPassword Password of a user.
 	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
+	public async tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret, // FIXME: Password flow should't need clientSecret
@@ -181,48 +173,32 @@ export default class OAuth {
 			password: pPassword,
 			username: pUsername,
 		};
-		const request = CocoonAPI.request(
+
+		if (this.grantType !== GrantType.Password) {
+			throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
+		}
+
+		return (await CocoonAPI.request(
 			{
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
 				url: this.accessTokenURL,
 			},
+			[plugins.parse("json")],
 			false,
-		).use(plugins.parse("json"));
-
-		if (this.grantType !== GrantType.Password) {
-			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
-			request.abort();
-		}
-
-		return request
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		)).body;
 	}
 
 	/**
 	 * Log out of the API.
-	 * @returns {Promise<void>} Promise of a successful logout.
+	 * @returns {Promise<Response>} Promise of a successful logout.
 	 */
-	public logout(): Promise<void> {
+	public logout(): Promise<Response> {
 		return CocoonAPI.request({
 			method: "GET",
 			url: this.logoutURL,
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	private isStateValid(state: string): boolean {

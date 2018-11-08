@@ -20,14 +20,9 @@ export default class Project {
 	}
 
 	public set name(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setName(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setName(value);
+		});
 		this._name = value;
 	}
 
@@ -36,14 +31,9 @@ export default class Project {
 	}
 
 	public set bundleID(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setBundleId(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setBundleId(value);
+		});
 		this._bundleID = value;
 	}
 
@@ -52,14 +42,9 @@ export default class Project {
 	}
 
 	public set version(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setVersion(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setVersion(value);
+		});
 		this._version = value;
 	}
 
@@ -156,19 +141,13 @@ export default class Project {
 	 * Get a sugar for the XML configuration of the project.
 	 * @returns {Promise<XMLSugar>} Promise of a sugar for the XML configuration of the project.
 	 */
-	public getConfigXML(): Promise<XMLSugar> {
+	public async getConfigXML(): Promise<XMLSugar> {
 		if (this.configXML) {
-			return Promise.resolve(this.configXML);
+			return this.configXML;
 		} else {
-			return ProjectAPI.getConfigXml(this._id)
-				.then((xml) => {
-					this.configXML = new XMLSugar(xml);
-					return this.configXML;
-				})
-				.catch((error) => {
-					console.trace(error);
-					throw error;
-				});
+			const xml = await ProjectAPI.getConfigXml(this._id);
+			this.configXML = new XMLSugar(xml);
+			return this.configXML;
 		}
 	}
 
@@ -177,7 +156,7 @@ export default class Project {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @returns {Promise<Blob>} Promise of the icon of the project.
 	 */
-	public getIconBlob(platform: Platform): Promise<Blob> {
+	public async getIconBlob(platform: Platform): Promise<Blob> {
 		return ProjectAPI.getIconBlob(this._id, platform);
 	}
 
@@ -187,7 +166,7 @@ export default class Project {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public setIconBlob(icon: File, platform: Platform): Promise<void> {
+	public async setIconBlob(icon: File, platform: Platform): Promise<void> {
 		return ProjectAPI.setIconBlob(icon, this._id, platform);
 	}
 
@@ -196,7 +175,7 @@ export default class Project {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @returns {Promise<Blob>} Promise of the splash of the project.
 	 */
-	public getSplashBlob(platform: Platform): Promise<Blob> {
+	public async getSplashBlob(platform: Platform): Promise<Blob> {
 		return ProjectAPI.getSplashBlob(this._id, platform);
 	}
 
@@ -206,7 +185,7 @@ export default class Project {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public setSplashBlob(splash: File, platform: Platform): Promise<void> {
+	public async setSplashBlob(splash: File, platform: Platform): Promise<void> {
 		return ProjectAPI.setSplashBlob(splash, this._id, platform);
 	}
 
@@ -215,16 +194,8 @@ export default class Project {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateZip(file: File): Promise<void> {
-		return ProjectAPI.updateZipUnprocessed(this._id, file)
-			.then((projectData) => {
-				this.init(projectData);
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async updateZip(file: File): Promise<void> {
+		this.init(await ProjectAPI.updateZipUnprocessed(this._id, file));
 	}
 
 	/**
@@ -232,16 +203,8 @@ export default class Project {
 	 * @param url URL to fetch the source code. Can contain a config.xml file too.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateURL(url: string): Promise<void> {
-		return ProjectAPI.updateURLUnprocessed(this._id, url)
-			.then((projectData) => {
-				this.init(projectData);
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async updateURL(url: string): Promise<void> {
+		this.init(await ProjectAPI.updateURLUnprocessed(this._id, url));
 	}
 
 	/**
@@ -250,16 +213,8 @@ export default class Project {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateRepository(repo: {url: string; branch?: string}): Promise<void> {
-		return ProjectAPI.updateRepositoryUnprocessed(this._id, repo)
-			.then((projectData) => {
-				this.init(projectData);
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async updateRepository(repo: {url: string; branch?: string}): Promise<void> {
+		this.init(await ProjectAPI.updateRepositoryUnprocessed(this._id, repo));
 	}
 
 	/**
@@ -267,24 +222,16 @@ export default class Project {
 	 * @param xml New config.xml for the project.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public updateConfigXml(xml: string): Promise<void> {
-		return ProjectAPI.updateConfigXmlUnprocessed(this._id, xml)
-			.then((projectData) => {
-				this.init(projectData);
-				this.configXML = new XMLSugar(xml);
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async updateConfigXml(xml: string): Promise<void> {
+		this.init(await ProjectAPI.updateConfigXmlUnprocessed(this._id, xml));
+		this.configXML = new XMLSugar(xml);
 	}
 
 	/**
 	 * Places the project in the compilation queue.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public compile(): Promise<void> {
+	public async compile(): Promise<void> {
 		return ProjectAPI.compile(this._id);
 	}
 
@@ -292,7 +239,7 @@ export default class Project {
 	 * Places a DevApp of the project in the compilation queue.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public compileDevApp(): Promise<void> {
+	public async compileDevApp(): Promise<void> {
 		return ProjectAPI.compileDevApp(this._id);
 	}
 
@@ -300,63 +247,42 @@ export default class Project {
 	 * Fetches the project from Cocoon.io.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public refresh(): Promise<void> {
-		return ProjectAPI.getUnprocessed(this._id)
-			.then((projectData) => {
-				this.init(projectData);
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async refresh(): Promise<void> {
+		this.init(await ProjectAPI.getUnprocessed(this._id));
 	}
 
 	/**
 	 * Uploads the current config.xml extracted from the sugar.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public refreshCocoon(): Promise<void> {
-		return this.getConfigXML()
-			.then((xmlSugar) => {
-				return this.updateConfigXml(xmlSugar.xml());
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async refreshCocoon(): Promise<void> {
+		return this.updateConfigXml((await this.getConfigXML()).xml());
 	}
 
 	/**
 	 * Fetches the project from Cocoon.io until every compilations is completed.
 	 * @param callback Function that will be called for each attempt to check if the compilations are completed.
+	 * On each call the project has executed [refresh]{@link Project#refresh}.
 	 * @param interval Interval between fetches.
 	 * @param maxWaitTime Maximum time to wait.
 	 */
-	public refreshUntilCompleted(
-		callback: (completed: boolean, error?: any) => void,
+	public async refreshUntilCompleted(
+		callback: () => void = () => {},
 		interval: number = this.DEFAULT_WAIT_TIME,
 		maxWaitTime: number = this.MAX_WAIT_TIME,
-	): void {
+	): Promise<void> {
 		const limitTime = Date.now() + maxWaitTime;
-		this.refresh()
-			.then(() => {
-				if (this.isCompiling()) {
-					if (Date.now() < limitTime) {
-						setTimeout(() => {
-							this.refreshUntilCompleted(callback, interval, maxWaitTime);
-						}, interval);
-						callback(false);
-					} else {
-						throw new Error("It wasn't possible to compile the project in the time limit frame.");
-					}
-				} else {
-					callback(true);
-				}
-			})
-			.catch((error) => {
-				callback(false, error);
-			});
+		await this.refresh();
+		Promise.resolve(callback());
+		while (this.isCompiling() && Date.now() < limitTime) {
+			await new Promise((resolve) => setTimeout(resolve, interval));
+			await this.refresh();
+			Promise.resolve(callback());
+		}
+
+		if (Date.now() < limitTime) {
+			throw new Error("It wasn't possible to compile the project in the time limit frame.");
+		}
 	}
 
 	/**
@@ -365,16 +291,9 @@ export default class Project {
 	 * @param signingKey Signing key to assign.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public assignSigningKey(signingKey: SigningKey): Promise<void> {
-		return ProjectAPI.assignSigningKey(this._id, signingKey.id)
-			.then(() => {
-				this._keys[signingKey.platform] = signingKey;
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public async assignSigningKey(signingKey: SigningKey): Promise<void> {
+		await ProjectAPI.assignSigningKey(this._id, signingKey.id);
+		this._keys[signingKey.platform] = signingKey;
 	}
 
 	/**
@@ -382,19 +301,11 @@ export default class Project {
 	 * @param platform Platform to remove the signing key from.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public removeSigningKey(platform: Platform): Promise<void> {
+	public async removeSigningKey(platform: Platform): Promise<void> {
 		if (this._keys[platform]) {
-			return ProjectAPI.removeSigningKey(this._id, this._keys[platform].id)
-				.then(() => {
-					this._keys[platform] = undefined;
-					return;
-				})
-				.catch((error) => {
-					console.trace(error);
-					throw error;
-				});
+			await ProjectAPI.removeSigningKey(this._id, this._keys[platform].id);
+			this._keys[platform] = undefined;
 		} else {
-			console.error("There is no signing key for the " + platform + " platform in the project " + this._id);
 			throw new Error("There is no signing key for the " + platform + " platform in the project " + this._id);
 		}
 	}
@@ -403,7 +314,7 @@ export default class Project {
 	 * Deletes the project.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public delete(): Promise<void> {
+	public async delete(): Promise<void> {
 		return ProjectAPI.delete(this._id);
 	}
 

@@ -31,7 +31,7 @@ export default class SigningKey {
 	 * Delete the signing key.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public delete(): Promise<void> {
+	public async delete(): Promise<void> {
 		return SigningKeyAPI.delete(this._id);
 	}
 }

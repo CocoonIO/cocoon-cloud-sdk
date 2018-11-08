@@ -1,6 +1,6 @@
 "use strict";
 
-import {form, plugins} from "popsicle/dist/common";
+import {form, plugins} from "popsicle";
 
 import APIURL from "./api-url";
 import CocoonAPI from "./cocoon-api";
@@ -15,15 +15,8 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromZipUpload(file: File): Promise<Project> {
-		return ProjectAPI.createFromZipUploadUnprocessed(file)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async createFromZipUpload(file: File): Promise<Project> {
+		return new Project(await ProjectAPI.createFromZipUploadUnprocessed(file));
 	}
 
 	/**
@@ -31,23 +24,18 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
 	 */
-	public static createFromZipUploadUnprocessed(file: File): Promise<IProjectData> {
+	public static async createFromZipUploadUnprocessed(file: File): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		return CocoonAPI.request({
-			body: formData,
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_ZIP,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_ZIP,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -55,15 +43,8 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromURL(pUrl: string): Promise<Project> {
-		return ProjectAPI.createFromURLUnprocessed(pUrl)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async createFromURL(pUrl: string): Promise<Project> {
+		return new Project(await ProjectAPI.createFromURLUnprocessed(pUrl));
 	}
 
 	/**
@@ -71,20 +52,15 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
 	 */
-	public static createFromURLUnprocessed(pUrl: string): Promise<IProjectData> {
-		return CocoonAPI.request({
-			body: {url: pUrl},
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_URL,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async createFromURLUnprocessed(pUrl: string): Promise<IProjectData> {
+		return (await CocoonAPI.request(
+			{
+				body: {url: pUrl},
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_URL,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -93,15 +69,8 @@ export default class ProjectAPI {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<Project>} Promise of the project created.
 	 */
-	public static createFromRepository(repo: IRepositoryData): Promise<Project> {
-		return ProjectAPI.createFromRepositoryUnprocessed(repo)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async createFromRepository(repo: IRepositoryData): Promise<Project> {
+		return new Project(await ProjectAPI.createFromRepositoryUnprocessed(repo));
 	}
 
 	/**
@@ -110,20 +79,15 @@ export default class ProjectAPI {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
 	 */
-	public static createFromRepositoryUnprocessed(repo: IRepositoryData): Promise<IProjectData> {
-		return CocoonAPI.request({
-			body: repo,
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_GITHUB,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async createFromRepositoryUnprocessed(repo: IRepositoryData): Promise<IProjectData> {
+		return (await CocoonAPI.request(
+			{
+				body: repo,
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_GITHUB,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -131,15 +95,8 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to fetch.
 	 * @returns {Promise<Project>} Promise of the project fetched.
 	 */
-	public static get(projectId: string): Promise<Project> {
-		return ProjectAPI.getUnprocessed(projectId)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async get(projectId: string): Promise<Project> {
+		return new Project(await ProjectAPI.getUnprocessed(projectId));
 	}
 
 	/**
@@ -147,19 +104,14 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to fetch.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project fetched.
 	 */
-	public static getUnprocessed(projectId: string): Promise<IProjectData> {
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.PROJECT(projectId),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async getUnprocessed(projectId: string): Promise<IProjectData> {
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.PROJECT(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -167,55 +119,35 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to delete.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static delete(projectId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async delete(projectId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT(projectId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
-	 * Fetch a list containing the information of all the project.
+	 * Fetch a list containing the information of all the projects.
 	 * @returns {Promise<Project[]>} Promise of the list of all the projects.
 	 */
-	public static list(): Promise<Project[]> {
-		return ProjectAPI.listUnprocessed()
-			.then((projectsData) => {
-				return projectsData.map((projectData) => {
-					return new Project(projectData);
-				});
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async list(): Promise<Project[]> {
+		return (await ProjectAPI.listUnprocessed()).map((projectData) => {
+			return new Project(projectData);
+		});
 	}
 
 	/**
-	 * Fetch a list containing the information of all the project.
+	 * Fetch a list containing the information of all the projects.
 	 * @returns {Promise<IProjectData[]>} Promise of the list of data of all the projects.
 	 */
-	public static listUnprocessed(): Promise<IProjectData[]> {
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.BASE_PROJECT,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async listUnprocessed(): Promise<IProjectData[]> {
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.BASE_PROJECT,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -224,21 +156,15 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the icon. If not set the default icon will be fetched.
 	 * @returns {Promise<Blob>} Promise of the icon of the project.
 	 */
-	public static getIconBlob(projectId: string, platform: Platform): Promise<Blob> {
-		return CocoonAPI.request(
+	public static async getIconBlob(projectId: string, platform: Platform): Promise<Blob> {
+		return (await CocoonAPI.request(
 			{
 				method: "GET",
 				url: APIURL.ICON(projectId, platform),
 			},
+			[],
 			false,
-		)
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		)).body;
 	}
 
 	/**
@@ -248,23 +174,15 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the icon. If not set the default icon will be updated.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static setIconBlob(icon: File, projectId: string, platform: Platform): Promise<void> {
+	public static async setIconBlob(icon: File, projectId: string, platform: Platform): Promise<void> {
 		const formData = form({});
 		formData.append("file", icon, "icon.png");
 
-		return CocoonAPI.request({
+		await CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.ICON(projectId, platform || Platform.ExplicitDefault),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
@@ -273,21 +191,15 @@ export default class ProjectAPI {
 	 * @param platform Platform to get the splash. If not set the default splash will be fetched.
 	 * @returns {Promise<Blob>} Promise of the splash of the project.
 	 */
-	public static getSplashBlob(projectId: string, platform: Platform): Promise<Blob> {
-		return CocoonAPI.request(
+	public static async getSplashBlob(projectId: string, platform: Platform): Promise<Blob> {
+		return (await CocoonAPI.request(
 			{
 				method: "GET",
 				url: APIURL.SPLASH(projectId, platform),
 			},
+			[],
 			false,
-		)
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		)).body;
 	}
 
 	/**
@@ -297,23 +209,15 @@ export default class ProjectAPI {
 	 * @param platform Platform to set the splash. If not set the default splash will be updated.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static setSplashBlob(splash: File, projectId: string, platform: Platform): Promise<void> {
+	public static async setSplashBlob(splash: File, projectId: string, platform: Platform): Promise<void> {
 		const formData = form({});
 		formData.append("file", splash, "splash.png");
 
-		return CocoonAPI.request({
+		await CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.SPLASH(projectId, platform),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
@@ -322,15 +226,8 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateZip(projectId: string, file: File): Promise<Project> {
-		return ProjectAPI.updateZipUnprocessed(projectId, file)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async updateZip(projectId: string, file: File): Promise<Project> {
+		return new Project(await ProjectAPI.updateZipUnprocessed(projectId, file));
 	}
 
 	/**
@@ -339,23 +236,18 @@ export default class ProjectAPI {
 	 * @param file Zip file containing the source code. Can contain a config.xml file too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
-	public static updateZipUnprocessed(projectId: string, file: File): Promise<IProjectData> {
+	public static async updateZipUnprocessed(projectId: string, file: File): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		return CocoonAPI.request({
-			body: formData,
-			method: "PUT",
-			url: APIURL.PROJECT(projectId),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "PUT",
+				url: APIURL.PROJECT(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -364,15 +256,8 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateURL(projectId: string, pUrl: string): Promise<Project> {
-		return ProjectAPI.updateURLUnprocessed(projectId, pUrl)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async updateURL(projectId: string, pUrl: string): Promise<Project> {
+		return new Project(await ProjectAPI.updateURLUnprocessed(projectId, pUrl));
 	}
 
 	/**
@@ -381,20 +266,15 @@ export default class ProjectAPI {
 	 * @param pUrl URL to fetch the source code. Can contain a config.xml file too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
-	public static updateURLUnprocessed(projectId: string, pUrl: string): Promise<IProjectData> {
-		return CocoonAPI.request({
-			body: {url: pUrl},
-			method: "PUT",
-			url: APIURL.SYNC_URL(projectId),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async updateURLUnprocessed(projectId: string, pUrl: string): Promise<IProjectData> {
+		return (await CocoonAPI.request(
+			{
+				body: {url: pUrl},
+				method: "PUT",
+				url: APIURL.SYNC_URL(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -404,15 +284,8 @@ export default class ProjectAPI {
 	 * (defaults to master if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<Project>} Promise of the project updated.
 	 */
-	public static updateRepository(projectId: string, repo: {url: string; branch?: string}): Promise<Project> {
-		return ProjectAPI.updateRepositoryUnprocessed(projectId, repo)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async updateRepository(projectId: string, repo: {url: string; branch?: string}): Promise<Project> {
+		return new Project(await ProjectAPI.updateRepositoryUnprocessed(projectId, repo));
 	}
 
 	/**
@@ -422,23 +295,16 @@ export default class ProjectAPI {
 	 * (defaults to 'master' if not set). It's used to fetch the source code for the project. Can contain a config.xml too.
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
-	public static updateRepositoryUnprocessed(
+	public static async updateRepositoryUnprocessed(
 		projectId: string,
 		repo: {url: string; branch?: string},
 	): Promise<IProjectData> {
-		return CocoonAPI.request({
+		await CocoonAPI.request({
 			body: repo,
 			method: "PUT",
 			url: APIURL.SYNC_GITHUB(projectId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return ProjectAPI.getUnprocessed(projectId);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
+		return ProjectAPI.getUnprocessed(projectId);
 	}
 
 	/**
@@ -446,18 +312,11 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to fetch the config.xml.
 	 * @returns {Promise<string>} Promise of the config.xml file of a project.
 	 */
-	public static getConfigXml(projectId: string): Promise<string> {
-		return CocoonAPI.request({
+	public static async getConfigXml(projectId: string): Promise<string> {
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.CONFIG(projectId),
-		})
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		})).body;
 	}
 
 	/**
@@ -466,15 +325,8 @@ export default class ProjectAPI {
 	 * @param xml New config.xml for the project.
 	 * @returns {Promise<Project>} Promise of the project whose config.xml was updated.
 	 */
-	public static updateConfigXml(projectId: string, xml: string): Promise<Project> {
-		return ProjectAPI.updateConfigXmlUnprocessed(projectId, xml)
-			.then((projectData) => {
-				return new Project(projectData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async updateConfigXml(projectId: string, xml: string): Promise<Project> {
+		return new Project(await ProjectAPI.updateConfigXmlUnprocessed(projectId, xml));
 	}
 
 	/**
@@ -483,23 +335,16 @@ export default class ProjectAPI {
 	 * @param xml New config.xml for the project.
 	 * @returns {Promise<IProjectData>} Promise of the date of the project whose config.xml was updated.
 	 */
-	public static updateConfigXmlUnprocessed(projectId: string, xml: string): Promise<IProjectData> {
+	public static async updateConfigXmlUnprocessed(projectId: string, xml: string): Promise<IProjectData> {
 		const formData = form({});
 		formData.append("file", xml, "config.xml");
 
-		return CocoonAPI.request({
+		await CocoonAPI.request({
 			body: formData,
 			method: "PUT",
 			url: APIURL.CONFIG(projectId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return ProjectAPI.getUnprocessed(projectId);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
+		return ProjectAPI.getUnprocessed(projectId);
 	}
 
 	/**
@@ -507,19 +352,11 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to compile.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static compile(projectId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async compile(projectId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE(projectId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
@@ -527,19 +364,11 @@ export default class ProjectAPI {
 	 * @param projectId ID of the project to compile a DevApp.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static compileDevApp(projectId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async compileDevApp(projectId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "POST",
 			url: APIURL.COMPILE_DEVAPP(projectId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
@@ -549,19 +378,11 @@ export default class ProjectAPI {
 	 * @param signingKeyId ID of the signing key that you want to assign to the project.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static assignSigningKey(projectId: string, signingKeyId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async assignSigningKey(projectId: string, signingKeyId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "POST",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
@@ -570,18 +391,10 @@ export default class ProjectAPI {
 	 * @param signingKeyId ID of the signing key that you want to remove from the project.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static removeSigningKey(projectId: string, signingKeyId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async removeSigningKey(projectId: string, signingKeyId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.PROJECT_SIGNING_KEY(projectId, signingKeyId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return undefined;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 }
