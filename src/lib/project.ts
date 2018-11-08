@@ -23,10 +23,6 @@ export default class Project {
 		this.getConfigXML()
 			.then((xmlSugar) => {
 				xmlSugar.setName(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
 			});
 		this._name = value;
 	}
@@ -39,10 +35,6 @@ export default class Project {
 		this.getConfigXML()
 			.then((xmlSugar) => {
 				xmlSugar.setBundleId(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
 			});
 		this._bundleID = value;
 	}
@@ -55,10 +47,6 @@ export default class Project {
 		this.getConfigXML()
 			.then((xmlSugar) => {
 				xmlSugar.setVersion(value);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
 			});
 		this._version = value;
 	}

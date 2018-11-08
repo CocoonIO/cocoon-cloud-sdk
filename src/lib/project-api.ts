@@ -96,13 +96,10 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project fetched.
 	 */
 	public static async getUnprocessed(projectId: string): Promise<IProjectData> {
-		return CocoonAPI.request({
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.PROJECT(projectId),
-		}, [plugins.parse("json")])
-			.then((response) => {
-				return response.body;
-			});
+		}, [plugins.parse("json")])).body;
 	}
 
 	/**
