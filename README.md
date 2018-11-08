@@ -230,7 +230,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Imanol Fernandez** - *Version 1.0.0* - [MortimerGoro](https://github.com/MortimerGoro)
-* **Jorge Domínguez** - *Version 2.0.0* - [BlueSialia](https://github.com/BlueSialia)
+* **Jorge Domínguez** - *Since version 2.0.0* - [BlueSialia](https://github.com/BlueSialia)
 
 See also the list of [contributors](https://github.com/CocoonIO/cocoon-cloud-sdk/contributors) who participated in this project.
 

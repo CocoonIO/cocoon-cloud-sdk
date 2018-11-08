@@ -7,6 +7,10 @@ import {Status} from "./enums/e-status";
 import {IProjectData} from "./interfaces/i-project-data";
 
 export default class Compilation {
+	public get isDevApp(): boolean {
+		return this._devapp;
+	}
+
 	public get downloadLink(): string {
 		return this._downloadLink
 			? this._downloadLink + "?" + APIURL.ACCESS_TOKEN_PARAMETER + CocoonAPI.credentials.getAccessToken()
@@ -25,26 +29,18 @@ export default class Compilation {
 		return this._status;
 	}
 
-	private devapp: boolean;
+	private _devapp: boolean;
 	private _downloadLink: string;
 	private _error: string;
 	private _platform: Platform;
 	private _status: Status;
 
 	public constructor(data: IProjectData, platform: Platform) {
-		this.devapp = data.devapp && data.devapp.length > 0 && data.devapp.indexOf(platform as any) >= 0;
+		this._devapp = data.devapp && data.devapp.length > 0 && data.devapp.indexOf(platform as any) >= 0;
 		this._downloadLink = data.download ? data.download[platform] : null;
 		this._error = data.error ? data.error[platform] : null;
 		this._platform = platform;
 		this._status = data.status ? data.status[platform] : data.date_compiled ? Status.Disabled : Status.Created;
-	}
-
-	/**
-	 * Check if the compilations is for a DevApp.
-	 * @returns {boolean}
-	 */
-	public isDevApp(): boolean {
-		return this.devapp;
 	}
 
 	/**

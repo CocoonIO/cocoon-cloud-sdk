@@ -87,6 +87,10 @@ export default class APIURL {
 		return APIURL.PROJECT(projectId) + "/" + APIURL._SIGNING_KEYS + signingKeyId;
 	}
 
+	public static API_REFRESH(refreshToken: string): string {
+		return APIURL.BASE  + APIURL._API_REFRESH + '?rToken=' + refreshToken;
+	}
+
 	public static get ACCESS_TOKEN_PARAMETER(): string {
 		return APIURL._ACCESS_TOKEN_PARAMETER;
 	}
@@ -99,6 +103,7 @@ export default class APIURL {
 	private static readonly _BASE_PROJECT = "project/";
 
 	// Endpoints
+	private static readonly _API_REFRESH = "api/refresh";
 	private static readonly _COCOON_TEMPLATES = "cocoon/templates/";
 	private static readonly _COCOON_VERSIONS = "cocoon/versions/";
 	private static readonly _COMPILE = "/compile/";

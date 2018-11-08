@@ -1,6 +1,6 @@
 "use strict";
 
-import {form, plugins} from "popsicle/dist/common";
+import {form, plugins} from "popsicle";
 
 import APIURL from "./api-url";
 import CocoonAPI from "./cocoon-api";
@@ -18,21 +18,17 @@ export default class SigningKeyAPI {
 	 * @param certificatePassword Password of the certificate used to create the keystore.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createAndroid(
+	public static async createAndroid(
 		name: string,
 		pAlias: string,
 		keystore: File,
 		keystorePassword: string,
 		certificatePassword: string,
 	): Promise<SigningKey> {
-		return SigningKeyAPI.createAndroidUnprocessed(name, pAlias, keystore, keystorePassword, certificatePassword)
-			.then((signingKeyData) => {
-				return new SigningKey(signingKeyData, Platform.Android);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return new SigningKey(
+			await SigningKeyAPI.createAndroidUnprocessed(name, pAlias, keystore, keystorePassword, certificatePassword),
+			Platform.Android,
+		);
 	}
 
 	/**
@@ -44,7 +40,7 @@ export default class SigningKeyAPI {
 	 * @param certificatePassword Password of the certificate used to create the keystore.
 	 * @returns {Promise<ISigningKeyData>} Promise of the date of the signing key created.
 	 */
-	public static createAndroidUnprocessed(
+	public static async createAndroidUnprocessed(
 		name: string,
 		pAlias: string,
 		keystore: File,
@@ -61,19 +57,11 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("keystore", keystore);
 
-		return CocoonAPI.request({
+		return (await CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [plugins.parse("json")])).body;
 	}
 
 	/**
@@ -87,20 +75,16 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createIOS(
+	public static async createIOS(
 		name: string,
 		password: string,
 		provisioningProfile: File,
 		certificate: File,
 	): Promise<SigningKey> {
-		return SigningKeyAPI.createIOSUnprocessed(name, password, provisioningProfile, certificate)
-			.then((signingKeyData) => {
-				return new SigningKey(signingKeyData, Platform.IOS);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return new SigningKey(
+			await SigningKeyAPI.createIOSUnprocessed(name, password, provisioningProfile, certificate),
+			Platform.IOS,
+		);
 	}
 
 	/**
@@ -114,7 +98,7 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<ISigningKeyData>} Promise of the date of the signing key created.
 	 */
-	public static createIOSUnprocessed(
+	public static async createIOSUnprocessed(
 		name: string,
 		password: string,
 		provisioningProfile: File,
@@ -134,20 +118,16 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createMacOS(
+	public static async createMacOS(
 		name: string,
 		password: string,
 		provisioningProfile: File,
 		certificate: File,
 	): Promise<SigningKey> {
-		return SigningKeyAPI.createMacOSUnprocessed(name, password, provisioningProfile, certificate)
-			.then((signingKeyData) => {
-				return new SigningKey(signingKeyData, Platform.MacOS);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return new SigningKey(
+			await SigningKeyAPI.createMacOSUnprocessed(name, password, provisioningProfile, certificate),
+			Platform.MacOS,
+		);
 	}
 
 	/**
@@ -161,7 +141,7 @@ export default class SigningKeyAPI {
 	 * an IPA to upload to the Apple App Store.
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key created.
 	 */
-	public static createMacOSUnprocessed(
+	public static async createMacOSUnprocessed(
 		name: string,
 		password: string,
 		provisioningProfile: File,
@@ -179,21 +159,17 @@ export default class SigningKeyAPI {
 	 * @param keystore
 	 * @returns {Promise<SigningKey>} Promise of the signing key created.
 	 */
-	public static createWindows(
+	public static async createWindows(
 		name: string,
 		pPassword: string,
 		pPackageThumbprint: string,
 		pPublisherId: string,
 		keystore: File,
 	): Promise<SigningKey> {
-		return SigningKeyAPI.createWindowsUnprocessed(name, pPassword, pPackageThumbprint, pPublisherId, keystore)
-			.then((signingKeyData) => {
-				return new SigningKey(signingKeyData, Platform.Windows);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		return new SigningKey(
+			await SigningKeyAPI.createWindowsUnprocessed(name, pPassword, pPackageThumbprint, pPublisherId, keystore),
+			Platform.Windows,
+		);
 	}
 
 	/**
@@ -205,7 +181,7 @@ export default class SigningKeyAPI {
 	 * @param keystore
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key created.
 	 */
-	public static createWindowsUnprocessed(
+	public static async createWindowsUnprocessed(
 		name: string,
 		pPassword: string,
 		pPackageThumbprint: string,
@@ -222,19 +198,11 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("packageCertificateKeyFile", keystore);
 
-		return CocoonAPI.request({
+		return (await CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [plugins.parse("json")])).body;
 	}
 
 	/**
@@ -242,25 +210,19 @@ export default class SigningKeyAPI {
 	 * @param signingKeyId ID of the signing key to fetch.
 	 * @returns {Promise<SigningKey>} Promise of the signing key fetched.
 	 */
-	public static get(signingKeyId: string): Promise<SigningKey> {
-		return SigningKeyAPI.listUnprocessed()
-			.then((signingKeysData) => {
-				for (const platform in signingKeysData) {
-					if (!signingKeysData.hasOwnProperty(platform)) {
-						continue;
-					}
-					for (const signingKeyData of signingKeysData[platform]) {
-						if (signingKeyData.id === signingKeyId) {
-							return new SigningKey(signingKeyData, platform as any);
-						}
-					}
+	public static async get(signingKeyId: string): Promise<SigningKey> {
+		const signingKeysData = await SigningKeyAPI.listUnprocessed();
+		for (const platform in signingKeysData) {
+			if (!signingKeysData.hasOwnProperty(platform)) {
+				continue;
+			}
+			for (const signingKeyData of signingKeysData[platform]) {
+				if (signingKeyData.id === signingKeyId) {
+					return new SigningKey(signingKeyData, platform as any);
 				}
-				throw new Error("There is no Signing Key with the ID: " + signingKeyId);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+			}
+		}
+		throw new Error("There is no Signing Key with the ID: " + signingKeyId);
 	}
 
 	/**
@@ -268,25 +230,19 @@ export default class SigningKeyAPI {
 	 * @param signingKeyId ID of the signing key to fetch.
 	 * @returns {Promise<ISigningKeyData>} Promise of the data of the signing key fetched.
 	 */
-	public static getUnprocessed(signingKeyId: string): Promise<ISigningKeyData> {
-		return SigningKeyAPI.listUnprocessed()
-			.then((signingKeysData) => {
-				for (const platform in signingKeysData) {
-					if (!signingKeysData.hasOwnProperty(platform)) {
-						continue;
-					}
-					for (const signingKeyData of signingKeysData[platform]) {
-						if (signingKeyData.id === signingKeyId) {
-							return signingKeyData;
-						}
-					}
+	public static async getUnprocessed(signingKeyId: string): Promise<ISigningKeyData> {
+		const signingKeysData = await SigningKeyAPI.listUnprocessed();
+		for (const platform in signingKeysData) {
+			if (!signingKeysData.hasOwnProperty(platform)) {
+				continue;
+			}
+			for (const signingKeyData of signingKeysData[platform]) {
+				if (signingKeyData.id === signingKeyId) {
+					return signingKeyData;
 				}
-				throw new Error("There is no Signing Key with the ID: " + signingKeyId);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+			}
+		}
+		throw new Error("There is no Signing Key with the ID: " + signingKeyId);
 	}
 
 	/**
@@ -294,65 +250,43 @@ export default class SigningKeyAPI {
 	 * @param signingKeyId ID of the signing key to delete.
 	 * @returns {Promise<void>} Promise of a successful operation.
 	 */
-	public static delete(signingKeyId: string): Promise<void> {
-		return CocoonAPI.request({
+	public static async delete(signingKeyId: string): Promise<void> {
+		await CocoonAPI.request({
 			method: "DELETE",
 			url: APIURL.SIGNING_KEY(signingKeyId),
-		})
-			.then(() => {
-				// returns response but we don't want it
-				return;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		});
 	}
 
 	/**
 	 * Fetch a list containing the information of all the signing keys.
 	 * @returns {Promise<{ string: SigningKey[] }>} Promise of the list of all the signing keys.
 	 */
-	public static list(): Promise<{[platform: string]: SigningKey[]}> {
-		return SigningKeyAPI.listUnprocessed()
-			.then((signingKeysData) => {
-				const signingKeys: {[platform: string]: SigningKey[]} = {};
-				for (const platform in signingKeysData) {
-					if (!signingKeysData.hasOwnProperty(platform)) {
-						continue;
-					}
-					signingKeys[platform] = signingKeysData[platform].map((signingKeyData) => {
-						return new SigningKey(signingKeyData, platform as any);
-					});
-				}
-				return signingKeys;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
+	public static async list(): Promise<{[platform: string]: SigningKey[]}> {
+		const signingKeysData = await SigningKeyAPI.listUnprocessed();
+		const signingKeys: {[platform: string]: SigningKey[]} = {};
+		for (const platform in signingKeysData) {
+			if (!signingKeysData.hasOwnProperty(platform)) {
+				continue;
+			}
+			signingKeys[platform] = signingKeysData[platform].map((signingKeyData) => {
+				return new SigningKey(signingKeyData, platform as any);
 			});
+		}
+		return signingKeys;
 	}
 
 	/**
 	 * Fetch a list containing the information of all the signing keys.
 	 * @returns {Promise<{ string: ISigningKeyData[] }>} Promise of the list of all the data of the signing keys.
 	 */
-	public static listUnprocessed(): Promise<{[platform: string]: ISigningKeyData[]}> {
-		return CocoonAPI.request({
+	public static async listUnprocessed(): Promise<{[platform: string]: ISigningKeyData[]}> {
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.SIGNING_KEYS,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body.keys;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [plugins.parse("json")])).body.keys;
 	}
 
-	private static createApple(
+	private static async createApple(
 		name: string,
 		password: string,
 		provisioningProfile: File,
@@ -368,18 +302,10 @@ export default class SigningKeyAPI {
 		formData.append("p12", certificate);
 		formData.append("provisioning", provisioningProfile);
 
-		return CocoonAPI.request({
+		return (await CocoonAPI.request({
 			body: formData,
 			method: "POST",
 			url: APIURL.CREATE_SIGNING_KEY(platform),
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [plugins.parse("json")])).body;
 	}
 }

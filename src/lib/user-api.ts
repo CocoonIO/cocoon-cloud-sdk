@@ -1,6 +1,6 @@
 "use strict";
 
-import {plugins} from "popsicle/dist/common";
+import {plugins} from "popsicle";
 
 import APIURL from "./api-url";
 import CocoonAPI from "./cocoon-api";
@@ -12,33 +12,18 @@ export default class UserAPI {
 	 * Fetch the information of the user.
 	 * @returns {Promise<User>} Promise of the user.
 	 */
-	public static get(): Promise<User> {
-		return UserAPI.getUnprocessed()
-			.then((userData) => {
-				return new User(userData);
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+	public static async get(): Promise<User> {
+		return new User(await UserAPI.getUnprocessed());
 	}
 
 	/**
 	 * Fetch the information of the user.
 	 * @returns {Promise<IUserData>} Promise of the data of the user.
 	 */
-	public static getUnprocessed(): Promise<IUserData> {
-		return CocoonAPI.request({
+	public static async getUnprocessed(): Promise<IUserData> {
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.USER_PROFILE,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [plugins.parse("json")])).body;
 	}
 }

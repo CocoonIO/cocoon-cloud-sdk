@@ -3,10 +3,14 @@
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
 
 export default class MemoryCredentialStorage implements ICredentialStorage {
+	get expireDate(): Date {
+		return this._expireDate;
+	}
+
 	private readonly DEFAULT_EXPIRATION = 3600;
 
 	private accessToken: string;
-	// TODO: private expires: Date;
+	private _expireDate: Date;
 	private refreshToken: string;
 
 	public getAccessToken(): string {
@@ -14,11 +18,11 @@ export default class MemoryCredentialStorage implements ICredentialStorage {
 	}
 
 	public setAccessToken(value: string, expires: number = this.DEFAULT_EXPIRATION): void {
-		// TODO: const expireDate = new Date();
-		// TODO: expireDate.setSeconds(expireDate.getSeconds() + expires);
+		const expireDate = new Date();
+		expireDate.setSeconds(expireDate.getSeconds() + expires);
 
 		this.accessToken = value;
-		// TODO: this.expires = expireDate;
+		this._expireDate = expireDate;
 	}
 
 	public getRefreshToken(): string {
@@ -32,6 +36,6 @@ export default class MemoryCredentialStorage implements ICredentialStorage {
 	public logout(): void {
 		this.accessToken = null;
 		this.refreshToken = null;
-		// TODO: this.expires = null;
+		this._expireDate = null;
 	}
 }

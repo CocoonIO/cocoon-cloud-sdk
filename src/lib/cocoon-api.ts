@@ -1,8 +1,7 @@
 "use strict";
 
 import * as detectNode from "detect-node";
-import status = require("popsicle-status");
-import {default as popsicle, plugins, Request, RequestOptions} from "popsicle/dist/common";
+import {default as popsicle, Middleware, plugins as posiclePlugins, RequestOptions, Response} from "popsicle";
 
 import APIURL from "./api-url";
 import CookieCredentialStorage from "./cookie-credential-storage";
@@ -10,6 +9,7 @@ import {ICocoonTemplate} from "./interfaces/i-cocoon-template";
 import {ICocoonVersion} from "./interfaces/i-cocoon-version";
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
 import MemoryCredentialStorage from "./memory-credential-storage";
+import status = require("popsicle-status");
 
 export default class CocoonAPI {
 	public static get credentials(): ICredentialStorage {
@@ -45,6 +45,22 @@ export default class CocoonAPI {
 	}
 
 	/**
+	 * Refreshes the API credentials.
+	 */
+	public static async refreshAPIAccess(): Promise<void> {
+		console.log("Refreshing access credentials...");
+		return popsicle({
+			method: "GET",
+			url: APIURL.API_REFRESH(this.credentials.getRefreshToken()),
+		})
+			.use(posiclePlugins.parse("json"))
+			.then((result) => {
+				this.setupAPIAccess(result.body.access_token, result.body.refresh_token, result.body.expires_in);
+				console.log("Access credentials refreshed.");
+			});
+	}
+
+	/**
 	 * Removes the stored credentials.
 	 */
 	public static closeAPIAccess(): void {
@@ -55,59 +71,49 @@ export default class CocoonAPI {
 	 * Get a list of the available templates for Cocoon.io projects from the API.
 	 * @returns {Promise<ICocoonTemplate[]>} Promise of the list of the available templates for Cocoon.io projects.
 	 */
-	public static getCocoonTemplates(): Promise<ICocoonTemplate[]> {
-		return CocoonAPI.request({
+	public static async getCocoonTemplates(): Promise<ICocoonTemplate[]> {
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_TEMPLATES,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [posiclePlugins.parse("json")])).body;
 	}
 
 	/**
 	 * Get a list of the available Cocoon.io versions.
 	 * @returns {Promise<ICocoonVersion[]>} Promise of the list of the available Cocoon.io versions.
 	 */
-	public static getCocoonVersions(): Promise<ICocoonVersion[]> {
-		return CocoonAPI.request({
+	public static async getCocoonVersions(): Promise<ICocoonVersion[]> {
+		return (await CocoonAPI.request({
 			method: "GET",
 			url: APIURL.COCOON_VERSIONS,
-		})
-			.use(plugins.parse("json"))
-			.then((response) => {
-				return response.body;
-			})
-			.catch((error) => {
-				console.trace(error);
-				throw error;
-			});
+		}, [posiclePlugins.parse("json")])).body;
 	}
 
 	/**
 	 * Make a request to the API with your credentials.
 	 * @param options HTTP options of the request.
+	 * @param plugins List of plugins to use.
 	 * @param addCredentials Set to false in case you don't want to automatically add your credentials to the API.
 	 * @returns {Request}
 	 */
-	public static request(options: RequestOptions, addCredentials: boolean = true): Request {
+	public static async request(options: RequestOptions, plugins: Middleware[] = [], addCredentials: boolean = true): Promise<Response> {
 		if (addCredentials) {
 			if (!options.headers) {
 				options.headers = {};
 			}
-			if (CocoonAPI._credentials) {
-				options.headers.Authorization = "Bearer " + CocoonAPI._credentials.getAccessToken();
+			if (this.credentials) {
+				if (CocoonAPI.credentials.expireDate > new Date()) {
+					console.log("Access credentials expired.");
+					await this.refreshAPIAccess();
+				}
+
+				options.headers.Authorization = "Bearer " + this.credentials.getAccessToken();
 			} else {
-				console.error("API access has not been set up");
-				return popsicle(options).abort();
+				throw new Error("API access has not been set up");
 			}
 		}
-		return popsicle(options).use(status());
+		plugins.push(status());
+		return popsicle(options).use(plugins);
 	}
 
 	private static _credentials: ICredentialStorage;
