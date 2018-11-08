@@ -112,7 +112,7 @@ export default class CocoonAPI {
 				options.headers = {};
 			}
 			if (this.credentials) {
-				if (CocoonAPI.credentials.expireDate > new Date()) {
+				if (CocoonAPI.credentials.expireDate < new Date()) {
 					console.log("Access credentials expired.");
 					await this.refreshAPIAccess();
 				}
