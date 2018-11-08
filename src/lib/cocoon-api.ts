@@ -1,7 +1,7 @@
 "use strict";
 
 import * as detectNode from "detect-node";
-import {default as popsicle, Middleware, plugins as posiclePlugins, RequestOptions, Response} from "popsicle";
+import {default as popsicle, Middleware, plugins, RequestOptions, Response} from "popsicle";
 import status = require("popsicle-status");
 
 import APIURL from "./api-url";
@@ -49,15 +49,14 @@ export default class CocoonAPI {
 	 */
 	public static async refreshAPIAccess(): Promise<void> {
 		console.log("Refreshing access credentials...");
-		return popsicle({
+		const response = (await popsicle({
 			method: "GET",
 			url: APIURL.API_REFRESH(this.credentials.getRefreshToken()),
 		})
-			.use(posiclePlugins.parse("json"))
-			.then((result) => {
-				this.setupAPIAccess(result.body.access_token, result.body.refresh_token, result.body.expires_in);
-				console.log("Access credentials refreshed.");
-			});
+			.use(plugins.parse("json")));
+
+		this.setupAPIAccess(response.body.access_token, response.body.refresh_token, response.body.expires_in);
+		console.log("Access credentials refreshed.");
 	}
 
 	/**
@@ -77,7 +76,7 @@ export default class CocoonAPI {
 				method: "GET",
 				url: APIURL.COCOON_TEMPLATES,
 			},
-			[posiclePlugins.parse("json")],
+			[plugins.parse("json")],
 		)).body;
 	}
 
@@ -91,20 +90,20 @@ export default class CocoonAPI {
 				method: "GET",
 				url: APIURL.COCOON_VERSIONS,
 			},
-			[posiclePlugins.parse("json")],
+			[plugins.parse("json")],
 		)).body;
 	}
 
 	/**
 	 * Make a request to the API with your credentials.
 	 * @param options HTTP options of the request.
-	 * @param plugins List of plugins to use.
+	 * @param popsiclePlugins List of plugins to use.
 	 * @param addCredentials Set to false in case you don't want to automatically add your credentials to the API.
 	 * @returns {Request}
 	 */
 	public static async request(
 		options: RequestOptions,
-		plugins: Middleware[] = [],
+		popsiclePlugins: Middleware[] = [],
 		addCredentials: boolean = true,
 	): Promise<Response> {
 		if (addCredentials) {
@@ -122,8 +121,8 @@ export default class CocoonAPI {
 				throw new Error("API access has not been set up");
 			}
 		}
-		plugins.push(status());
-		return popsicle(options).use(plugins);
+		popsiclePlugins.push(status());
+		return popsicle(options).use(popsiclePlugins);
 	}
 
 	private static _credentials: ICredentialStorage;

@@ -220,7 +220,7 @@ cocoonSDK.SigningKeyAPI.get("SIGNING_KEY_ID")
 * [NPM](http://www.npmjs.com/) - Dependency Management
 * [Jasmine](https://jasmine.github.io/) - Testing Framework
 * [Popsicle](https://github.com/blakeembrey/popsicle) - Simple HTTP requests library for node and the browser
-* [XMLSugar](https://github.com/CocoonIO/cocoon-xml-sugar) Helper functions to work with the config.xml
+* [XMLSugar](https://github.com/CocoonIO/cocoon-xml-sugar) - Helper functions to work with the config.xml
 
 ## Versioning
 

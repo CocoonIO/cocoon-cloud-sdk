@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Support for async/await.
 
 ### Changed
-- The function `refreshUntilCompleted()`.
+- Reimplemented the function `refreshUntilCompleted()`.
 - Reduced the stacktrace of most errors.
 
 ### Fixed
