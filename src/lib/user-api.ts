@@ -21,9 +21,12 @@ export default class UserAPI {
 	 * @returns {Promise<IUserData>} Promise of the data of the user.
 	 */
 	public static async getUnprocessed(): Promise<IUserData> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.USER_PROFILE,
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.USER_PROFILE,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 }

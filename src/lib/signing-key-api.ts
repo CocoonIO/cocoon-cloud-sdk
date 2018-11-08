@@ -57,11 +57,14 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("keystore", keystore);
 
-		return (await CocoonAPI.request({
-			body: formData,
-			method: "POST",
-			url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "POST",
+				url: APIURL.CREATE_SIGNING_KEY(Platform.Android),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -198,11 +201,14 @@ export default class SigningKeyAPI {
 		formData.append("data", JSON.stringify(data));
 		formData.append("packageCertificateKeyFile", keystore);
 
-		return (await CocoonAPI.request({
-			body: formData,
-			method: "POST",
-			url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "POST",
+				url: APIURL.CREATE_SIGNING_KEY(Platform.Windows),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -280,10 +286,13 @@ export default class SigningKeyAPI {
 	 * @returns {Promise<{ string: ISigningKeyData[] }>} Promise of the list of all the data of the signing keys.
 	 */
 	public static async listUnprocessed(): Promise<{[platform: string]: ISigningKeyData[]}> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.SIGNING_KEYS,
-		}, [plugins.parse("json")])).body.keys;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.SIGNING_KEYS,
+			},
+			[plugins.parse("json")],
+		)).body.keys;
 	}
 
 	private static async createApple(
@@ -302,10 +311,13 @@ export default class SigningKeyAPI {
 		formData.append("p12", certificate);
 		formData.append("provisioning", provisioningProfile);
 
-		return (await CocoonAPI.request({
-			body: formData,
-			method: "POST",
-			url: APIURL.CREATE_SIGNING_KEY(platform),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "POST",
+				url: APIURL.CREATE_SIGNING_KEY(platform),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 }

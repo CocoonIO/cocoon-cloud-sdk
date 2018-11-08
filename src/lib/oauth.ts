@@ -113,7 +113,8 @@ export default class OAuth {
 				method: "POST",
 				url: this.accessTokenURL,
 			},
-			[plugins.parse("json")], false,
+			[plugins.parse("json")],
+			false,
 		)).body;
 	}
 
@@ -184,7 +185,8 @@ export default class OAuth {
 				method: "POST",
 				url: this.accessTokenURL,
 			},
-			[plugins.parse("json")], false,
+			[plugins.parse("json")],
+			false,
 		)).body;
 	}
 

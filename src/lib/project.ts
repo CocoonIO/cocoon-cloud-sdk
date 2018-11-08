@@ -20,10 +20,9 @@ export default class Project {
 	}
 
 	public set name(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setName(value);
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setName(value);
+		});
 		this._name = value;
 	}
 
@@ -32,10 +31,9 @@ export default class Project {
 	}
 
 	public set bundleID(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setBundleId(value);
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setBundleId(value);
+		});
 		this._bundleID = value;
 	}
 
@@ -44,10 +42,9 @@ export default class Project {
 	}
 
 	public set version(value: string) {
-		this.getConfigXML()
-			.then((xmlSugar) => {
-				xmlSugar.setVersion(value);
-			});
+		this.getConfigXML().then((xmlSugar) => {
+			xmlSugar.setVersion(value);
+		});
 		this._version = value;
 	}
 

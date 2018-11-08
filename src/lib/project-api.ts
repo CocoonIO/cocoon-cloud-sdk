@@ -28,11 +28,14 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		return (await CocoonAPI.request({
-			body: formData,
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_ZIP,
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_ZIP,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -50,11 +53,14 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
 	 */
 	public static async createFromURLUnprocessed(pUrl: string): Promise<IProjectData> {
-		return (await CocoonAPI.request({
-			body: {url: pUrl},
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_URL,
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: {url: pUrl},
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_URL,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -74,11 +80,14 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project created.
 	 */
 	public static async createFromRepositoryUnprocessed(repo: IRepositoryData): Promise<IProjectData> {
-		return (await CocoonAPI.request({
-			body: repo,
-			method: "POST",
-			url: APIURL.CREATE_PROJECT_GITHUB,
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: repo,
+				method: "POST",
+				url: APIURL.CREATE_PROJECT_GITHUB,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -96,10 +105,13 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project fetched.
 	 */
 	public static async getUnprocessed(projectId: string): Promise<IProjectData> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.PROJECT(projectId),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.PROJECT(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -129,10 +141,13 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData[]>} Promise of the list of data of all the projects.
 	 */
 	public static async listUnprocessed(): Promise<IProjectData[]> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.BASE_PROJECT,
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.BASE_PROJECT,
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -146,7 +161,10 @@ export default class ProjectAPI {
 			{
 				method: "GET",
 				url: APIURL.ICON(projectId, platform),
-			}, [], false)).body;
+			},
+			[],
+			false,
+		)).body;
 	}
 
 	/**
@@ -178,7 +196,10 @@ export default class ProjectAPI {
 			{
 				method: "GET",
 				url: APIURL.SPLASH(projectId, platform),
-			}, [], false)).body;
+			},
+			[],
+			false,
+		)).body;
 	}
 
 	/**
@@ -219,11 +240,14 @@ export default class ProjectAPI {
 		const formData = form({});
 		formData.append("file", file, "sourceURL.zip");
 
-		return (await CocoonAPI.request({
-			body: formData,
-			method: "PUT",
-			url: APIURL.PROJECT(projectId),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: formData,
+				method: "PUT",
+				url: APIURL.PROJECT(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -243,11 +267,14 @@ export default class ProjectAPI {
 	 * @returns {Promise<IProjectData>} Promise of the data of the project updated.
 	 */
 	public static async updateURLUnprocessed(projectId: string, pUrl: string): Promise<IProjectData> {
-		return (await CocoonAPI.request({
-			body: {url: pUrl},
-			method: "PUT",
-			url: APIURL.SYNC_URL(projectId),
-		}, [plugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				body: {url: pUrl},
+				method: "PUT",
+				url: APIURL.SYNC_URL(projectId),
+			},
+			[plugins.parse("json")],
+		)).body;
 	}
 
 	/**

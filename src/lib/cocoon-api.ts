@@ -72,10 +72,13 @@ export default class CocoonAPI {
 	 * @returns {Promise<ICocoonTemplate[]>} Promise of the list of the available templates for Cocoon.io projects.
 	 */
 	public static async getCocoonTemplates(): Promise<ICocoonTemplate[]> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.COCOON_TEMPLATES,
-		}, [posiclePlugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.COCOON_TEMPLATES,
+			},
+			[posiclePlugins.parse("json")],
+		)).body;
 	}
 
 	/**
@@ -83,10 +86,13 @@ export default class CocoonAPI {
 	 * @returns {Promise<ICocoonVersion[]>} Promise of the list of the available Cocoon.io versions.
 	 */
 	public static async getCocoonVersions(): Promise<ICocoonVersion[]> {
-		return (await CocoonAPI.request({
-			method: "GET",
-			url: APIURL.COCOON_VERSIONS,
-		}, [posiclePlugins.parse("json")])).body;
+		return (await CocoonAPI.request(
+			{
+				method: "GET",
+				url: APIURL.COCOON_VERSIONS,
+			},
+			[posiclePlugins.parse("json")],
+		)).body;
 	}
 
 	/**
