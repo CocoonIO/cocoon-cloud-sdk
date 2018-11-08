@@ -265,21 +265,22 @@ export default class Project {
 	/**
 	 * Fetches the project from Cocoon.io until every compilations is completed.
 	 * @param callback Function that will be called for each attempt to check if the compilations are completed.
+	 * On each call the project has executed [refresh]{@link Project#refresh}.
 	 * @param interval Interval between fetches.
 	 * @param maxWaitTime Maximum time to wait.
 	 */
 	public async refreshUntilCompleted(
-		callback: (project: Project) => void = () => {},
+		callback: () => void = () => {},
 		interval: number = this.DEFAULT_WAIT_TIME,
 		maxWaitTime: number = this.MAX_WAIT_TIME,
 	): Promise<void> {
 		const limitTime = Date.now() + maxWaitTime;
 		await this.refresh();
-		Promise.resolve(callback(this));
+		Promise.resolve(callback());
 		while (this.isCompiling() && Date.now() < limitTime) {
 			await new Promise((resolve) => setTimeout(resolve, interval));
 			await this.refresh();
-			Promise.resolve(callback(this));
+			Promise.resolve(callback());
 		}
 
 		if (Date.now() < limitTime) {

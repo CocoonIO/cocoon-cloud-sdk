@@ -2,6 +2,7 @@
 
 import * as detectNode from "detect-node";
 import {default as popsicle, Middleware, plugins as posiclePlugins, RequestOptions, Response} from "popsicle";
+import status = require("popsicle-status");
 
 import APIURL from "./api-url";
 import CookieCredentialStorage from "./cookie-credential-storage";
@@ -9,7 +10,6 @@ import {ICocoonTemplate} from "./interfaces/i-cocoon-template";
 import {ICocoonVersion} from "./interfaces/i-cocoon-version";
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
 import MemoryCredentialStorage from "./memory-credential-storage";
-import status = require("popsicle-status");
 
 export default class CocoonAPI {
 	public static get credentials(): ICredentialStorage {
@@ -96,7 +96,11 @@ export default class CocoonAPI {
 	 * @param addCredentials Set to false in case you don't want to automatically add your credentials to the API.
 	 * @returns {Request}
 	 */
-	public static async request(options: RequestOptions, plugins: Middleware[] = [], addCredentials: boolean = true): Promise<Response> {
+	public static async request(
+		options: RequestOptions,
+		plugins: Middleware[] = [],
+		addCredentials: boolean = true,
+	): Promise<Response> {
 		if (addCredentials) {
 			if (!options.headers) {
 				options.headers = {};

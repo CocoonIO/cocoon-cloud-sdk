@@ -88,7 +88,7 @@ export default class APIURL {
 	}
 
 	public static API_REFRESH(refreshToken: string): string {
-		return APIURL.BASE  + APIURL._API_REFRESH + '?rToken=' + refreshToken;
+		return APIURL.BASE + APIURL._API_REFRESH + "?rToken=" + refreshToken;
 	}
 
 	public static get ACCESS_TOKEN_PARAMETER(): string {
