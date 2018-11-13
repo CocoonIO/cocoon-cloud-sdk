@@ -1,6 +1,6 @@
 "use strict";
 
-import {default as popsicle, plugins, Response} from "popsicle";
+import {default as popsicle, plugins} from "popsicle";
 
 import APIURL from "./api-url";
 import {GrantType} from "./enums/e-grant-type";
@@ -58,6 +58,14 @@ export default class OAuth {
 	 */
 	public static async tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
 		OAuth.checkOAuthHasBeenSetup();
+		if (this.grantType !== GrantType.AuthorizationCode) {
+			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
+			throw new Error("Invalid OAuth flow");
+		}
+		if (!OAuth.isStateValid(state)) {
+			throw new Error("State is " + state + " when it should be " + this.state);
+		}
+
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret,
@@ -65,13 +73,6 @@ export default class OAuth {
 			grant_type: this.grantType,
 			redirect_uri: this.redirectURI,
 		};
-
-		if (this.grantType !== GrantType.AuthorizationCode) {
-			throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
-		}
-		if (!OAuth.isStateValid(state)) {
-			throw new Error("State is " + state + " when it should be " + this.state);
-		}
 
 		return (await popsicle(
 			{
@@ -134,6 +135,11 @@ export default class OAuth {
 	 */
 	public static async tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
 		OAuth.checkOAuthHasBeenSetup();
+		if (this.grantType !== GrantType.Password) {
+			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
+			throw new Error("Invalid OAuth flow");
+		}
+
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret, // FIXME: Password flow should't need clientSecret
@@ -141,10 +147,6 @@ export default class OAuth {
 			password: pPassword,
 			username: pUsername,
 		};
-
-		if (this.grantType !== GrantType.Password) {
-			throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
-		}
 
 		return (await popsicle(
 			{
@@ -184,9 +186,9 @@ export default class OAuth {
 	 * Log out of the API.
 	 * @returns {Promise<Response>} Promise of a successful logout.
 	 */
-	public static async logout(): Promise<Response> {
+	public static async logout(): Promise<void> {
 		OAuth.checkOAuthHasBeenSetup();
-		return popsicle(
+		await popsicle(
 			{
 				method: "GET",
 				url: APIURL.LOGOUT,
