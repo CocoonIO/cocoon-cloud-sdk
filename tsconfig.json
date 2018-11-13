@@ -1,11 +1,10 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"target": "es6",
+		"allowSyntheticDefaultImports": true,
 
-		"preserveConstEnums": true,
-		"removeComments": false,
+		"module": "es2015",
+		"moduleResolution": "node",
+		"target": "es2015",
 
 		"sourceMap": true,
 		"outDir": "out",

@@ -2,7 +2,7 @@
 
 import * as detectNode from "detect-node";
 import {default as popsicle, Middleware, plugins, RequestOptions, Response} from "popsicle";
-import status = require("popsicle-status");
+import popsicleStatus from "popsicle-status";
 
 import APIURL from "./api-url";
 import CookieCredentialStorage from "./cookie-credential-storage";
@@ -111,7 +111,7 @@ export default class CocoonAPI {
 		} else {
 			throw new Error("API access has not been set up");
 		}
-		popsiclePlugins.push(status());
+		popsiclePlugins.push(popsicleStatus());
 		return popsicle(options).use(popsiclePlugins);
 	}
 
