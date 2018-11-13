@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+## [3.0.0] - 2018/11/8
+
+### Added
 - More classes, interfaces and enumerations are exported.
 - Support for async/await.
 
