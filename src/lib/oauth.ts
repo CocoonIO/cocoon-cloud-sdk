@@ -5,6 +5,7 @@ import {plugins, Response} from "popsicle";
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
+import APIURL from "./api-url";
 
 export default class OAuth {
 	private static generateRandomString(length: number = 16): string {
@@ -16,41 +17,24 @@ export default class OAuth {
 		return text;
 	}
 
-	private readonly clientId: string;
-	private readonly clientSecret: string;
-	private readonly grantType: GrantType | string;
-	private readonly oAuthURL: string;
-	private readonly redirectURI: string;
-	private readonly ACCESS_TOKEN = "access_token";
-	private readonly AUTHORIZATION = "login";
-	private readonly LOGOUT = "logout";
+	private static clientId: string;
+	private static clientSecret: string;
+	private static grantType: GrantType;
+	private static redirectURI: string;
 
-	private state: string;
+	private static state: string;
 
-	public constructor(
-		grantType: GrantType | string,
-		clientId: string,
-		clientSecret?: string,
-		redirectURI?: string,
-		oAuthURL: string = "https://cloud.cocoon.io/oauth/",
-	) {
+	public static setup(
+		grantType: GrantType, clientId: string, clientSecret?: string,
+		redirectURI?: string, oAuthURL?: string,
+	): void {
+		this.grantType = grantType;
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
-		this.grantType = grantType;
-		this.oAuthURL = oAuthURL;
 		this.redirectURI = redirectURI;
-	}
-
-	public get accessTokenURL(): string {
-		return this.oAuthURL + this.ACCESS_TOKEN;
-	}
-
-	public get authorizationURL(): string {
-		return this.oAuthURL + this.AUTHORIZATION;
-	}
-
-	public get logoutURL(): string {
-		return this.oAuthURL.replace("oauth", this.LOGOUT);
+		if (oAuthURL) {
+			APIURL.OAUTH = oAuthURL;
+		}
 	}
 
 	/**
@@ -58,11 +42,12 @@ export default class OAuth {
 	 * @param scope Scope of the access the application requests.
 	 * @returns {string} The URL where the user can authorize the application.
 	 */
-	public authorizeAuthorizationCode(scope?: string): string {
+	public static authorizeAuthorizationCode(scope?: string): string {
+		OAuth.checkOAuthHasBeenSetup();
 		if (this.grantType === GrantType.AuthorizationCode) {
 			this.state = OAuth.generateRandomString();
 			return (
-				this.authorizationURL +
+				APIURL.AUTHORIZATION +
 				"?response_type=" +
 				"code" +
 				"&client_id=" +
@@ -88,7 +73,8 @@ export default class OAuth {
 	 * The server should have returned the same string and will be tested now.
 	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public async tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
+	public static async tokenExchangeAuthorizationCode(pCode: string, state: string): Promise<IAccessToken> {
+		OAuth.checkOAuthHasBeenSetup();
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret,
@@ -97,13 +83,11 @@ export default class OAuth {
 			redirect_uri: this.redirectURI,
 		};
 
-		if (this.grantType === GrantType.AuthorizationCode && this.isStateValid(state)) {
-			if (this.grantType !== GrantType.AuthorizationCode) {
-				throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
-			}
-			if (!this.isStateValid(state)) {
-				throw new Error("State is " + state + " when it should be " + this.state);
-			}
+		if (this.grantType !== GrantType.AuthorizationCode) {
+			throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.AuthorizationCode);
+		}
+		if (!OAuth.isStateValid(state)) {
+			throw new Error("State is " + state + " when it should be " + this.state);
 		}
 
 		return (await CocoonAPI.request(
@@ -111,18 +95,19 @@ export default class OAuth {
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
-				url: this.accessTokenURL,
+				url: APIURL.ACCESS_TOKEN,
 			},
 			[plugins.parse("json")],
 			false,
 		)).body;
 	}
 
-	public tokenExchangeClientCredentials() {
+	public static tokenExchangeClientCredentials() {
 		console.warn("Access with Client Credentials not available yet");
+		OAuth.checkOAuthHasBeenSetup();
 		// const request = CocoonAPI.request({
 		// 	method: "POST",
-		// 	url: this.accessTokenURL
+		// 	url: APIURL.ACCESS_TOKEN
 		// 	+ "?grant_type=" + this.grantType
 		// 	+ "&client_id=" + this.clientId
 		// 	+ "&client_secret=" + this.clientSecret,
@@ -141,10 +126,11 @@ export default class OAuth {
 	 * @param scope Scope of the access the application requests.
 	 * @returns {string} The URL where the user can authorize the application.
 	 */
-	public authorizeImplicit(scope?: string): string {
+	public static authorizeImplicit(scope?: string): string {
+		OAuth.checkOAuthHasBeenSetup();
 		if (this.grantType === GrantType.Implicit) {
 			return (
-				this.authorizationURL +
+				APIURL.AUTHORIZATION +
 				"?response_type=" +
 				"token" +
 				"&client_id=" +
@@ -165,7 +151,8 @@ export default class OAuth {
 	 * @param pPassword Password of a user.
 	 * @returns {Promise<IAccessToken>} Promise of the access token.
 	 */
-	public async tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
+	public static async tokenExchangePassword(pUsername: string, pPassword: string): Promise<IAccessToken> {
+		OAuth.checkOAuthHasBeenSetup();
 		const parameters = {
 			client_id: this.clientId,
 			client_secret: this.clientSecret, // FIXME: Password flow should't need clientSecret
@@ -183,7 +170,32 @@ export default class OAuth {
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
-				url: this.accessTokenURL,
+				url: APIURL.ACCESS_TOKEN,
+			},
+			[plugins.parse("json")],
+			false,
+		)).body;
+	}
+
+	/**
+	 * Exchange a refresh token for a new access token following the Refresh Token OAuth flow.
+	 * @param pRefreshToken Refresh token to use to get new credentials.
+	 * @returns {Promise<IAccessToken>} Promise of the access token.
+	 */
+	public static async tokenExchangeRefreshToken(pRefreshToken: string): Promise<IAccessToken> {
+		OAuth.checkOAuthHasBeenSetup();
+		const parameters = {
+			client_id: this.clientId,
+			client_secret: this.clientSecret, // FIXME: Refresh Token flow should't need clientSecret
+			grant_type: GrantType.RefreshToken,
+			refresh_token: pRefreshToken,
+		};
+		return (await CocoonAPI.request(
+			{
+				body: parameters,
+				headers: {"Content-Type": "application/x-www-form-urlencoded"},
+				method: "POST",
+				url: APIURL.ACCESS_TOKEN,
 			},
 			[plugins.parse("json")],
 			false,
@@ -194,14 +206,22 @@ export default class OAuth {
 	 * Log out of the API.
 	 * @returns {Promise<Response>} Promise of a successful logout.
 	 */
-	public logout(): Promise<Response> {
+	public static logout(): Promise<Response> {
+		OAuth.checkOAuthHasBeenSetup();
 		return CocoonAPI.request({
 			method: "GET",
-			url: this.logoutURL,
+			url: APIURL.LOGOUT,
 		});
 	}
 
-	private isStateValid(state: string): boolean {
+	private static checkOAuthHasBeenSetup(): void {
+		if (!this.grantType || !this.clientId) {
+			throw new Error("OAuth has not been set up yet. " +
+				"Use OAuth.setup([grantType], [clientId]) before attempting to use any of the other methods.");
+		}
+	}
+
+	private static isStateValid(state: string): boolean {
 		return this.state === state;
 	}
 }

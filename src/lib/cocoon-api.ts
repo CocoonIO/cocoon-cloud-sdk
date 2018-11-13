@@ -10,10 +10,14 @@ import {ICocoonTemplate} from "./interfaces/i-cocoon-template";
 import {ICocoonVersion} from "./interfaces/i-cocoon-version";
 import {ICredentialStorage} from "./interfaces/i-credential-storage";
 import MemoryCredentialStorage from "./memory-credential-storage";
+import OAuth from "./oauth";
 
 export default class CocoonAPI {
 	public static get credentials(): ICredentialStorage {
-		return this._credentials;
+		if (!CocoonAPI._credentials) {
+			CocoonAPI._credentials = detectNode ? new MemoryCredentialStorage() : new CookieCredentialStorage();
+		}
+		return CocoonAPI._credentials;
 	}
 
 	/**
@@ -21,11 +25,7 @@ export default class CocoonAPI {
 	 * @returns {boolean} If the API access works.
 	 */
 	public static checkAPIAccess(): boolean {
-		if (CocoonAPI.credentials) {
-			return !!CocoonAPI.credentials.getAccessToken();
-		} else {
-			return false;
-		}
+		return !!CocoonAPI.credentials.getAccessToken() && !!CocoonAPI.credentials.getRefreshToken();
 	}
 
 	/**
@@ -39,9 +39,8 @@ export default class CocoonAPI {
 		if (apiURL) {
 			APIURL.BASE = apiURL;
 		}
-		CocoonAPI._credentials = detectNode ? new MemoryCredentialStorage() : new CookieCredentialStorage();
-		CocoonAPI._credentials.setAccessToken(accessToken, expiration);
-		CocoonAPI._credentials.setRefreshToken(refreshToken);
+		CocoonAPI.credentials.setAccessToken(accessToken, expiration);
+		CocoonAPI.credentials.setRefreshToken(refreshToken);
 	}
 
 	/**
@@ -49,13 +48,8 @@ export default class CocoonAPI {
 	 */
 	public static async refreshAPIAccess(): Promise<void> {
 		console.log("Refreshing access credentials...");
-		const response = (await popsicle({
-			method: "GET",
-			url: APIURL.API_REFRESH(this.credentials.getRefreshToken()),
-		})
-			.use(plugins.parse("json")));
-
-		this.setupAPIAccess(response.body.access_token, response.body.refresh_token, response.body.expires_in);
+		const response = await OAuth.tokenExchangeRefreshToken(CocoonAPI.credentials.getRefreshToken());
+		CocoonAPI.setupAPIAccess(response.access_token, response.refresh_token, response.expires_in);
 		console.log("Access credentials refreshed.");
 	}
 
@@ -107,16 +101,16 @@ export default class CocoonAPI {
 		addCredentials: boolean = true,
 	): Promise<Response> {
 		if (addCredentials) {
-			if (!options.headers) {
-				options.headers = {};
-			}
-			if (this.credentials) {
+			if (CocoonAPI.checkAPIAccess()) {
 				if (CocoonAPI.credentials.expireDate < new Date()) {
 					console.log("Access credentials expired.");
-					await this.refreshAPIAccess();
+					await CocoonAPI.refreshAPIAccess();
 				}
 
-				options.headers.Authorization = "Bearer " + this.credentials.getAccessToken();
+				if (!options.headers) {
+					options.headers = {};
+				}
+				options.headers.Authorization = "Bearer " + CocoonAPI.credentials.getAccessToken();
 			} else {
 				throw new Error("API access has not been set up");
 			}

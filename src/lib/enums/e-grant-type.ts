@@ -5,4 +5,5 @@ export enum GrantType {
 	ClientCredentials = "client_credentials" as any,
 	Implicit = "implicit" as any,
 	Password = "password" as any,
+	RefreshToken = "refresh_token" as any,
 }
