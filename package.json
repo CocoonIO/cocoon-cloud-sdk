@@ -51,7 +51,7 @@
 		"transpile": "tsc"
 	},
 	"dependencies": {
-		"@types/node": "~10.12.3",
+		"@types/node": "~10.12.6",
 		"cocoon-xml-sugar": "~2.0.2",
 		"detect-node": "~2.0.4",
 		"popsicle": "~10.0.1",
@@ -60,10 +60,10 @@
 	"devDependencies": {
 		"@types/form-data": "~2.2.1",
 		"@types/tough-cookie": "~2.3.4",
-		"eslint": "~5.8.0",
+		"eslint": "~5.9.0",
 		"jasmine": "~3.3.0",
 		"jshint": "~2.9.6",
-		"prettier": "~1.15.1",
+		"prettier": "~1.15.2",
 		"tslint": "~5.11.0",
 		"typedoc": "~0.13.0",
 		"typescript": "~3.1.6"

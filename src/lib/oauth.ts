@@ -2,28 +2,12 @@
 
 import {plugins, Response} from "popsicle";
 
+import APIURL from "./api-url";
 import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
-import APIURL from "./api-url";
 
 export default class OAuth {
-	private static generateRandomString(length: number = 16): string {
-		let text = "";
-		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-		for (let i = 0; i < length; i++) {
-			text += possible.charAt(Math.floor(Math.random() * possible.length));
-		}
-		return text;
-	}
-
-	private static clientId: string;
-	private static clientSecret: string;
-	private static grantType: GrantType;
-	private static redirectURI: string;
-
-	private static state: string;
-
 	public static setup(
 		grantType: GrantType, clientId: string, clientSecret?: string,
 		redirectURI?: string, oAuthURL?: string,
@@ -212,6 +196,21 @@ export default class OAuth {
 			method: "GET",
 			url: APIURL.LOGOUT,
 		});
+	}
+
+	private static clientId: string;
+	private static clientSecret: string;
+	private static grantType: GrantType;
+	private static redirectURI: string;
+	private static state: string;
+
+	private static generateRandomString(length: number = 16): string {
+		let text = "";
+		const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for (let i = 0; i < length; i++) {
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
+		}
+		return text;
 	}
 
 	private static checkOAuthHasBeenSetup(): void {
