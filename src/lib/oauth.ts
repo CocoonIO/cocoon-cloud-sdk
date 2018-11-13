@@ -1,9 +1,8 @@
 "use strict";
 
-import {plugins, Response} from "popsicle";
+import {default as popsicle, plugins, Response} from "popsicle";
 
 import APIURL from "./api-url";
-import CocoonAPI from "./cocoon-api";
 import {GrantType} from "./enums/e-grant-type";
 import {IAccessToken} from "./interfaces/i-access-token";
 
@@ -74,16 +73,14 @@ export default class OAuth {
 			throw new Error("State is " + state + " when it should be " + this.state);
 		}
 
-		return (await CocoonAPI.request(
+		return (await popsicle(
 			{
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-			[plugins.parse("json")],
-			false,
-		)).body;
+		).use(plugins.parse("json"))).body;
 	}
 
 	public static tokenExchangeClientCredentials() {
@@ -149,16 +146,15 @@ export default class OAuth {
 			throw new Error("Grant Type is " + this.grantType + " when it should be " + GrantType.Password);
 		}
 
-		return (await CocoonAPI.request(
+		return (await popsicle(
 			{
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-			[plugins.parse("json")],
-			false,
-		)).body;
+		).use(plugins.parse("json"))).body;
+
 	}
 
 	/**
@@ -174,28 +170,28 @@ export default class OAuth {
 			grant_type: GrantType.RefreshToken,
 			refresh_token: pRefreshToken,
 		};
-		return (await CocoonAPI.request(
+		return (await popsicle(
 			{
 				body: parameters,
 				headers: {"Content-Type": "application/x-www-form-urlencoded"},
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-			[plugins.parse("json")],
-			false,
-		)).body;
+		).use(plugins.parse("json"))).body;
 	}
 
 	/**
 	 * Log out of the API.
 	 * @returns {Promise<Response>} Promise of a successful logout.
 	 */
-	public static logout(): Promise<Response> {
+	public static async logout(): Promise<Response> {
 		OAuth.checkOAuthHasBeenSetup();
-		return CocoonAPI.request({
-			method: "GET",
-			url: APIURL.LOGOUT,
-		});
+		return popsicle(
+			{
+				method: "GET",
+				url: APIURL.LOGOUT,
+			},
+		);
 	}
 
 	private static clientId: string;

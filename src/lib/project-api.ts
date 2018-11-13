@@ -163,7 +163,6 @@ export default class ProjectAPI {
 				url: APIURL.ICON(projectId, platform),
 			},
 			[],
-			false,
 		)).body;
 	}
 
@@ -198,7 +197,6 @@ export default class ProjectAPI {
 				url: APIURL.SPLASH(projectId, platform),
 			},
 			[],
-			false,
 		)).body;
 	}
 

@@ -92,28 +92,24 @@ export default class CocoonAPI {
 	 * Make a request to the API with your credentials.
 	 * @param options HTTP options of the request.
 	 * @param popsiclePlugins List of plugins to use.
-	 * @param addCredentials Set to false in case you don't want to automatically add your credentials to the API.
 	 * @returns {Request}
 	 */
 	public static async request(
 		options: RequestOptions,
 		popsiclePlugins: Middleware[] = [],
-		addCredentials: boolean = true,
 	): Promise<Response> {
-		if (addCredentials) {
-			if (CocoonAPI.checkAPIAccess()) {
-				if (CocoonAPI.credentials.expireDate < new Date()) {
-					console.log("Access credentials expired.");
-					await CocoonAPI.refreshAPIAccess();
-				}
-
-				if (!options.headers) {
-					options.headers = {};
-				}
-				options.headers.Authorization = "Bearer " + CocoonAPI.credentials.getAccessToken();
-			} else {
-				throw new Error("API access has not been set up");
+		if (CocoonAPI.checkAPIAccess()) {
+			if (CocoonAPI.credentials.expireDate < new Date()) {
+				console.log("Access credentials expired.");
+				await CocoonAPI.refreshAPIAccess();
 			}
+
+			if (!options.headers) {
+				options.headers = {};
+			}
+			options.headers.Authorization = "Bearer " + CocoonAPI.credentials.getAccessToken();
+		} else {
+			throw new Error("API access has not been set up");
 		}
 		popsiclePlugins.push(status());
 		return popsicle(options).use(popsiclePlugins);
