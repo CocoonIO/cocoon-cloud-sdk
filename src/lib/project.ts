@@ -280,7 +280,7 @@ export default class Project {
 			Promise.resolve(callback());
 		}
 
-		if (Date.now() < limitTime) {
+		if (Date.now() > limitTime) {
 			throw new Error("It wasn't possible to compile the project in the time limit frame.");
 		}
 	}
