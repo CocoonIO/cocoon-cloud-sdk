@@ -20,7 +20,7 @@ export interface IProjectData {
 	status: {[key: string]: Status};
 	download: {[key: string]: string};
 	devapp: string[];
-	keys: {[platform: string]: ISigningKeyData};
+	keys: {[platform: string]: ISigningKeyData[]};
 	error: {[key: string]: string};
 	icons: {[key: string]: string};
 	splashes: {[key: string]: string};

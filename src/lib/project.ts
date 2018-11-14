@@ -339,7 +339,7 @@ export default class Project {
 		}
 		this._keys = {};
 		Object.keys(projectData.keys).forEach((platform) => {
-			this._keys[platform] = new SigningKey(projectData.keys[platform], platform as any);
+			this._keys[platform] = new SigningKey(projectData.keys[platform][0], platform as any);
 		});
 	}
 }
