@@ -1,6 +1,7 @@
 "use strict";
 
 import {default as popsicle, plugins} from "popsicle";
+import status = require("popsicle-status");
 
 import APIURL from "./api-url";
 import {GrantType} from "./enums/e-grant-type";
@@ -81,26 +82,31 @@ export default class OAuth {
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-		).use(plugins.parse("json"))).body;
+		).use([status(), plugins.parse("json")])).body;
 	}
 
-	public static tokenExchangeClientCredentials() {
+	public static async tokenExchangeClientCredentials(): Promise<void> {
 		console.warn("Access with Client Credentials not available yet");
 		OAuth.checkOAuthHasBeenSetup();
-		// const request = CocoonAPI.request({
-		// 	method: "POST",
-		// 	url: APIURL.ACCESS_TOKEN
-		// 	+ "?grant_type=" + this.grantType
-		// 	+ "&client_id=" + this.clientId
-		// 	+ "&client_secret=" + this.clientSecret,
-		// }, false)
-		// .use(plugins.parse("json"));
+		if (this.grantType !== GrantType.ClientCredentials) {
+			console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.ClientCredentials);
+			throw new Error("Invalid OAuth flow");
+		}
+
+		// const parameters = {
+		// 	client_id: this.clientId,
+		// 	client_secret: this.clientSecret,
+		// 	grant_type: this.grantType,
+		// };
 		//
-		// if (this.grantType !== GrantType.ClientCredentials) {
-		// 	console.error("Grant Type is " + this.grantType + " when it should be " + GrantType.ClientCredentials);
-		// 	request.abort();
-		// }
-		// return request;
+		// return (await popsicle(
+		// 	{
+		// 		body: parameters,
+		// 		headers: {"Content-Type": "application/x-www-form-urlencoded"},
+		// 		method: "POST",
+		// 		url: APIURL.ACCESS_TOKEN,
+		// 	},
+		// ).use([status(), plugins.parse("json")])).body;
 	}
 
 	/**
@@ -155,7 +161,7 @@ export default class OAuth {
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-		).use(plugins.parse("json"))).body;
+		).use([status(), plugins.parse("json")])).body;
 
 	}
 
@@ -179,7 +185,7 @@ export default class OAuth {
 				method: "POST",
 				url: APIURL.ACCESS_TOKEN,
 			},
-		).use(plugins.parse("json"))).body;
+		).use([status(), plugins.parse("json")])).body;
 	}
 
 	/**

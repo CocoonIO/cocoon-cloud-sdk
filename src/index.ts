@@ -1,6 +1,6 @@
 "use strict";
 
-export {default as xmlSugar, Environment, Orientation} from "cocoon-xml-sugar";
+export * from "cocoon-xml-sugar";
 
 export {default as OAuth} from "./lib/oauth";
 
