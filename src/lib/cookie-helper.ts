@@ -17,7 +17,7 @@ export default class CookieHelper {
 		key: string,
 		value: string,
 		expires: Date,
-		path?: string,
+		path: string = "/",
 		domain?: string,
 		secure?: boolean,
 	): void {
